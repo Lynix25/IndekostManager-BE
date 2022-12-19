@@ -1,4 +1,4 @@
-package com.indekosservice.service;
+package com.indekosservice.services;
 
 import com.indekosservice.dto.request.UserRegisterRequest;
 import com.indekosservice.model.User;
@@ -17,9 +17,14 @@ public class UserService {
         User user = new User();
         user.setUserID(UUID.randomUUID().toString());
         user.setName(userRegisterRequest.getName());
-        user.setNoTelp(userRegisterRequest.getNoTelp());
+        user.setPhone(userRegisterRequest.getNoTelp());
         userRepository.save(user);
 
+        return user;
+    }
+
+    public User getByID(String id){
+        User user = userRepository.findById(id).get();
         return user;
     }
 

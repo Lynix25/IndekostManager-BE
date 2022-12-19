@@ -15,8 +15,8 @@ import java.sql.Timestamp;
 public class Transaksi {
     @Id
     private String transaksiID;
-    private Timestamp cratedAt;
-    private Timestamp resolveAt;
+    private Long cratedAt;
+    private Long resolveAt;
     private String requesterUser;
     private String category;
     private String description;

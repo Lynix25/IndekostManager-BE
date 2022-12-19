@@ -1,7 +1,8 @@
-package com.indekosservice.service;
+package com.indekosservice.services;
 
-import com.indekosservice.dto.request.AccountLinkRequset;
+import com.indekosservice.dto.request.AccountUpdateRequest;
 import com.indekosservice.dto.request.AccountRegisterRequest;
+import com.indekosservice.helper.exception.InvalidUserCredentialException;
 import com.indekosservice.model.Account;
 import com.indekosservice.repository.AccountRepository;
 import com.indekosservice.utils.Utils;
@@ -9,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -17,8 +18,13 @@ public class AccountService {
     @Autowired
     AccountRepository accountRepository;
     public Account getByUsername(String userName){
-        Optional<Account> account = accountRepository.findByUsername(userName);
-        return account.get();
+        Account account = null;
+        try {
+            account = accountRepository.findByUsername(userName).get();
+        }catch (NoSuchElementException e){
+            throw new InvalidUserCredentialException("Invalid username");
+        }
+        return account;
     }
 
     public Account register(AccountRegisterRequest accountRegisterRequest){
@@ -31,12 +37,23 @@ public class AccountService {
         return account;
     }
 
-    public Account linkUser(AccountLinkRequset accountLinkRequset){
-        Account account = accountRepository.findById(accountLinkRequset.getAccountID()).get();
-        account.setUserID(accountLinkRequset.getUserID());
+    public Account linkToUser(AccountUpdateRequest accountUpdateRequest){
+        Account account = accountRepository.findById(accountUpdateRequest.getAccountID()).get();
+        account.setUserID(accountUpdateRequest.getUserID());
         accountRepository.save(account);
         return account;
     }
+
+    public Account update(){
+        Account account = accountRepository.findById("null").get();
+        account.setPassword("null");
+        account.setUserID("null");
+
+        return account;
+    }
+
+
+
 
     public List<Account> allUser(){
         return accountRepository.findAll();

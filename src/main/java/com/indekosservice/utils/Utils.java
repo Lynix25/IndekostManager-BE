@@ -7,4 +7,10 @@ public class Utils {
         String hastedPassword = DigestUtils.sha256Hex(plainPassword);
         return hastedPassword;
     }
+
+//    public static ResponseEntity requestValidation(Errors errors){
+//
+//
+//        throw new InvalidRequestException("Request Body Not Satified");
+//    }
 }
