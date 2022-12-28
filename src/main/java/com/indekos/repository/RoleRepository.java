@@ -15,9 +15,9 @@ public interface RoleRepository extends JpaRepository<Role, String>, JpaSpecific
 	
 	List<Role> findAllByOrderByNameAsc();
 	
-	@Query(value = "SELECT * FROM role WHERE name LIKE LCASE(:role_name)", nativeQuery = true)
+	@Query(value = "SELECT * FROM role WHERE name LIKE :role_name", nativeQuery = true)
 	Role findByName(@Param("role_name") String roleName);
 	
-	@Query(value = "SELECT * FROM role WHERE name LIKE LCASE(:role_name) AND id NOT LIKE :role_id", nativeQuery = true)
+	@Query(value = "SELECT * FROM role WHERE name LIKE :role_name AND id NOT LIKE :role_id", nativeQuery = true)
 	Role findByNameAndIdNot(@Param("role_name") String roleName, @Param("role_id") String roleId);
 }
