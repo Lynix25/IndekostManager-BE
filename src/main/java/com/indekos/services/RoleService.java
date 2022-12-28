@@ -40,6 +40,7 @@ public class RoleService {
 		else {
 			Role newData = new Role();
 			newData.setName(request.getName());
+			newData.setDescription(request.getDescription());
 			newData.updateCreated(request.getUser());
 			newData.updateLastModified(request.getUser());
 			
@@ -55,6 +56,7 @@ public class RoleService {
 		if(roleRepository.findByNameAndIdNot(request.getName(), roleId) != null) throw new DataAlreadyExistException();
 		else {
 			data.setName(request.getName());
+			data.setDescription(request.getDescription());
 			data.updateLastModified(request.getUser());
 			
 			final Role updatedData = roleRepository.save(data);

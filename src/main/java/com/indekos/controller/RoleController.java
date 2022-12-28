@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.indekos.common.helper.exception.ResourceNotFoundException;
@@ -30,13 +31,13 @@ public class RoleController {
 	@Autowired
 	private RoleService roleService;
 	
-	@GetMapping
+	@GetMapping("/all")
 	public List<Role> getAllRoles(){
 		return roleService.getAll();
 	}
 	
-	@GetMapping("/{roleName}")
-	public Role getRoleByName(@PathVariable String roleName){
+	@GetMapping
+	public Role getRoleByName(@RequestParam String roleName){
 		return roleService.getByName(roleName);
 	}
 

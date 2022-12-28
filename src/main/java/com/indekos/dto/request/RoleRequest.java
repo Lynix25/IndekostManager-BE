@@ -8,5 +8,6 @@ import lombok.Getter;
 public class RoleRequest {
 	
 	private String name;
+	private String description;
 	private String user;
 }
