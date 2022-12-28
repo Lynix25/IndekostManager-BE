@@ -43,13 +43,13 @@ public class User extends AuditableEntity {
 	@Column(nullable = false)
     private String gender;
 	
-	@Column(columnDefinition = "TEXT")
+	@Column(columnDefinition = "text")
     private String description;
 	
 	@Column(nullable = false)
 	private Instant joinedOn;
 	
-	@Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+	@Column(nullable = false, columnDefinition = "boolean default false")
     private boolean isDeleted;
     
 	@Column(nullable = false)
