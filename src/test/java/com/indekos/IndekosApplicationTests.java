@@ -1,10 +1,10 @@
-package com.indekosservice;
+package com.indekos;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class IndekostApplicationTests {
+class IndekosApplicationTests {
 
 	@Test
 	void contextLoads() {
