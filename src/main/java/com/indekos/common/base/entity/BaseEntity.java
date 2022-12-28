@@ -9,6 +9,13 @@ import javax.persistence.MappedSuperclass;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+@Data
+@Setter
+@Getter
 @MappedSuperclass
 public abstract class BaseEntity implements Serializable{
 
@@ -19,12 +26,4 @@ public abstract class BaseEntity implements Serializable{
 	@GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
 	@Column(unique = true, nullable = false, insertable = false, updatable = false)
 	private String id;
-	
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
 }
