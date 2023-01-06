@@ -32,6 +32,7 @@ public class GlobalExceptions {
         Response response = new Response<>();
 
         response.setMessage(exception.getMessage());
+        response.setData(exception.getErrors());
 
         return new ResponseEntity(response, exception.getHttpStatus());
     }

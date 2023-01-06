@@ -10,6 +10,7 @@ import com.indekos.model.User;
 
 public class GlobalAcceptions {
     public static ResponseEntity loginAllowed(User user, String message){
+        System.out.println("Login Allowed");
         TokenSessionResponse token = new TokenSessionResponse("", 0);
 
         LoginResponse.DataResponseDto data = new LoginResponse.DataResponseDto<>();

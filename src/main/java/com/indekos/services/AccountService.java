@@ -28,33 +28,43 @@ public class AccountService {
         return account;
     }
 
+    public Account getByID(String id){
+        Account account = null;
+        try {
+            account = accountRepository.findById(id).get();
+        }catch (NoSuchElementException e){
+            throw new InvalidUserCredentialException("Invalid ID");
+        }
+        return account;
+    }
+
     public Account register(AccountRegisterRequest accountRegisterRequest){
         Account account = new Account();
-        account.setAccoutID(UUID.randomUUID().toString());
+
+        // Reqeust input define
         account.setUsername(accountRegisterRequest.getUsername());
         account.setPassword(Utils.passwordHashing(accountRegisterRequest.getPassword()));
-        System.out.println(account.getAccoutID());
+        account.setCreatedBy(accountRegisterRequest.getCreatedBy());
+        account.setLastModifiedBy(accountRegisterRequest.getLastModifiedBy());
+
         accountRepository.save(account);
         return account;
     }
 
-    public Account linkToUser(AccountUpdateRequest accountUpdateRequest){
-        Account account = accountRepository.findById(accountUpdateRequest.getAccountID()).get();
+    public Account linkUser(AccountUpdateRequest accountUpdateRequest){
+        Account account = getByID(accountUpdateRequest.getAccountID());
         account.setUserID(accountUpdateRequest.getUserID());
         accountRepository.save(account);
         return account;
     }
 
-    public Account update(){
-        Account account = accountRepository.findById("null").get();
-        account.setPassword("null");
-        account.setUserID("null");
-
-        return account;
-    }
-
-
-
+//    public Account update(){
+//        Account account = accountRepository.findById("null").get();
+//        account.setPassword("null");
+//        account.setUserID("null");
+//
+//        return account;
+//    }
 
     public List<Account> allUser(){
         return accountRepository.findAll();

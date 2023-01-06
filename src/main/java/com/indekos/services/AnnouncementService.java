@@ -49,7 +49,7 @@ public class AnnouncementService {
 			newData.setTitle(request.getTitle());
 			newData.setDescription(request.getDescription());
 			newData.setPeriod(request.getPeriod());
-			newData.updateCreated(request.getUser());
+//			newData.updateCreated(request.getUser());
 			newData.updateLastModified(request.getUser());
 
 			final Announcement createdData = announcementRepository.save(newData);

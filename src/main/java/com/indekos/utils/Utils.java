@@ -8,9 +8,4 @@ public class Utils {
         return hastedPassword;
     }
 
-//    public static ResponseEntity requestValidation(Errors errors){
-//
-//
-//        throw new InvalidRequestException("Request Body Not Satified");
-//    }
 }

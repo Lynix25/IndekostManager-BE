@@ -3,6 +3,7 @@ package com.indekos.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-@RestController
+@Controller
 @RequestMapping(value = "/account")
 //@CrossOrigin(origins = "http://127.0.0.1:5500")
 public class AccountController {
@@ -69,12 +70,11 @@ public class AccountController {
             throw new InvalidRequestException("Invalid Request", errorList);
         }
 
-
         accountService.register(accountRegisterRequest);
         return new ResponseEntity(new Response("Sukses", "Success to register"), HttpStatus.BAD_REQUEST);
     }
 
-    @PutMapping
+    @PutMapping("/link")
     public ResponseEntity update(@RequestBody AccountUpdateRequest accountUpdateRequest, Errors errors){
         if(errors.hasErrors()){
             List<String> errorList = new ArrayList<>();
@@ -84,8 +84,7 @@ public class AccountController {
             throw new InvalidRequestException("Invalid Request", errorList);
         }
 
-
-        accountService.linkToUser(accountUpdateRequest);
+        accountService.linkUser(accountUpdateRequest);
         return new ResponseEntity(new Response("Sukses","linked"), HttpStatus.OK);
     }
 

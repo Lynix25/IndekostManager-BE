@@ -25,7 +25,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "user")
 public class User extends AuditableEntity {
-    
 	private static final long serialVersionUID = 1L;
 	
 	@Column(nullable = false)
@@ -57,4 +56,5 @@ public class User extends AuditableEntity {
     
     private String accountId;
     private String roomId;
+
 }

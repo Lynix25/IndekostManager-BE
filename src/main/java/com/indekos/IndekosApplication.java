@@ -19,7 +19,7 @@ public class IndekosApplication {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 //				registry.addMapping("/user/all").allowedOrigins("http://127.0.0.1:5500");
-				registry.addMapping("/**").allowedOrigins("http://127.0.0.1:8123");
+				registry.addMapping("/**").allowedOrigins("http://127.0.0.1:5502");
 			}
 		};
 	}
