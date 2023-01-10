@@ -1,5 +1,6 @@
 package com.indekos.services;
 
+import com.indekos.dto.request.ChangePassword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,13 +59,20 @@ public class AccountService {
         return account;
     }
 
-//    public Account update(){
-//        Account account = accountRepository.findById("null").get();
-//        account.setPassword("null");
-//        account.setUserID("null");
-//
-//        return account;
-//    }
+    public Account update(){
+        Account account = accountRepository.findById("null").get();
+        account.setPassword("null");
+        account.setUserID("null");
+
+        return account;
+    }
+
+    public Account updatePassword(ChangePassword changePassword){
+        Account account = getByID(changePassword.getId());
+        account.setPassword(Utils.passwordHashing(changePassword.getNewPassword()));
+        accountRepository.save(account);
+        return account;
+    }
 
     public List<Account> allUser(){
         return accountRepository.findAll();

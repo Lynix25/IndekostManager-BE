@@ -1,5 +1,6 @@
 package com.indekos.controller;
 
+import com.indekos.dto.request.ChangePassword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -75,7 +76,7 @@ public class AccountController {
     }
 
     @PutMapping("/link")
-    public ResponseEntity update(@RequestBody AccountUpdateRequest accountUpdateRequest, Errors errors){
+    public ResponseEntity link(@RequestBody AccountUpdateRequest accountUpdateRequest, Errors errors){
         if(errors.hasErrors()){
             List<String> errorList = new ArrayList<>();
             for (ObjectError error:errors.getAllErrors()) {
@@ -87,6 +88,22 @@ public class AccountController {
         accountService.linkUser(accountUpdateRequest);
         return new ResponseEntity(new Response("Sukses","linked"), HttpStatus.OK);
     }
+
+    @PostMapping("/password")
+    public ResponseEntity updatePassword(@Valid @RequestBody ChangePassword changePassword, Errors errors){
+        if(errors.hasErrors()){
+            List<String> errorList = new ArrayList<>();
+            for (ObjectError error:errors.getAllErrors()) {
+                errorList.add(error.getDefaultMessage());
+            }
+            throw new InvalidRequestException("Invalid Request", errorList);
+        }
+
+        accountService.updatePassword(changePassword);
+        return new ResponseEntity(new Response("Sukses","password change"), HttpStatus.OK);
+    }
+
+
 
 
 }
