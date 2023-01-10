@@ -1,8 +1,6 @@
 package com.indekos.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +40,8 @@ public class AnnouncementController {
 	}
 	
 	@GetMapping
-	public List<Announcement> getAllActiveAnnouncement(@RequestParam String search){
-		return announcementService.getAllActive(search);
+	public List<Announcement> getSearchAnnouncement(@RequestParam String search){
+		return announcementService.getSearch(search);
 	}
 	
 	@PostMapping
@@ -58,9 +56,8 @@ public class AnnouncementController {
 	}
 	
 	@DeleteMapping("/{announcementId}")
-	public Map<String, Boolean> deleteAnnouncement(@PathVariable String announcementId) throws ResourceNotFoundException {
-		Map<String, Boolean> response = new HashMap<>();
-		response.put("Deleted", announcementService.delete(announcementId));
-		return response;
+	public ResponseEntity<Announcement> deleteAnnouncement(@PathVariable String announcementId) throws ResourceNotFoundException {
+		Announcement deleted = announcementService.delete(announcementId);
+		return ResponseEntity.ok(deleted);
 	}
 }

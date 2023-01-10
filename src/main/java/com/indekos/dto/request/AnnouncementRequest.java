@@ -10,6 +10,5 @@ public class AnnouncementRequest {
 	private String title;
 	private String description;
 	private String period;
-	private boolean isActive;
 	private String user;
 }

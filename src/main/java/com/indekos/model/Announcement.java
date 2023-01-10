@@ -33,7 +33,4 @@ public class Announcement extends AuditableEntity {
 	
 	@Column(nullable = false)
 	private String period;
-	
-	@Column(nullable = false, columnDefinition = "boolean default true")
-	private boolean isActive;
 }
