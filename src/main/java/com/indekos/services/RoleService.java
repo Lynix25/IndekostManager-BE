@@ -24,7 +24,7 @@ public class RoleService {
 	private UserRepository userRepository;
 	
 	public List<Role> getAll() {
-		return roleRepository.findAllByOrderByNameAsc();
+		return roleRepository.findAllActiveByOrderByNameAsc();
 	}
 	
 	public Role getByName(String roleName) {
@@ -36,12 +36,23 @@ public class RoleService {
 	}
 	
 	public Role create(RoleRequest request) {
-		if(roleRepository.findByName(request.getName()) != null) throw new DataAlreadyExistException();
+		Role targetRole = roleRepository.findByName(request.getName());
+		if(targetRole != null) {
+			if(targetRole.isDeleted()) {
+				targetRole.setDeleted(false);
+				targetRole.setDescription(request.getDescription());
+				targetRole.updateLastModified(request.getUser());
+				
+				final Role createdData = roleRepository.save(targetRole);
+				return createdData;
+			} else throw new DataAlreadyExistException();
+		}
 		else {
 			Role newData = new Role();
 			newData.setName(request.getName());
 			newData.setDescription(request.getDescription());
-//			newData.updateCreated(request.getUser());
+			newData.setDeleted(false);
+			newData.updateCreated(request.getUser());
 			newData.updateLastModified(request.getUser());
 			
 			final Role createdData = roleRepository.save(newData);
@@ -69,7 +80,8 @@ public class RoleService {
 				.orElseThrow(() -> new ResourceNotFoundException("Role not found for this id :: " + roleId));
 	
 		if(userRepository.findByRoleId(data.getId()).size() == 0) {
-			roleRepository.delete(data);
+			data.setDeleted(true);
+			roleRepository.save(data);
 			
 			return true;
 		} else throw new InternalServerErrorException("This role still has user!");

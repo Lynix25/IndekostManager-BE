@@ -22,30 +22,17 @@ public class AnnouncementService {
 	}
 	
 	public List<Announcement> getAll() {
-		return announcementRepository.findAll();
+		return announcementRepository.findAllByOrderByCreatedDateDesc();
 	}
 	
-	public List<Announcement> getAllActive(String keyword) {
-		return announcementRepository.findAllActiveAnnouncement(keyword);
+	public List<Announcement> getSearch(String keyword) {
+		return announcementRepository.findSearchAnnouncement(keyword);
 	}
 	
 	public Announcement create(AnnouncementRequest request) {
-		Announcement targetAnnouncement = announcementRepository.findByTitle(request.getTitle());
-		if(targetAnnouncement != null) {
-			if(targetAnnouncement.isActive()) 
-				throw new DataAlreadyExistException();
-			else {
-				targetAnnouncement.setActive(true);
-				targetAnnouncement.setDescription(request.getDescription());
-				targetAnnouncement.setPeriod(request.getPeriod());
-				targetAnnouncement.updateLastModified(request.getUser());
-				
-				final Announcement createdData = announcementRepository.save(targetAnnouncement);
-				return createdData;
-			}
-		} else {
+		if(announcementRepository.findByTitle(request.getTitle()) != null) throw new DataAlreadyExistException();
+		else {
 			Announcement newData = new Announcement();
-			newData.setActive(true);
 			newData.setTitle(request.getTitle());
 			newData.setDescription(request.getDescription());
 			newData.setPeriod(request.getPeriod());
@@ -61,22 +48,8 @@ public class AnnouncementService {
 		Announcement data = announcementRepository.findById(announcementId)
 				.orElseThrow(() -> new ResourceNotFoundException("Announcement not found for this id :: " + announcementId));
 	
-		Announcement targetAnnouncement = announcementRepository.findByTitleAndIdNot(request.getTitle(), announcementId); 
-		if(targetAnnouncement != null) {
-			if(targetAnnouncement.isActive()) 
-				throw new DataAlreadyExistException();
-			else {
-				targetAnnouncement.setActive(request.isActive());
-				targetAnnouncement.setTitle(request.getTitle());
-				targetAnnouncement.setDescription(request.getDescription());
-				targetAnnouncement.setPeriod(request.getPeriod());
-				targetAnnouncement.updateLastModified(request.getUser());
-				
-				final Announcement updatedData = announcementRepository.save(targetAnnouncement);
-				return updatedData;
-			}
-		} else {
-			data.setActive(request.isActive());
+		if(announcementRepository.findByTitleAndIdNot(request.getTitle(), announcementId) != null) throw new DataAlreadyExistException();
+		else {
 			data.setTitle(request.getTitle());
 			data.setDescription(request.getDescription());
 			data.setPeriod(request.getPeriod());
@@ -87,10 +60,13 @@ public class AnnouncementService {
 		}
 	}
 
-	public boolean delete(String announcementId) {
+	public Announcement delete(String announcementId) {
 		Announcement data = announcementRepository.findById(announcementId)
 				.orElseThrow(() -> new ResourceNotFoundException("Announcement not found for this id :: " + announcementId));
 	
-		return true;
+		final Announcement deletedData = data;
+		announcementRepository.delete(data);
+		
+		return deletedData;
 	}
 }

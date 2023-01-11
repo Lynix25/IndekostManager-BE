@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.stereotype.Service;
 
+import com.indekos.common.helper.exception.ResourceNotFoundException;
 import com.indekos.dto.request.UserRegisterRequest;
 import com.indekos.model.User;
 import com.indekos.repository.UserRepository;
@@ -22,8 +23,10 @@ import java.util.UUID;
 
 @Service
 public class UserService {
+	
     @Autowired
     UserRepository userRepository;
+    
     public User register(UserRegisterRequest userRegisterRequest){
         User user = new User();
         // System input define
@@ -32,14 +35,19 @@ public class UserService {
 
         // Reqeust input define
         user.setName(userRegisterRequest.getName());
+        user.setAlias(userRegisterRequest.getAlias());
         user.setEmail(userRegisterRequest.getEmail());
         user.setPhone(userRegisterRequest.getPhone());
         user.setJob(userRegisterRequest.getJob());
         user.setGender(userRegisterRequest.getGender());
         user.setDescription(userRegisterRequest.getDescription());
         user.setRoleId(userRegisterRequest.getRoleId());
+        user.setRoomId(userRegisterRequest.getRoomId());
+    	user.setAccountId(userRegisterRequest.getAccountId());
         user.setCreatedBy(userRegisterRequest.getCreatedBy());
         user.setLastModifiedBy(userRegisterRequest.getLastModifiedBy());
+        //     	user.updateCreated(request.getUser());
+    	// user.updateLastModified(request.getUser());
 
         save(user);
         return user;
@@ -63,8 +71,38 @@ public class UserService {
             System.out.println(e);
         }
     }
-
-    public List<User> getAll(){
-        return  userRepository.findAll();
+    
+    public List<User> getAll() {
+    	return userRepository.findAllActiveUserOrderByName();
+    }
+    
+    public User update(String userId, UserRegisterRequest request) {
+    	User data = userRepository.findById(userId)
+    			.orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId));
+    	
+    	data.setName(request.getName());
+    	data.setAlias(request.getAlias());
+    	data.setEmail(request.getEmail());
+    	data.setPhone(request.getPhone());
+    	data.setJob(request.getJob());
+    	data.setGender(request.getGender());
+    	data.setDescription(request.getDescription());
+    	data.setRoleId(request.getRoleId());
+    	data.setRoomId(request.getRoomId());
+    	data.setAccountId(request.getAccountId());
+    	data.updateLastModified(request.getUser());
+    	
+    	final User updatedData = userRepository.save(data);
+        return updatedData;
+    }
+    
+    public boolean delete(String userId) {
+    	User data = userRepository.findById(userId)
+    			.orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId));
+    	
+    	data.setDeleted(true);
+    	userRepository.save(data);
+    	
+    	return true;
     }
 }

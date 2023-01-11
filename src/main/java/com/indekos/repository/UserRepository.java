@@ -1,15 +1,20 @@
 package com.indekos.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.indekos.model.User;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
-    Optional<User> findByName(String name);
-    List<User> findByRoleId(String id);
+	
+	@Query(value="SELECT * FROM user WHERE is_deleted IS FALSE ORDER BY name ASC", nativeQuery = true)
+	List<User> findAllActiveUserOrderByName();
+	
+    User findByName(String name);
+    
+    List<User> findByRoleId(String roleId);
 }

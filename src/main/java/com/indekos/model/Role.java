@@ -28,6 +28,9 @@ public class Role extends AuditableEntity {
 	@Column(unique = true, nullable = false)
 	private String name;
 	
-	@Column(nullable = false, columnDefinition = "text")
+	@Column(columnDefinition = "text")
 	private String description;
+	
+	@Column(nullable = false, columnDefinition = "boolean default false")
+	private boolean isDeleted;
 }

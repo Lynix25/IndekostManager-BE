@@ -31,6 +31,9 @@ public class User extends AuditableEntity {
     private String name;
 	
 	@Column(nullable = false)
+    private String alias;
+	
+	@Column(nullable = false)
     private String email;
 	
 	@Column(nullable = false)
@@ -51,10 +54,12 @@ public class User extends AuditableEntity {
 	@Column(nullable = false, columnDefinition = "boolean default false")
     private boolean isDeleted;
     
+	private Instant inactiveSince;
+	
 	@Column(nullable = false)
     private String roleId;
     
-    private String accountId;
     private String roomId;
 
+    private String accountId;
 }

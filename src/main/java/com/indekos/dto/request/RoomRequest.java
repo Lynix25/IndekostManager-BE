@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Data
 @Getter
-public class AnnouncementRequest {
+public class RoomRequest {
 	
-	private String title;
+	private String name;
 	private String description;
-	private String period;
+	private Integer quota;
 	private String user;
 }

@@ -1,7 +1,7 @@
 package com.indekos.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.Getter;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
@@ -9,6 +9,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
+@Getter
 @Data
 public class UserRegisterRequest{
     @NotEmpty(message = "user name is required")
@@ -31,6 +32,14 @@ public class UserRegisterRequest{
 
     @JsonProperty(value = "role_id")
     private String roleId;
+
+    @JsonProperty(value = "room_id")
+    private String roomId;
+
+    @JsonProperty(value = "account_id")
+    private String accountId;
+    
+    private String user;
 
     @NotEmpty(message = "user who create is required")
     @JsonProperty(value = "created_by")
