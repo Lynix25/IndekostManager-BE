@@ -14,5 +14,4 @@ public class Room {
     @Id
     private String roomID;
     private String room_name;
-//    private
 }

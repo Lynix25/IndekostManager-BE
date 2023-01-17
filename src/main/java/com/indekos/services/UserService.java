@@ -2,8 +2,11 @@ package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
+import com.indekos.dto.MasterServiceDTO;
 import com.indekos.model.Account;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -22,24 +25,28 @@ import java.util.UUID;
 
 @Service
 public class UserService {
+
+    @Autowired
+    ModelMapper modelMapper;
     @Autowired
     UserRepository userRepository;
     public User register(UserRegisterRequest userRegisterRequest){
-        User user = new User();
+        User user = modelMapper.map(userRegisterRequest, User.class);
+
         // System input define
         user.setDeleted(false);
         user.setJoinedOn(Instant.now());
 
         // Reqeust input define
-        user.setName(userRegisterRequest.getName());
-        user.setEmail(userRegisterRequest.getEmail());
-        user.setPhone(userRegisterRequest.getPhone());
-        user.setJob(userRegisterRequest.getJob());
-        user.setGender(userRegisterRequest.getGender());
-        user.setDescription(userRegisterRequest.getDescription());
-        user.setRoleId(userRegisterRequest.getRoleId());
-        user.setCreatedBy(userRegisterRequest.getCreatedBy());
-        user.setLastModifiedBy(userRegisterRequest.getLastModifiedBy());
+//        user.setName(userRegisterRequest.getName());
+//        user.setEmail(userRegisterRequest.getEmail());
+//        user.setPhone(userRegisterRequest.getPhone());
+//        user.setJob(userRegisterRequest.getJob());
+//        user.setGender(userRegisterRequest.getGender());
+//        user.setDescription(userRegisterRequest.getDescription());
+//        user.setRoleId(userRegisterRequest.getRoleId());
+//        user.setCreatedBy(userRegisterRequest.getCreatedBy());
+//        user.setLastModifiedBy(userRegisterRequest.getLastModifiedBy());
 
         save(user);
         return user;
@@ -59,8 +66,12 @@ public class UserService {
     private void save(User user){
         try {
             userRepository.save(user);
-        }catch (Exception e){
-            System.out.println(e);
+        }
+        catch (DataIntegrityViolationException e){
+            System.out.println(">>> " + e.getMessage());
+        }
+        catch (Exception e){
+            System.out.println(">>> " + e);
         }
     }
 

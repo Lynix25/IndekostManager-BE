@@ -33,11 +33,11 @@ public class UserRegisterRequest{
     private String roleId;
 
     @NotEmpty(message = "user who create is required")
-    @JsonProperty(value = "created_by")
+//    @JsonProperty(value = "created_by")
     private String createdBy;
 
-    @NotEmpty(message = "user who edit is required")
-    @JsonProperty(value = "last_modified_by")
-    private String lastModifiedBy;
+//    @NotEmpty(message = "user who edit is required")
+//    @JsonProperty(value = "last_modified_by")
+//    private String lastModifiedBy;
 
 }

@@ -8,6 +8,8 @@ import com.indekos.dto.response.Response;
 import com.indekos.dto.response.TokenSessionResponse;
 import com.indekos.model.User;
 
+import java.util.List;
+
 public class GlobalAcceptions {
     public static ResponseEntity loginAllowed(User user, String message){
         System.out.println("Login Allowed");
@@ -19,6 +21,15 @@ public class GlobalAcceptions {
         data.setToken(token);
 
         LoginResponse response = new LoginResponse<>(message,data,null);
+
+        return new ResponseEntity(response, HttpStatus.OK);
+    }
+
+    public static <D> ResponseEntity  listData(List<D> datas, String message){
+        Response response = new Response<>();
+
+        response.setMessage(message);
+        response.setData(datas);
 
         return new ResponseEntity(response, HttpStatus.OK);
     }
