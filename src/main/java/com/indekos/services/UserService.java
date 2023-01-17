@@ -2,8 +2,11 @@ package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
+import com.indekos.dto.MasterServiceDTO;
 import com.indekos.model.Account;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -23,31 +26,28 @@ import java.util.UUID;
 
 @Service
 public class UserService {
-	
+    @Autowired
+    ModelMapper modelMapper;
     @Autowired
     UserRepository userRepository;
     
     public User register(UserRegisterRequest userRegisterRequest){
-        User user = new User();
+        User user = modelMapper.map(userRegisterRequest, User.class);
+
         // System input define
         user.setDeleted(false);
         user.setJoinedOn(Instant.now());
 
         // Reqeust input define
-        user.setName(userRegisterRequest.getName());
-        user.setAlias(userRegisterRequest.getAlias());
-        user.setEmail(userRegisterRequest.getEmail());
-        user.setPhone(userRegisterRequest.getPhone());
-        user.setJob(userRegisterRequest.getJob());
-        user.setGender(userRegisterRequest.getGender());
-        user.setDescription(userRegisterRequest.getDescription());
-        user.setRoleId(userRegisterRequest.getRoleId());
-        user.setRoomId(userRegisterRequest.getRoomId());
-    	user.setAccountId(userRegisterRequest.getAccountId());
-        user.setCreatedBy(userRegisterRequest.getCreatedBy());
-        user.setLastModifiedBy(userRegisterRequest.getLastModifiedBy());
-        //     	user.updateCreated(request.getUser());
-    	// user.updateLastModified(request.getUser());
+//        user.setName(userRegisterRequest.getName());
+//        user.setEmail(userRegisterRequest.getEmail());
+//        user.setPhone(userRegisterRequest.getPhone());
+//        user.setJob(userRegisterRequest.getJob());
+//        user.setGender(userRegisterRequest.getGender());
+//        user.setDescription(userRegisterRequest.getDescription());
+//        user.setRoleId(userRegisterRequest.getRoleId());
+//        user.setCreatedBy(userRegisterRequest.getCreatedBy());
+//        user.setLastModifiedBy(userRegisterRequest.getLastModifiedBy());
 
         save(user);
         return user;
@@ -67,8 +67,12 @@ public class UserService {
     private void save(User user){
         try {
             userRepository.save(user);
-        }catch (Exception e){
-            System.out.println(e);
+        }
+        catch (DataIntegrityViolationException e){
+            System.out.println(">>> " + e.getMessage());
+        }
+        catch (Exception e){
+            System.out.println(">>> " + e);
         }
     }
     
@@ -81,7 +85,7 @@ public class UserService {
     			.orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId));
     	
     	data.setName(request.getName());
-    	data.setAlias(request.getAlias());
+    	data.setAlias("Alias");
     	data.setEmail(request.getEmail());
     	data.setPhone(request.getPhone());
     	data.setJob(request.getJob());

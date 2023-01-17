@@ -2,6 +2,7 @@ package com.indekos.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.indekos.common.base.entity.AuditableEntity;
@@ -36,4 +37,5 @@ public class Room extends AuditableEntity {
 	
 	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean isDeleted;
+
 }
