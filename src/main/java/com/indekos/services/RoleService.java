@@ -52,7 +52,7 @@ public class RoleService {
 			newData.setName(request.getName());
 			newData.setDescription(request.getDescription());
 			newData.setDeleted(false);
-			newData.updateCreated(request.getUser());
+//			newData.updateCreated(request.getUser());
 			newData.updateLastModified(request.getUser());
 			
 			final Role createdData = roleRepository.save(newData);

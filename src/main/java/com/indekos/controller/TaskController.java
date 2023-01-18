@@ -25,7 +25,7 @@ public class TaskController {
         return new ResponseEntity(new Response("Sukses", "registered task"), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     private ResponseEntity getAllService(){
         return GlobalAcceptions.listData(taskService.getAll(), "All Task Data");
     }

@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class TokenSessionResponse {
-    @JsonProperty(value = "token_id")
     private String tokenID;
     private long expired_date;
 }

@@ -10,10 +10,8 @@ import javax.persistence.Entity;
 @Data
 @Entity
 @AllArgsConstructor @NoArgsConstructor
-public class Transaksi extends AuditableEntity {
-    private Long cratedAt;
-    private Long resolveAt;
-    private String requesterUser;
-    private String category;
-    private String description;
+public class MasterService extends AuditableEntity {
+    private String serviceName;
+    private String variant;
+    private String price;
 }

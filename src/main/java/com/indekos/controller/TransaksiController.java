@@ -15,7 +15,7 @@ public class TransaksiController {
     @Autowired
     TransaksiService transaksiService;
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity create(){
 
         return new ResponseEntity(HttpStatus.OK);

@@ -1,16 +1,14 @@
 package com.indekos.controller;
 
-import com.indekos.dto.request.ChangePassword;
+import com.indekos.utils.Validated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import com.indekos.common.helper.GlobalAcceptions;
-import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.AccountRegisterRequest;
 import com.indekos.dto.request.AccountUpdateRequest;
@@ -22,7 +20,6 @@ import com.indekos.services.AccountService;
 import com.indekos.services.UserService;
 import com.indekos.utils.Utils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -36,74 +33,39 @@ public class AccountController {
     @Autowired
     UserService userService;
 
-    @GetMapping("/all")
-    public ResponseEntity allAccount(){
+    @GetMapping
+    public ResponseEntity getAllAccount(){
         List<Account> allAccount = accountService.allUser();
-        return new ResponseEntity(new Response("Sukses", "this all user"), HttpStatus.OK);
+        GlobalAcceptions.listData(allAccount, "Success");
+        return null;
+    }
+
+    @PostMapping
+    public ResponseEntity register(@Valid @RequestBody AccountRegisterRequest accountRegisterRequest, Errors errors){
+        Validated.request(errors);
+        accountService.register(accountRegisterRequest);
+        return new ResponseEntity(new Response("Sukses", "Success to register"), HttpStatus.OK);
     }
 
     @PostMapping("/login")
     public ResponseEntity login (@Valid @RequestBody LoginRequest loginRequest, Errors errors){
-        if(errors.hasErrors()){
-            List<String> errorList = new ArrayList<>();
-            for (ObjectError error:errors.getAllErrors()) {
-                errorList.add(error.getDefaultMessage());
-            }
-            throw new InvalidRequestException("Invalid Request", errorList);
-        }
+        Validated.request(errors);
 
         Account account = accountService.getByUsername(loginRequest.getUsername());
         if(Utils.passwordHashing(loginRequest.getPassword()).equals(account.getPassword())){
-            User user = userService.getByID(account.getUserID());
+            System.out.println(account.getId());
+            User user = userService.getByAccountId(account.getId());
             return GlobalAcceptions.loginAllowed(user, "Success");
         }
 
         throw new InvalidUserCredentialException("Invalid username or password");
     }
 
-    @PostMapping("/register")
-    public ResponseEntity register(@Valid @RequestBody AccountRegisterRequest accountRegisterRequest, Errors errors){
-        if(errors.hasErrors()){
-            List<String> errorList = new ArrayList<>();
-            for (ObjectError error:errors.getAllErrors()) {
-                errorList.add(error.getDefaultMessage());
-            }
-            throw new InvalidRequestException("Invalid Request", errorList);
-        }
-
-        accountService.register(accountRegisterRequest);
-        return new ResponseEntity(new Response("Sukses", "Success to register"), HttpStatus.BAD_REQUEST);
-    }
-
-    @PutMapping("/link")
-    public ResponseEntity link(@RequestBody AccountUpdateRequest accountUpdateRequest, Errors errors){
-        if(errors.hasErrors()){
-            List<String> errorList = new ArrayList<>();
-            for (ObjectError error:errors.getAllErrors()) {
-                errorList.add(error.getDefaultMessage());
-            }
-            throw new InvalidRequestException("Invalid Request", errorList);
-        }
-
-        accountService.linkUser(accountUpdateRequest);
-        return new ResponseEntity(new Response("Sukses","linked"), HttpStatus.OK);
-    }
-
-    @PostMapping("/password")
-    public ResponseEntity updatePassword(@Valid @RequestBody ChangePassword changePassword, Errors errors){
-        if(errors.hasErrors()){
-            List<String> errorList = new ArrayList<>();
-            for (ObjectError error:errors.getAllErrors()) {
-                errorList.add(error.getDefaultMessage());
-            }
-            throw new InvalidRequestException("Invalid Request", errorList);
-        }
-
-        accountService.updatePassword(changePassword);
+    @PutMapping("/{id}")
+    public ResponseEntity updatePassword(@PathVariable String id,@Valid @RequestBody AccountUpdateRequest requestBody, Errors errors){
+        Validated.request(errors);
+        accountService.updatePassword(id,requestBody);
         return new ResponseEntity(new Response("Sukses","password change"), HttpStatus.OK);
     }
-
-
-
 
 }

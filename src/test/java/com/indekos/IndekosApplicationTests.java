@@ -7,7 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 class IndekosApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void contentLoads() {
+
 	}
 
 }

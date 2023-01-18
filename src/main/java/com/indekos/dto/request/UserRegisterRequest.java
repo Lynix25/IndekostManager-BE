@@ -1,20 +1,18 @@
 package com.indekos.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import lombok.Getter;
 
-import javax.persistence.Column;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
 
-@Getter
 @Data
-public class UserRegisterRequest{
+public class UserRegisterRequest extends AuditableRequest{
+    private String id;
     @NotEmpty(message = "user name is required")
     private String name;
+
+    @NotEmpty(message = "user alias is required")
+    private String alias;
 
     @NotEmpty(message = "user description is required")
     private String email;
@@ -31,23 +29,13 @@ public class UserRegisterRequest{
     @NotNull(message = "user description is required")
     private String description;
 
-    @JsonProperty(value = "role_id")
+    @NotNull(message = "user role id is required")
     private String roleId;
 
-    @JsonProperty(value = "room_id")
+    @NotNull(message = "user room id is required")
     private String roomId;
 
-    @JsonProperty(value = "account_id")
+    @NotNull(message = "user account id is required")
     private String accountId;
-    
-    private String user;
-
-    @NotEmpty(message = "user who create is required")
-//    @JsonProperty(value = "created_by")
-    private String createdBy;
-
-//    @NotEmpty(message = "user who edit is required")
-//    @JsonProperty(value = "last_modified_by")
-//    private String lastModifiedBy;
 
 }

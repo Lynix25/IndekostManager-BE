@@ -1,16 +1,10 @@
 package com.indekos.services;
 
-import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
-import com.indekos.dto.MasterServiceDTO;
-import com.indekos.model.Account;
+import com.indekos.repository.AccountRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.stereotype.Service;
 
 import com.indekos.common.helper.exception.ResourceNotFoundException;
@@ -18,11 +12,9 @@ import com.indekos.dto.request.UserRegisterRequest;
 import com.indekos.model.User;
 import com.indekos.repository.UserRepository;
 
-import javax.persistence.Column;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -30,37 +22,42 @@ public class UserService {
     ModelMapper modelMapper;
     @Autowired
     UserRepository userRepository;
-    
-    public User register(UserRegisterRequest userRegisterRequest){
-        User user = modelMapper.map(userRegisterRequest, User.class);
 
-        // System input define
-        user.setDeleted(false);
-        user.setJoinedOn(Instant.now());
-
-        // Reqeust input define
-//        user.setName(userRegisterRequest.getName());
-//        user.setEmail(userRegisterRequest.getEmail());
-//        user.setPhone(userRegisterRequest.getPhone());
-//        user.setJob(userRegisterRequest.getJob());
-//        user.setGender(userRegisterRequest.getGender());
-//        user.setDescription(userRegisterRequest.getDescription());
-//        user.setRoleId(userRegisterRequest.getRoleId());
-//        user.setCreatedBy(userRegisterRequest.getCreatedBy());
-//        user.setLastModifiedBy(userRegisterRequest.getLastModifiedBy());
-
-        save(user);
-        return user;
+    public List<User> getAll() {
+        return userRepository.findAllActiveUserOrderByName();
     }
 
-    public User getByID(String id){
-        User user = null;
+    public User getById(String id){
         try {
-            user = userRepository.findById(id).get();
+            return userRepository.findById(id).get();
         }catch (NoSuchElementException e){
             throw new InvalidUserCredentialException("Invalid User ID");
         }
+    }
 
+    public User getByAccountId(String accountId){
+        try {
+            return userRepository.findByAccountId(accountId);
+        }catch (NoSuchElementException e){
+            throw new InvalidUserCredentialException("Invalid Account ID");
+        }
+    }
+
+    public User register(UserRegisterRequest userRegisterRequest){
+//                modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
+//                    mapper.map(src -> false,
+//                            User::setDeleted);
+//                });
+        User user = modelMapper.map(userRegisterRequest, User.class);
+
+        user.setCreatedBy(userRegisterRequest.getRequesterIdUser());
+        user.setLastModifiedBy(userRegisterRequest.getRequesterIdUser());
+
+        user.setDeleted(false);
+        user.setJoinedOn(Instant.now());
+        user.setInactiveSince(Instant.now());
+
+        save(user);
         return user;
     }
 
@@ -69,35 +66,27 @@ public class UserService {
             userRepository.save(user);
         }
         catch (DataIntegrityViolationException e){
-            System.out.println(">>> " + e.getMessage());
+            System.out.println(e);
         }
         catch (Exception e){
-            System.out.println(">>> " + e);
+            System.out.println(e);
         }
-    }
-    
-    public List<User> getAll() {
-    	return userRepository.findAllActiveUserOrderByName();
     }
     
     public User update(String userId, UserRegisterRequest request) {
-    	User data = userRepository.findById(userId)
+    	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId));
-    	
-    	data.setName(request.getName());
-    	data.setAlias("Alias");
-    	data.setEmail(request.getEmail());
-    	data.setPhone(request.getPhone());
-    	data.setJob(request.getJob());
-    	data.setGender(request.getGender());
-    	data.setDescription(request.getDescription());
-    	data.setRoleId(request.getRoleId());
-    	data.setRoomId(request.getRoomId());
-    	data.setAccountId(request.getAccountId());
-    	data.updateLastModified(request.getUser());
-    	
-    	final User updatedData = userRepository.save(data);
-        return updatedData;
+
+        user = modelMapper.map(request, user.getClass());
+        user.update(request.getRequesterIdUser());
+//        modelMapper.typeMap(UserRegisterRequest.class, user.getClass()).addMappings(mapper -> {
+//                    mapper.map(src -> src.getBillingAddress().getStreet(),
+//                            Destination::setBillingStreet);
+//                    mapper.map(src -> src.getBillingAddress().getCity(),
+//                            Destination::setBillingCity);
+//                });
+        save(user);
+        return user;
     }
     
     public boolean delete(String userId) {

@@ -1,29 +1,18 @@
 package com.indekos.model;
 
-import java.time.Instant;
+import com.indekos.common.base.entity.AuditableEntity;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
-
-import com.indekos.common.base.entity.AuditableEntity;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.time.Instant;
 
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true)
-@Getter
-@Setter
 @Entity
-@Table(name = "user")
+@AllArgsConstructor @NoArgsConstructor
 public class User extends AuditableEntity {
 	private static final long serialVersionUID = 1L;
 	

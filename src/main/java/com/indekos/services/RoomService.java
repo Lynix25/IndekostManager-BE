@@ -47,7 +47,7 @@ public class RoomService {
 			newData.setName(request.getName());
 			newData.setDescription(request.getDescription());
 			newData.setQuota(request.getQuota());
-			newData.updateCreated(request.getUser());
+//			newData.updateCreated(request.getUser());
 			newData.updateLastModified(request.getUser());
 			
 			final Room createdData = roomRepository.save(newData);

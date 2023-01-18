@@ -1,27 +1,16 @@
 package com.indekos.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import com.indekos.common.base.entity.AuditableEntity;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
 @Data
-@EqualsAndHashCode(callSuper = true)
-@Getter
-@Setter
 @Entity
-@Table(name = "room")
+@AllArgsConstructor @NoArgsConstructor
 public class Room extends AuditableEntity {
 	
 	private static final long serialVersionUID = 1L;

@@ -31,12 +31,12 @@ public class RoomController {
 	@Autowired
 	private RoomService roomService;
 	
-	@GetMapping("/all")
+	@GetMapping
 	public List<Room> getAllRoom() {
 		return roomService.getAll();
 	} 
 	
-	@GetMapping
+	@GetMapping("/available")
 	public List<RoomResponse> getAllAvailableRoom(@RequestParam String roomName) {
 		return roomService.getAllAvailable(roomName);
 	}

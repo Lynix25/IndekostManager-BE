@@ -1,21 +1,18 @@
 package com.indekos.model;
 
-
 import com.indekos.common.base.entity.AuditableEntity;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Data
 @Entity
-@Table(name = "task")
+@AllArgsConstructor @NoArgsConstructor
 public class Task extends AuditableEntity {
-    private String service_id;
-    private Long service_date;
+    private Long taskDate;
     private String summary;
     private String notes;
-
     private int status;
 }

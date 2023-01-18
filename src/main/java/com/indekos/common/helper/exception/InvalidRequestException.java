@@ -2,6 +2,7 @@ package com.indekos.common.helper.exception;
 
 import lombok.Data;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.List;
 
