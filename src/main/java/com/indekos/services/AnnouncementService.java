@@ -37,7 +37,7 @@ public class AnnouncementService {
 			newData.setDescription(request.getDescription());
 			newData.setPeriod(request.getPeriod());
 //			newData.updateCreated(request.getUser());
-			newData.updateLastModified(request.getUser());
+			newData.updateLastModified(request.getRequesterIdUser());
 
 			final Announcement createdData = announcementRepository.save(newData);
 			return createdData;
@@ -53,7 +53,7 @@ public class AnnouncementService {
 			data.setTitle(request.getTitle());
 			data.setDescription(request.getDescription());
 			data.setPeriod(request.getPeriod());
-			data.updateLastModified(request.getUser());
+			data.updateLastModified(request.getRequesterIdUser());
 			
 			final Announcement updatedData = announcementRepository.save(data);
 			return updatedData;

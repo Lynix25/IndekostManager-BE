@@ -1,9 +1,10 @@
 package com.indekos.dto.request;
 
 import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class TransaksiCreateRequest extends Request{
+@Getter
+public class TransaksiCreateRequest extends AuditableRequest{
     private String category;
     private String description;
 }

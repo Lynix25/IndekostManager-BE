@@ -1,8 +1,14 @@
 package com.indekos.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class LoginRequest extends Request{
+import javax.validation.constraints.NotEmpty;
+
+@Getter
+public class LoginRequest{
+    @NotEmpty(message = "username is required")
+    private String username;
+
+    @NotEmpty(message = "password is required")
+    private String password;
 }

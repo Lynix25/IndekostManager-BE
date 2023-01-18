@@ -1,14 +1,14 @@
 package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
-import com.indekos.repository.AccountRepository;
+import com.indekos.dto.request.AuditableRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.indekos.common.helper.exception.ResourceNotFoundException;
-import com.indekos.dto.request.UserRegisterRequest;
+import com.indekos.dto.request.UserRequest;
 import com.indekos.model.User;
 import com.indekos.repository.UserRepository;
 
@@ -43,15 +43,9 @@ public class UserService {
         }
     }
 
-    public User register(UserRegisterRequest userRegisterRequest){
-//                modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
-//                    mapper.map(src -> false,
-//                            User::setDeleted);
-//                });
-        User user = modelMapper.map(userRegisterRequest, User.class);
-
-        user.setCreatedBy(userRegisterRequest.getRequesterIdUser());
-        user.setLastModifiedBy(userRegisterRequest.getRequesterIdUser());
+    public User register(UserRequest userRequest){
+        User user = modelMapper.map(userRequest, User.class);
+        user.create(userRequest.getRequesterIdUser());
 
         user.setDeleted(false);
         user.setJoinedOn(Instant.now());
@@ -73,28 +67,24 @@ public class UserService {
         }
     }
     
-    public User update(String userId, UserRegisterRequest request) {
+    public User update(String userId, UserRequest request) {
     	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId));
 
-        user = modelMapper.map(request, user.getClass());
+        modelMapper.map(request, user);
         user.update(request.getRequesterIdUser());
-//        modelMapper.typeMap(UserRegisterRequest.class, user.getClass()).addMappings(mapper -> {
-//                    mapper.map(src -> src.getBillingAddress().getStreet(),
-//                            Destination::setBillingStreet);
-//                    mapper.map(src -> src.getBillingAddress().getCity(),
-//                            Destination::setBillingCity);
-//                });
+
         save(user);
         return user;
     }
     
-    public boolean delete(String userId) {
-    	User data = userRepository.findById(userId)
+    public boolean delete(String userId, AuditableRequest request) {
+    	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId));
     	
-    	data.setDeleted(true);
-    	userRepository.save(data);
+    	user.setDeleted(true);
+        user.update(request.getRequesterIdUser());
+    	userRepository.save(user);
     	
     	return true;
     }

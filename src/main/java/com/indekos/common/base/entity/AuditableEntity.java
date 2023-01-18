@@ -7,6 +7,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -15,7 +16,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @EntityListeners({AuditingEntityListener.class})
 @MappedSuperclass
-@Data
+@Getter
 public class AuditableEntity extends BaseEntity {
 	private static final long serialVersionUID = 1L;
 	
@@ -50,14 +51,21 @@ public class AuditableEntity extends BaseEntity {
 	
 	public void updateLastModified (String user) {
 		if(user == "" || user == null)
-			setLastModifiedBy("system");
+//			setLastModifiedBy("system");
+			this.lastModifiedBy = "system";
 		else
-			setLastModifiedBy(user);
+//			setLastModifiedBy(user);
+			this.lastModifiedBy = "user";
 		setLastModifiedDate();
 	}
 
 	private void setLastModifiedDate() {
 		this.lastModifiedDate = Instant.now();
+	}
+
+	public void create(String userUpdaterId){
+		this.createdBy = userUpdaterId;
+		this.lastModifiedBy = userUpdaterId;
 	}
 
 	public void update(String userUpdaterId){

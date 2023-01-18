@@ -22,7 +22,6 @@ import com.indekos.model.Announcement;
 import com.indekos.services.AnnouncementService;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/announcement")
 public class AnnouncementController {
 

@@ -1,9 +1,8 @@
 package com.indekos.services;
 
-import com.indekos.dto.request.CreateTask;
+import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.model.Task;
 import com.indekos.repository.TaskRepository;
-import com.indekos.utils.Utils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,9 +16,10 @@ public class TaskService {
     @Autowired
     TaskRepository taskRepository;
 
-    public Task register(CreateTask createTask){
-        Task task = modelMapper.map(createTask, Task.class);
-
+    public Task register(TaskCreateRequest taskCreateRequest){
+        Task task = modelMapper.map(taskCreateRequest, Task.class);
+        task.create(taskCreateRequest.getRequesterIdUser());
+        task.setStatus(1);
         taskRepository.save(task);
         return task;
     }

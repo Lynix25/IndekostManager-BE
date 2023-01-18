@@ -37,6 +37,10 @@ public class GlobalAcceptions {
         return successResponse(datas, message);
     }
 
+    public static <D> ResponseEntity data(D data, String message){
+        return successResponse(data, message);
+    }
+
     public static ResponseEntity emptyData(String message){
         return successResponse("No Data", message);
     }

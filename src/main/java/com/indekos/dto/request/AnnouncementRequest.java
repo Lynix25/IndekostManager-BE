@@ -1,14 +1,11 @@
 package com.indekos.dto.request;
 
-import lombok.Data;
 import lombok.Getter;
 
-@Data
 @Getter
-public class AnnouncementRequest {
+public class AnnouncementRequest extends AuditableRequest {
 	
 	private String title;
 	private String description;
 	private String period;
-	private String user;
 }

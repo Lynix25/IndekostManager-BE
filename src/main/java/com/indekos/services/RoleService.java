@@ -41,7 +41,7 @@ public class RoleService {
 			if(targetRole.isDeleted()) {
 				targetRole.setDeleted(false);
 				targetRole.setDescription(request.getDescription());
-				targetRole.updateLastModified(request.getUser());
+				targetRole.update(request.getRequesterIdUser());
 				
 				final Role createdData = roleRepository.save(targetRole);
 				return createdData;
@@ -52,8 +52,7 @@ public class RoleService {
 			newData.setName(request.getName());
 			newData.setDescription(request.getDescription());
 			newData.setDeleted(false);
-//			newData.updateCreated(request.getUser());
-			newData.updateLastModified(request.getUser());
+			newData.update(request.getRequesterIdUser());
 			
 			final Role createdData = roleRepository.save(newData);
 			return createdData;
@@ -68,7 +67,7 @@ public class RoleService {
 		else {
 			data.setName(request.getName());
 			data.setDescription(request.getDescription());
-			data.updateLastModified(request.getUser());
+			data.update(request.getRequesterIdUser());
 			
 			final Role updatedData = roleRepository.save(data);
 			return updatedData;

@@ -24,7 +24,6 @@ import com.indekos.dto.request.RoleRequest;
 import com.indekos.model.Role;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/role")
 public class RoleController {
 

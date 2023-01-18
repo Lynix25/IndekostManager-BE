@@ -6,7 +6,8 @@ import java.util.UUID;
 
 public class Utils {
     public static String passwordHashing(String plainPassword){
-        return DigestUtils.sha256Hex(plainPassword);
+//        return DigestUtils.sha256Hex(plainPassword);
+        return "hash"+plainPassword;
     }
 
     public static String UUID4(){

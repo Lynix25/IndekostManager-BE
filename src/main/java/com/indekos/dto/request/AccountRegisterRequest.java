@@ -1,14 +1,13 @@
 package com.indekos.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.Getter;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
-@Data
+@Getter
 public class AccountRegisterRequest extends AuditableRequest{
-    @NotEmpty(message = "username is required")
+    @NotBlank(message = "username is required")
     private String username;
-    @NotEmpty(message = "password is required")
+    @NotBlank(message = "password is required")
     private String password;
 }

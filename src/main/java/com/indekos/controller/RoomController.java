@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,13 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.indekos.dto.request.RoomRequest;
+import com.indekos.dto.request.RoomCreateRequest;
 import com.indekos.dto.response.RoomResponse;
 import com.indekos.model.Room;
 import com.indekos.services.RoomService;
 
 @RestController
-@CrossOrigin
 @RequestMapping(value = "/room")
 public class RoomController {
 	
@@ -42,12 +40,12 @@ public class RoomController {
 	}
 	
 	@PostMapping
-	public Room createRoom(@Validated @RequestBody RoomRequest request) {
+	public Room createRoom(@Validated @RequestBody RoomCreateRequest request) {
 		return roomService.create(request);
 	}
 	
 	@PutMapping("/{roomId}")
-	public ResponseEntity<Room> updateRoom(@PathVariable String roomId, @Validated @RequestBody RoomRequest request) {
+	public ResponseEntity<Room> updateRoom(@PathVariable String roomId, @Validated @RequestBody RoomCreateRequest request) {
 		Room updatedRoom = roomService.update(roomId, request);
 		return ResponseEntity.ok(updatedRoom);
 	}

@@ -3,11 +3,8 @@ package com.indekos.dto.request;
 import lombok.Data;
 import lombok.Getter;
 
-@Data
 @Getter
-public class RoleRequest {
-	
+public class RoleRequest extends AuditableRequest {
 	private String name;
 	private String description;
-	private String user;
 }

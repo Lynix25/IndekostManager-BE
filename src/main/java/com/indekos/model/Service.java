@@ -5,13 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Data
 @Entity
 @AllArgsConstructor @NoArgsConstructor
-public class MasterService extends AuditableEntity {
+public class Service extends AuditableEntity {
+    @Column(nullable = false)
     private String serviceName;
+    @Column(nullable = false)
     private String variant;
-    private String price;
+    private Integer price;
 }

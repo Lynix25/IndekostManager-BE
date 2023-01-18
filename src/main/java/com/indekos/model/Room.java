@@ -12,7 +12,6 @@ import javax.persistence.Entity;
 @Entity
 @AllArgsConstructor @NoArgsConstructor
 public class Room extends AuditableEntity {
-	
 	private static final long serialVersionUID = 1L;
 	
 	@Column(unique = true, nullable = false)
@@ -26,5 +25,11 @@ public class Room extends AuditableEntity {
 	
 	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean isDeleted;
+
+	@Column(nullable = false)
+	private Integer floor;
+
+	@Column(nullable = false)
+	private Integer price;
 
 }

@@ -1,6 +1,7 @@
 package com.indekos.controller;
 
-import com.indekos.dto.request.UserRegisterRequest;
+import com.indekos.dto.request.AuditableRequest;
+import com.indekos.dto.request.UserRequest;
 import com.indekos.dto.response.Response;
 import com.indekos.model.User;
 import com.indekos.services.UserService;
@@ -18,7 +19,6 @@ import java.util.Map;
 
 
 @RestController
-@CrossOrigin
 @RequestMapping("/user")
 public class UserController {
     @Autowired
@@ -35,24 +35,26 @@ public class UserController {
 
         return ResponseEntity.ok().body(user);
     }
-
     @PostMapping
-    public ResponseEntity register(@Valid @RequestBody UserRegisterRequest userRegisterRequest, Errors errors){
+    public ResponseEntity register(@Valid @RequestBody UserRequest userRequest, Errors errors){
         Validated.request(errors);
-        userService.register(userRegisterRequest);
+
+        userService.register(userRequest);
+
         return new ResponseEntity(new Response("Berhasil","User berhasil di tambahkan"), HttpStatus.OK);
     }
-
     @PutMapping("/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable String userId, @Valid @RequestBody UserRegisterRequest userRegisterRequest){
-    	final User updatedUser = userService.update(userId, userRegisterRequest);
-    	return ResponseEntity.ok(updatedUser);
+    public ResponseEntity updateUser(@PathVariable String userId, @Valid @RequestBody UserRequest userRequest, Errors errors){
+        Validated.request(errors);
+
+    	userService.update(userId, userRequest);
+
+    	return ResponseEntity.ok().body("Success");
     }
-    
     @DeleteMapping("/{userId}")
-    public Map<String, Boolean> deleteUser(@PathVariable String userId) {
+    public Map<String, Boolean> deleteUser(@PathVariable String userId, @Valid @RequestBody AuditableRequest responseBody) {
     	Map<String, Boolean> response = new HashMap<>();
-		response.put("Deleted", userService.delete(userId));
+		response.put("Deleted", userService.delete(userId, responseBody));
 		return response;
     }
 }
