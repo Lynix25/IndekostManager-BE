@@ -1,5 +1,6 @@
 package com.indekos.controller;
 
+import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.dto.request.AuditableRequest;
 import com.indekos.dto.request.UserRequest;
 import com.indekos.dto.response.Response;
@@ -25,8 +26,8 @@ public class UserController {
 	private UserService userService;
     
     @GetMapping
-    public List<User> getAllUser() {
-    	return userService.getAll();
+    public ResponseEntity getAllUser() {
+        return GlobalAcceptions.listData(userService.getAll(), "All User Data");
     }
 
     @GetMapping(value = "/{id}")

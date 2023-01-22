@@ -37,7 +37,9 @@ public class UserService {
 
     public User getByAccountId(String accountId){
         try {
-            return userRepository.findByAccountId(accountId);
+            User user = userRepository.findByAccountId(accountId);
+            if(user == null) throw new InvalidUserCredentialException("Invalid Account ID");
+            return user;
         }catch (NoSuchElementException e){
             throw new InvalidUserCredentialException("Invalid Account ID");
         }

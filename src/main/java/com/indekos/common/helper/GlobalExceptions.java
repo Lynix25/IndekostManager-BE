@@ -1,5 +1,6 @@
 package com.indekos.common.helper;
 
+import com.indekos.dto.response.ErrorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,10 +30,10 @@ public class GlobalExceptions {
 
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity requestNotComplete(InvalidRequestException exception){
-        Response response = new Response<>();
+        ErrorResponse response = new ErrorResponse();
 
         response.setMessage(exception.getMessage());
-        response.setData(exception.getErrors());
+        response.setErrors(exception.getErrors());
 
         return new ResponseEntity(response, exception.getHttpStatus());
     }

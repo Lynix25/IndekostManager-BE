@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.indekos.common.helper.GlobalAcceptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -30,8 +31,8 @@ public class RoomController {
 	private RoomService roomService;
 	
 	@GetMapping
-	public List<Room> getAllRoom() {
-		return roomService.getAll();
+	public ResponseEntity getAllRoom() {
+		return GlobalAcceptions.listData(roomService.getAll(), "All Room Data");
 	} 
 	
 	@GetMapping("/available")
