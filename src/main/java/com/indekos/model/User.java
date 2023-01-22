@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import java.time.Instant;
 
 
 @Data
@@ -38,12 +37,12 @@ public class User extends AuditableEntity {
     private String description;
 	
 	@Column(nullable = false)
-	private Instant joinedOn;
+	private Long joinedOn;
 	
 	@Column(nullable = false, columnDefinition = "boolean default false")
     private boolean isDeleted;
     
-	private Instant inactiveSince;
+	private Long inactiveSince;
 	
 	@Column(nullable = false)
     private String roleId;

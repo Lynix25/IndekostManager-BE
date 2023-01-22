@@ -50,8 +50,8 @@ public class UserService {
         user.create(userRequest.getRequesterIdUser());
 
         user.setDeleted(false);
-        user.setJoinedOn(Instant.now());
-        user.setInactiveSince(Instant.now());
+        user.setJoinedOn(System.currentTimeMillis());
+        user.setInactiveSince(System.currentTimeMillis());
 
         save(user);
         return user;

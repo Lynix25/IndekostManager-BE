@@ -36,11 +36,9 @@ public class ServiceService {
     }
     public Service update(String id, ServiceCreateRequest requestBody){
         Service service = getByID(id);
-        System.out.println("1 " + service);
+
         modelMapper.map(requestBody, service);
-        System.out.println("2 " + service);
         service.update(requestBody.getRequesterIdUser());
-        System.out.println("3 " +service);
         serviceRepository.save(service);
         return service;
     }

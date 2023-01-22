@@ -1,18 +1,15 @@
 package com.indekos.common.base.entity;
 
-import java.time.Instant;
-
-import javax.persistence.Column;
-import javax.persistence.EntityListeners;
-import javax.persistence.MappedSuperclass;
-
-import lombok.Data;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import javax.persistence.Column;
+import javax.persistence.EntityListeners;
+import javax.persistence.MappedSuperclass;
 
 @EntityListeners({AuditingEntityListener.class})
 @MappedSuperclass
@@ -26,7 +23,7 @@ public class AuditableEntity extends BaseEntity {
 
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
-	final private Instant createdDate;
+	final private Long createdDate;
 
 	@LastModifiedBy
 	@Column(nullable = false)
@@ -34,11 +31,11 @@ public class AuditableEntity extends BaseEntity {
 
 	@LastModifiedDate
 	@Column(nullable = false)
-	private Instant lastModifiedDate;
+	private Long lastModifiedDate;
 
 	public AuditableEntity(){
-		this.createdDate = Instant.now();
-		this.lastModifiedDate = Instant.now();
+		this.createdDate = System.currentTimeMillis();
+		this.lastModifiedDate = System.currentTimeMillis();
 	}
 
 //	public void updateCreated (String user) {
@@ -60,7 +57,7 @@ public class AuditableEntity extends BaseEntity {
 	}
 
 	private void setLastModifiedDate() {
-		this.lastModifiedDate = Instant.now();
+		this.lastModifiedDate = System.currentTimeMillis();
 	}
 
 	public void create(String userUpdaterId){
@@ -69,7 +66,7 @@ public class AuditableEntity extends BaseEntity {
 	}
 
 	public void update(String userUpdaterId){
-		this.lastModifiedDate = Instant.now();
+		this.lastModifiedDate = System.currentTimeMillis();
 		this.lastModifiedBy = userUpdaterId;
 	}
 
