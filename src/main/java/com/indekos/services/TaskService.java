@@ -1,11 +1,8 @@
 package com.indekos.services;
 
-import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
-import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.model.Task;
-import com.indekos.model.User;
 import com.indekos.repository.TaskRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +36,6 @@ public class TaskService {
     }
 
     public List<Task> getAll() {
-        return taskRepository.findAll();
+        return taskRepository.findAllByOrderByCreatedDateDesc();
     }
 }
