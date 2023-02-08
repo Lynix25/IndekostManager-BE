@@ -19,7 +19,9 @@ public class Announcement extends AuditableEntity {
 	
 	@Column(nullable = false, columnDefinition = "text")
 	private String description;
-	
+
 	@Column(nullable = false)
 	private String period;
+
+//	private MultipartFile image;
 }

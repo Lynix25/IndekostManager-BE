@@ -21,6 +21,8 @@ public class AccountService {
     ModelMapper modelMapper;
     @Autowired
     AccountRepository accountRepository;
+    @Autowired
+    UserService userService;
     public Account getByID(String id){
         try {
             return accountRepository.findById(id).get();
@@ -39,6 +41,8 @@ public class AccountService {
         Account account = modelMapper.map(accountRegisterRequest, Account.class);
         account.create(accountRegisterRequest.getRequesterIdUser());
         account.setPassword(Utils.passwordHashing(accountRegisterRequest.getPassword()));
+
+        account.setUser(userService.register(accountRegisterRequest.getUser()));
         accountRepository.save(account);
         return account;
     }

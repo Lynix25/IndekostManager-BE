@@ -10,4 +10,6 @@ public class AccountRegisterRequest extends AuditableRequest{
     private String username;
     @NotBlank(message = "password is required")
     private String password;
+
+    private UserRegisterRequest user;
 }

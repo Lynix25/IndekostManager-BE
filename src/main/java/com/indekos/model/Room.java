@@ -5,16 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity
 @AllArgsConstructor @NoArgsConstructor
 public class Room extends AuditableEntity {
 	private static final long serialVersionUID = 1L;
-	
-	@Column(unique = true, nullable = false)
+	@Column(nullable = false)
     private String name;
 	
 	@Column(columnDefinition = "text")
@@ -30,6 +29,20 @@ public class Room extends AuditableEntity {
 	private Integer floor;
 
 	@Column(nullable = false)
-	private Integer price;
+	private String allotment;
 
+//	@Column(nullable = false)
+//	private String facility;
+
+	@OneToMany(targetEntity = RoomDetail.class, cascade = CascadeType.ALL)
+	@JoinColumn(name = "room_id",referencedColumnName = "id")
+	private List<RoomDetail> details;
+
+	@OneToMany(targetEntity = RoomFacility.class, cascade = CascadeType.ALL)
+	@JoinColumn(name = "room_id",referencedColumnName = "id")
+	private List<RoomDetail> facilities;
+
+	@OneToMany(targetEntity = User.class, cascade = CascadeType.ALL)
+	@JoinColumn(name = "room_id", referencedColumnName = "id")
+	private List<User> users;
 }

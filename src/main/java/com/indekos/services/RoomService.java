@@ -1,9 +1,14 @@
 package com.indekos.services;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
+import com.indekos.common.helper.exception.InvalidUserCredentialException;
+import com.indekos.dto.request.RoomDetailCreateRequest;
+import com.indekos.model.RoomDetail;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.indekos.common.helper.exception.DataAlreadyExistException;
@@ -24,31 +29,47 @@ public class RoomService {
 	public List<Room> getAll() {
 		return roomRepository.findAllByOrderByNameAsc();
 	}
+
+	public Room getById(String id){
+		try {
+			return roomRepository.findById(id).get();
+		}catch (NoSuchElementException e){
+			throw new InvalidUserCredentialException("Invalid Room ID");
+		}
+	}
 	
 	public List<RoomResponse> getAllAvailable(String keyword) {
 		return roomRepository.findAllAvailableRoom(keyword);
 	}
 	
-	public Room create(RoomCreateRequest request) {
-		Room targetRoom =roomRepository.findByName(request.getName());
-		if(targetRoom != null) {
-			if(targetRoom.isDeleted()) {
-				targetRoom.setDeleted(false);
-				targetRoom.setName(request.getName());
-				targetRoom.setDescription(request.getDescription());
-				targetRoom.setQuota(request.getQuota());
-				targetRoom.update(request.getRequesterIdUser());
-				
-				final Room createdData = roomRepository.save(targetRoom);
-				return createdData;
-			} else throw new DataAlreadyExistException();
-		}
-		else {
-			Room room = modelMapper.map(request, Room.class);
-			room.create(request.getRequesterIdUser());
-			final Room createdData = roomRepository.save(room);
-			return createdData;
-		}
+//	public MasterRoom create(RoomCreateRequest request) {
+//		MasterRoom targetMasterRoom =roomRepository.findByName(request.getName());
+//		if(targetMasterRoom != null) {
+//			if(targetMasterRoom.isDeleted()) {
+//				targetMasterRoom.setDeleted(false);
+//				targetMasterRoom.setName(request.getName());
+//				targetMasterRoom.setDescription(request.getDescription());
+//				targetMasterRoom.setQuota(request.getQuota());
+//				targetMasterRoom.update(request.getRequesterIdUser());
+//
+//				final MasterRoom createdData = roomRepository.save(targetMasterRoom);
+//				return createdData;
+//			} else throw new DataAlreadyExistException();
+//		}
+//		else {
+//			MasterRoom masterRoom = modelMapper.map(request, MasterRoom.class);
+//			masterRoom.create(request.getRequesterIdUser());
+//			final MasterRoom createdData = roomRepository.save(masterRoom);
+//			return createdData;
+//		}
+//	}
+	public Room create(RoomCreateRequest request){
+		Room room = modelMapper.map(request, Room.class);
+		room.create(request.getRequesterIdUser());
+
+		save(room);
+
+		return room;
 	}
 
 	public Room update(String roomId, RoomCreateRequest request) {
@@ -66,7 +87,16 @@ public class RoomService {
 			return updatedData;
 		}
 	}
-	
+
+	public RoomDetail addRoomDetail(String roomId, RoomDetailCreateRequest request){
+		Room room = getById(roomId);
+		RoomDetail newRoomDetail = modelMapper.map(request, RoomDetail.class);
+		room.getDetails().add(newRoomDetail);
+
+		save(room);
+
+		return newRoomDetail;
+	}
 	public boolean delete(String roomId) {
 		Room data = roomRepository.findById(roomId)
 				.orElseThrow(() -> new ResourceNotFoundException("Room not found for this id :: " + roomId));
@@ -77,5 +107,17 @@ public class RoomService {
 			
 			return true;
 		} else throw new InternalServerErrorException("This room is still rented by the tenant!");
-	} 
+	}
+
+	public void save(Room room){
+		try {
+			roomRepository.save(room);
+		}
+		catch (DataIntegrityViolationException e){
+			System.out.println(e);
+		}
+		catch (Exception e){
+			System.out.println(e);
+		}
+	}
 }

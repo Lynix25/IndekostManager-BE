@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.indekos.services.TransaksiService;
+import com.indekos.services.TransactionService;
 
 @RestController
 @RequestMapping("/transaksi")
 public class TransaksiController {
     @Autowired
-    TransaksiService transaksiService;
+    TransactionService transactionService;
 
     @PostMapping
     public ResponseEntity create(){

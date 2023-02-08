@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 	@Query(value="SELECT * FROM user WHERE is_deleted IS FALSE ORDER BY name ASC", nativeQuery = true)
 	List<User> findAllActiveUserOrderByName();
 
-    User findByAccountId(String accountId);
+//    User findByAccountId(String accountId);
 
     List<User> findByRoleId(String roleId);
 }

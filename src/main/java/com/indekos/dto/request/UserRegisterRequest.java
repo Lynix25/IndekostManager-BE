@@ -7,7 +7,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Getter
-public class UserRequest extends AuditableRequest{
+public class UserRegisterRequest extends AuditableRequest{
     @NotBlank(message = "user name is required")
     private String name;
 
@@ -37,4 +37,10 @@ public class UserRequest extends AuditableRequest{
 
     @NotEmpty(message = "user account id can't be empty")
     private String accountId;
+
+    @NotEmpty(message = "user join on can't be empty")
+    private Long joinedOn;
+
+//    @NotEmpty
+//    private MultipartFile identityCardImage;
 }

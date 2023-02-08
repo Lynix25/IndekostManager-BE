@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
+import java.util.List;
 
 
 @Data
@@ -20,4 +20,8 @@ public class Account extends AuditableEntity {
 
     @Column(nullable = false)
     private String password;
+
+    @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 }

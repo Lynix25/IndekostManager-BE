@@ -4,10 +4,9 @@ import com.indekos.common.base.entity.AuditableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-
+import javax.persistence.*;
 
 @Data
 @Entity
@@ -46,8 +45,9 @@ public class User extends AuditableEntity {
 	
 	@Column(nullable = false)
     private String roleId;
-    
-    private String roomId;
 
-    private String accountId;
+//    private String accountId;
+
+//	@Column(nullable = false)
+//	private byte[] identityCardImage;
 }

@@ -2,7 +2,8 @@ package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.dto.request.AuditableRequest;
-import com.indekos.dto.request.UserRequest;
+import com.indekos.dto.request.UserRegisterRequest;
+import com.indekos.dto.request.UserUpdateRequest;
 import com.indekos.dto.response.Response;
 import com.indekos.model.User;
 import com.indekos.services.UserService;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -37,20 +37,18 @@ public class UserController {
         return ResponseEntity.ok().body(user);
     }
     @PostMapping
-    public ResponseEntity register(@Valid @RequestBody UserRequest userRequest, Errors errors){
+    public ResponseEntity register(@Valid @RequestBody UserRegisterRequest userRegisterRequest, Errors errors){
         Validated.request(errors);
 
-        userService.register(userRequest);
+        userService.register(userRegisterRequest);
 
         return new ResponseEntity(new Response("Berhasil","User berhasil di tambahkan"), HttpStatus.OK);
     }
     @PutMapping("/{userId}")
-    public ResponseEntity updateUser(@PathVariable String userId, @Valid @RequestBody UserRequest userRequest, Errors errors){
+    public ResponseEntity updateUser(@PathVariable String userId, @Valid @RequestBody UserUpdateRequest userRegisterRequest, Errors errors){
         Validated.request(errors);
 
-    	userService.update(userId, userRequest);
-
-    	return ResponseEntity.ok().body("Success");
+    	return GlobalAcceptions.data(userService.update(userId, userRegisterRequest),"Success");
     }
     @DeleteMapping("/{userId}")
     public Map<String, Boolean> deleteUser(@PathVariable String userId, @Valid @RequestBody AuditableRequest responseBody) {

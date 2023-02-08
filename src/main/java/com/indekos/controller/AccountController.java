@@ -5,7 +5,7 @@ import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.DataIdDTO;
 import com.indekos.dto.request.AccountChangePasswordRequest;
 import com.indekos.dto.request.AccountRegisterRequest;
-import com.indekos.dto.request.LoginRequest;
+import com.indekos.dto.request.AccountLoginRequest;
 import com.indekos.dto.response.Response;
 import com.indekos.model.Account;
 import com.indekos.model.User;
@@ -47,12 +47,13 @@ public class AccountController {
         return new ResponseEntity(new Response("Sukses", "Success to register"), HttpStatus.OK);
     }
     @PostMapping("/login")
-    public ResponseEntity login (@Valid @RequestBody LoginRequest loginRequest, Errors errors){
+    public ResponseEntity login (@Valid @RequestBody AccountLoginRequest accountLoginRequest, Errors errors){
         Validated.request(errors);
 
-        Account account = accountService.getByUsername(loginRequest.getUsername());
-        if(accountService.comparePasswordTo(account,loginRequest.getPassword())){
-            User user = userService.getByAccountId(account.getId());
+        Account account = accountService.getByUsername(accountLoginRequest.getUsername());
+        if(accountService.comparePasswordTo(account, accountLoginRequest.getPassword())){
+//            User user = userService.getByAccountId(account.getId());
+            User user = account.getUser();
             return GlobalAcceptions.loginAllowed(user, "Success");
         }
 
@@ -66,5 +67,4 @@ public class AccountController {
 
         return GlobalAcceptions.data(data, "Success changes password");
     }
-
 }

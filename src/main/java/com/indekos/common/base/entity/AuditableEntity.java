@@ -1,5 +1,6 @@
 package com.indekos.common.base.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,6 +15,7 @@ import javax.persistence.MappedSuperclass;
 @EntityListeners({AuditingEntityListener.class})
 @MappedSuperclass
 @Getter
+//@JsonIgnoreProperties({"id","createdBy","createdDate","lastModifiedBy","lastModifiedDate"})
 public class AuditableEntity extends BaseEntity {
 	private static final long serialVersionUID = 1L;
 	

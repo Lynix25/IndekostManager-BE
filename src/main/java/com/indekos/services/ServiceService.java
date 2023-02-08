@@ -20,6 +20,10 @@ public class ServiceService {
         return serviceRepository.findAll();
     }
 
+//    public List<Service> getAllUnpaid(String id){
+//
+//    }
+
     public Service getByID(String id){
         try {
             return serviceRepository.findById(id).get();

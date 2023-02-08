@@ -10,57 +10,54 @@ import com.indekos.common.helper.exception.DataNotFoundException;
 import com.indekos.common.helper.exception.InternalServerErrorException;
 import com.indekos.common.helper.exception.ResourceNotFoundException;
 import com.indekos.dto.request.RoleRequest;
-import com.indekos.model.Role;
+import com.indekos.model.MasterRole;
 import com.indekos.repository.RoleRepository;
 import com.indekos.repository.UserRepository;
 
 @Service
 public class RoleService {
-	
 	@Autowired
 	private RoleRepository roleRepository;
-	
 	@Autowired
 	private UserRepository userRepository;
-	
-	public List<Role> getAll() {
+	public List<MasterRole> getAll() {
 		return roleRepository.findAllActiveByOrderByNameAsc();
 	}
 	
-	public Role getByName(String roleName) {
-		Role targetRole = roleRepository.findByName(roleName);
-		if(targetRole == null)
+	public MasterRole getByName(String roleName) {
+		MasterRole targetMasterRole = roleRepository.findByName(roleName);
+		if(targetMasterRole == null)
 			throw new DataNotFoundException("Role not found for this name :: " + roleName);
 		
-		return targetRole;
+		return targetMasterRole;
 	}
 	
-	public Role create(RoleRequest request) {
-		Role targetRole = roleRepository.findByName(request.getName());
-		if(targetRole != null) {
-			if(targetRole.isDeleted()) {
-				targetRole.setDeleted(false);
-				targetRole.setDescription(request.getDescription());
-				targetRole.update(request.getRequesterIdUser());
+	public MasterRole create(RoleRequest request) {
+		MasterRole targetMasterRole = roleRepository.findByName(request.getName());
+		if(targetMasterRole != null) {
+			if(targetMasterRole.isDeleted()) {
+				targetMasterRole.setDeleted(false);
+				targetMasterRole.setDescription(request.getDescription());
+				targetMasterRole.update(request.getRequesterIdUser());
 				
-				final Role createdData = roleRepository.save(targetRole);
+				final MasterRole createdData = roleRepository.save(targetMasterRole);
 				return createdData;
 			} else throw new DataAlreadyExistException();
 		}
 		else {
-			Role newData = new Role();
+			MasterRole newData = new MasterRole();
 			newData.setName(request.getName());
 			newData.setDescription(request.getDescription());
 			newData.setDeleted(false);
 			newData.update(request.getRequesterIdUser());
 			
-			final Role createdData = roleRepository.save(newData);
+			final MasterRole createdData = roleRepository.save(newData);
 			return createdData;
 		}
 	}
 
-	public Role update(String roleId, RoleRequest request) {
-		Role data = roleRepository.findById(roleId)
+	public MasterRole update(String roleId, RoleRequest request) {
+		MasterRole data = roleRepository.findById(roleId)
 				.orElseThrow(() -> new ResourceNotFoundException("Role not found for this id :: " + roleId));
 	
 		if(roleRepository.findByNameAndIdNot(request.getName(), roleId) != null) throw new DataAlreadyExistException();
@@ -69,13 +66,13 @@ public class RoleService {
 			data.setDescription(request.getDescription());
 			data.update(request.getRequesterIdUser());
 			
-			final Role updatedData = roleRepository.save(data);
+			final MasterRole updatedData = roleRepository.save(data);
 			return updatedData;
 		}
 	}
 	
 	public boolean delete(String roleId) {
-		Role data = roleRepository.findById(roleId)
+		MasterRole data = roleRepository.findById(roleId)
 				.orElseThrow(() -> new ResourceNotFoundException("Role not found for this id :: " + roleId));
 	
 		if(userRepository.findByRoleId(data.getId()).size() == 0) {

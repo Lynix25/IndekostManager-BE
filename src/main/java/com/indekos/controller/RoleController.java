@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.indekos.common.helper.exception.ResourceNotFoundException;
 import com.indekos.services.RoleService;
 import com.indekos.dto.request.RoleRequest;
-import com.indekos.model.Role;
+import com.indekos.model.MasterRole;
 
 @RestController
 @RequestMapping("/role")
@@ -31,24 +30,24 @@ public class RoleController {
 	private RoleService roleService;
 	
 	@GetMapping("/all")
-	public List<Role> getAllRoles(){
+	public List<MasterRole> getAllRoles(){
 		return roleService.getAll();
 	}
 	
 	@GetMapping
-	public Role getRoleByName(@RequestParam String roleName){
+	public MasterRole getRoleByName(@RequestParam String roleName){
 		return roleService.getByName(roleName);
 	}
 
 	@PostMapping
-	public Role createRole(@Validated @RequestBody RoleRequest request) {
+	public MasterRole createRole(@Validated @RequestBody RoleRequest request) {
 		return roleService.create(request);
 	}
 	
 	@PutMapping("/{roleId}")
-	public ResponseEntity<Role> updateRole(@PathVariable String roleId, @Validated @RequestBody RoleRequest request) throws ResourceNotFoundException {
-		final Role updatedRole = roleService.update(roleId, request);
-		return ResponseEntity.ok(updatedRole);
+	public ResponseEntity<MasterRole> updateRole(@PathVariable String roleId, @Validated @RequestBody RoleRequest request) throws ResourceNotFoundException {
+		final MasterRole updatedMasterRole = roleService.update(roleId, request);
+		return ResponseEntity.ok(updatedMasterRole);
 	}
 	
 	@DeleteMapping("/{roleId}")

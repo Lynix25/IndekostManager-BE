@@ -11,8 +11,7 @@ import javax.persistence.Entity;
 @Data
 @Entity
 @AllArgsConstructor @NoArgsConstructor
-public class Role extends AuditableEntity {
-
+public class MasterRole extends AuditableEntity {
 	private static final long serialVersionUID = 1L;
 	
 	@Column(unique = true, nullable = false)

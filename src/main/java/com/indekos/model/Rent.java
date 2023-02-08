@@ -6,16 +6,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity
-@AllArgsConstructor @NoArgsConstructor
-public class Service extends AuditableEntity {
-    @Column(nullable = false)
-    private String serviceName;
-    @Column(nullable = false)
-    private String variant;
+@NoArgsConstructor @AllArgsConstructor
+public class Rent extends AuditableEntity {
+    private String roomId;
     private Integer price;
+    private String month;
+    private Long dueDate;
+    private Integer status;
 
 //    @ManyToOne(targetEntity = Transaction.class, cascade = CascadeType.ALL)
 //    @JoinColumn(name = "transaction_id", referencedColumnName = "id")

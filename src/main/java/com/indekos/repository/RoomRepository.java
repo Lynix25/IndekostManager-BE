@@ -19,7 +19,7 @@ public interface RoomRepository extends JpaRepository<Room, String> {
 	Room findByName(String roomName);
 	
 	@Query(value = "SELECT * FROM room WHERE name LIKE :room_name AND id NOT LIKE :room_id AND is_deleted IS FALSE", nativeQuery = true)
-	Room findByNameAndIdNot(@Param("room_name") String roomName, @Param("room_id")  String roomId);
+    Room findByNameAndIdNot(@Param("room_name") String roomName, @Param("room_id")  String roomId);
 	
 	@Query(value="SELECT id, name, description, quota, (quota - "
 			+ "(SELECT COUNT(*) FROM user u LEFT JOIN room r "

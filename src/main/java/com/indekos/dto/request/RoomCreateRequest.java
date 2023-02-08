@@ -2,7 +2,7 @@ package com.indekos.dto.request;
 
 import lombok.Getter;
 
-import javax.persistence.Column;
+import java.util.List;
 
 @Getter
 public class RoomCreateRequest extends AuditableRequest {
@@ -10,5 +10,6 @@ public class RoomCreateRequest extends AuditableRequest {
 	private String description;
 	private Integer quota;
 	private Integer floor;
-	private Integer price;
+	private String facility;
+	private List<RoomDetailCreateRequest> details;
 }
