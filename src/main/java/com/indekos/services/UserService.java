@@ -48,9 +48,10 @@ public class UserService {
     public User register(UserRegisterRequest userRegisterRequest){
         User user = modelMapper.map(userRegisterRequest, User.class);
         user.create(userRegisterRequest.getRequesterIdUser());
-
         user.setDeleted(false);
-        user.setInactiveSince(System.currentTimeMillis());
+        user.setJoinedOn(System.currentTimeMillis());
+        user.setInactiveSince(null);
+        
 //        try {
 //            user.setIdentityCardImage(Utils.compressImage(userRequest.getIdentityCardImage().getBytes()));
 //        }catch (Exception e){
