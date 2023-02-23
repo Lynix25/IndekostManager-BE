@@ -2,7 +2,9 @@ package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.AuditableRequest;
+import com.indekos.dto.request.ImageUploadRequest;
 import com.indekos.dto.request.UserUpdateRequest;
+import com.indekos.utils.Utils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -12,7 +14,9 @@ import com.indekos.common.helper.exception.ResourceNotFoundException;
 import com.indekos.dto.request.UserRegisterRequest;
 import com.indekos.model.User;
 import com.indekos.repository.UserRepository;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -29,7 +33,9 @@ public class UserService {
 
     public User getById(String id){
         try {
-            return userRepository.findById(id).get();
+            User user = userRepository.findById(id).get();
+            user.setIdentityCardImage(Utils.decompressImage(user.getIdentityCardImage()));
+            return user;
         }catch (NoSuchElementException e){
             throw new InvalidUserCredentialException("Invalid User ID");
         }
@@ -46,16 +52,17 @@ public class UserService {
 //    }
 
     public User register(UserRegisterRequest userRegisterRequest){
+        modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
+            mapper.map(src -> false, User::setDeleted);
+            mapper.map(src -> System.currentTimeMillis(), User::setInactiveSince);
+        });
+
         User user = modelMapper.map(userRegisterRequest, User.class);
+//        user.setIdentityCardImage(Utils.compressImage(userRegisterRequest.getIdentityCardImage()));
         user.create(userRegisterRequest.getRequesterIdUser());
 
         user.setDeleted(false);
         user.setInactiveSince(System.currentTimeMillis());
-//        try {
-//            user.setIdentityCardImage(Utils.compressImage(userRequest.getIdentityCardImage().getBytes()));
-//        }catch (Exception e){
-//            System.out.println(e);
-//        }
 
         save(user);
         return user;
@@ -79,6 +86,15 @@ public class UserService {
 
         modelMapper.map(request, user);
         user.update(request.getRequesterIdUser());
+        save(user);
+        return user;
+    }
+
+    public User uploadIdentityCard(String userId, MultipartFile request){
+        User user = getById(userId);
+
+        user.setIdentityCardImage(Utils.compressImage(request));
+        user.update("System By Pass");
         save(user);
         return user;
     }

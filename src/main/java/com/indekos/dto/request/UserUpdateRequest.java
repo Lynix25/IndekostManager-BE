@@ -1,6 +1,7 @@
 package com.indekos.dto.request;
 
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 public class UserUpdateRequest extends AuditableRequest{

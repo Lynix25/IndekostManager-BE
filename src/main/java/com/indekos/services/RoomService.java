@@ -3,17 +3,14 @@ package com.indekos.services;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import com.indekos.common.helper.exception.InvalidUserCredentialException;
+import com.indekos.common.helper.exception.*;
 import com.indekos.dto.request.RoomDetailCreateRequest;
-import com.indekos.model.RoomDetail;
+import com.indekos.model.RoomPriceDetail;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import com.indekos.common.helper.exception.DataAlreadyExistException;
-import com.indekos.common.helper.exception.InternalServerErrorException;
-import com.indekos.common.helper.exception.ResourceNotFoundException;
 import com.indekos.dto.request.RoomCreateRequest;
 import com.indekos.dto.response.RoomResponse;
 import com.indekos.model.Room;
@@ -65,10 +62,10 @@ public class RoomService {
 //	}
 	public Room create(RoomCreateRequest request){
 		Room room = modelMapper.map(request, Room.class);
+		System.out.println(room);
 		room.create(request.getRequesterIdUser());
 
 		save(room);
-
 		return room;
 	}
 
@@ -88,14 +85,14 @@ public class RoomService {
 		}
 	}
 
-	public RoomDetail addRoomDetail(String roomId, RoomDetailCreateRequest request){
+	public RoomPriceDetail addRoomDetail(String roomId, RoomDetailCreateRequest request){
 		Room room = getById(roomId);
-		RoomDetail newRoomDetail = modelMapper.map(request, RoomDetail.class);
-		room.getDetails().add(newRoomDetail);
+		RoomPriceDetail newRoomPriceDetail = modelMapper.map(request, RoomPriceDetail.class);
+		room.getDetails().add(newRoomPriceDetail);
 
 		save(room);
 
-		return newRoomDetail;
+		return newRoomPriceDetail;
 	}
 	public boolean delete(String roomId) {
 		Room data = roomRepository.findById(roomId)
@@ -109,12 +106,19 @@ public class RoomService {
 		} else throw new InternalServerErrorException("This room is still rented by the tenant!");
 	}
 
+	public boolean testDelete(String roomId){
+		Room room = getById(roomId);
+		roomRepository.delete(room);
+		return true;
+	}
+
 	public void save(Room room){
 		try {
 			roomRepository.save(room);
 		}
 		catch (DataIntegrityViolationException e){
 			System.out.println(e);
+			throw new InvalidRequestException("DataIntegrityViolationException");
 		}
 		catch (Exception e){
 			System.out.println(e);

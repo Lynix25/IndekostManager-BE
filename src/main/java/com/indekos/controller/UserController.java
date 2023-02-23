@@ -2,6 +2,7 @@ package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.dto.request.AuditableRequest;
+import com.indekos.dto.request.ImageUploadRequest;
 import com.indekos.dto.request.UserRegisterRequest;
 import com.indekos.dto.request.UserUpdateRequest;
 import com.indekos.dto.response.Response;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -49,6 +51,13 @@ public class UserController {
         Validated.request(errors);
 
     	return GlobalAcceptions.data(userService.update(userId, userRegisterRequest),"Success");
+    }
+    @PutMapping("/image/{userId}")
+    public ResponseEntity updateUser(@PathVariable String userId, @RequestBody MultipartFile image){
+        System.out.println(image);
+
+//        return new ResponseEntity<>(HttpStatus.OK);
+        return GlobalAcceptions.data(userService.uploadIdentityCard(userId, image),"Upload Identity Card Success");
     }
     @DeleteMapping("/{userId}")
     public Map<String, Boolean> deleteUser(@PathVariable String userId, @Valid @RequestBody AuditableRequest responseBody) {

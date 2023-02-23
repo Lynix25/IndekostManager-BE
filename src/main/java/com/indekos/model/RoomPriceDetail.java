@@ -10,6 +10,10 @@ import javax.persistence.Entity;
 @Data
 @Entity
 @AllArgsConstructor @NoArgsConstructor
-public class RoomFacility extends BaseEntity {
-    private String name;
+public class RoomPriceDetail extends BaseEntity {
+    private Integer capacity;
+    private Integer price;
+
+//    @ManyToOne
+//    private Room room;
 }

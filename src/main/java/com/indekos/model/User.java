@@ -48,6 +48,7 @@ public class User extends AuditableEntity {
 
 //    private String accountId;
 
-//	@Column(nullable = false)
-//	private byte[] identityCardImage;
+	@Lob
+	@Column(nullable = false,length = 1000)
+	private byte[] identityCardImage;
 }

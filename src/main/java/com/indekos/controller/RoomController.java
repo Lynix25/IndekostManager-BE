@@ -5,10 +5,10 @@ import com.indekos.dto.request.RoomCreateRequest;
 import com.indekos.dto.request.RoomDetailCreateRequest;
 import com.indekos.dto.response.RoomResponse;
 import com.indekos.model.Room;
-import com.indekos.model.RoomDetail;
 import com.indekos.services.RoomService;
 import com.indekos.utils.Validated;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -64,5 +64,12 @@ public class RoomController {
 		Map<String, Boolean> response = new HashMap<>();
 		response.put("Deleted", roomService.delete(roomId));
 		return response;
+	}
+
+	@DeleteMapping("/test/{roomId}")
+	public ResponseEntity testDeleteRoom(@PathVariable String roomId) {
+		roomService.testDelete(roomId);
+		System.out.println(roomId);
+		return new ResponseEntity<>("Deleted", HttpStatus.OK);
 	}
 }
