@@ -30,5 +30,5 @@ public class Task extends AuditableEntity {
      * 3 completed
      */
     @Column(nullable = false)
-    private int status;
+    private Integer status;
 }

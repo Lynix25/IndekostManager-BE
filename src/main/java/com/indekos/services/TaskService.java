@@ -2,6 +2,7 @@ package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.request.TaskCreateRequest;
+import com.indekos.dto.request.TaskUpdateRequest;
 import com.indekos.model.Task;
 import com.indekos.repository.TaskRepository;
 import org.modelmapper.ModelMapper;
@@ -33,6 +34,15 @@ public class TaskService {
         }catch (NoSuchElementException e){
             throw new InvalidRequestIdException("Invalid Task ID");
         }
+    }
+
+    public Task update(String id,TaskUpdateRequest request){
+        Task task = getById(id);
+        task.setStatus(request.getStatus());
+        task.update(request.getRequesterIdUser());
+
+        taskRepository.save(task);
+        return task;
     }
 
     public List<Task> getAll() {
