@@ -36,11 +36,11 @@ public class Room extends AuditableEntity {
 
 	@OneToMany(targetEntity = RoomPriceDetail.class, cascade = CascadeType.ALL)
 	@JoinColumn(name = "room_id",referencedColumnName = "id")
-	private List<RoomPriceDetail> details;
+	private List<RoomPriceDetail> prices;
 
 	@OneToMany(targetEntity = RoomDetail.class, cascade = CascadeType.ALL)
 	@JoinColumn(name = "room_id",referencedColumnName = "id")
-	private List<RoomDetail> facilities;
+	private List<RoomDetail> details;
 
 	@OneToMany(targetEntity = User.class, cascade = CascadeType.ALL)
 	@JoinColumn(name = "room_id", referencedColumnName = "id")

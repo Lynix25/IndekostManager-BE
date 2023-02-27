@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.indekos.common.helper.exception.*;
-import com.indekos.dto.request.RoomDetailCreateRequest;
+import com.indekos.dto.request.RoomPriceCreateRequest;
 import com.indekos.model.RoomPriceDetail;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,10 +85,10 @@ public class RoomService {
 		}
 	}
 
-	public RoomPriceDetail addRoomDetail(String roomId, RoomDetailCreateRequest request){
+	public RoomPriceDetail addRoomDetail(String roomId, RoomPriceCreateRequest request){
 		Room room = getById(roomId);
 		RoomPriceDetail newRoomPriceDetail = modelMapper.map(request, RoomPriceDetail.class);
-		room.getDetails().add(newRoomPriceDetail);
+		room.getPrices().add(newRoomPriceDetail);
 
 		save(room);
 

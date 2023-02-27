@@ -2,7 +2,7 @@ package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.dto.request.RoomCreateRequest;
-import com.indekos.dto.request.RoomDetailCreateRequest;
+import com.indekos.dto.request.RoomPriceCreateRequest;
 import com.indekos.dto.response.RoomResponse;
 import com.indekos.model.Room;
 import com.indekos.services.RoomService;
@@ -47,7 +47,7 @@ public class RoomController {
 	}
 
 	@PostMapping("/{id}/details")
-	public ResponseEntity addRoomDetail(@PathVariable(value = "id") String roomId,@Valid @RequestBody RoomDetailCreateRequest requestBody, Errors erros){
+	public ResponseEntity addRoomDetail(@PathVariable(value = "id") String roomId, @Valid @RequestBody RoomPriceCreateRequest requestBody, Errors erros){
 		Validated.request(erros);
 
 		return GlobalAcceptions.data(roomService.addRoomDetail(roomId, requestBody),"New Room Detail Data");
