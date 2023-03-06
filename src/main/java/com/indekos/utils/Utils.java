@@ -1,6 +1,9 @@
 package com.indekos.utils;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -33,6 +36,31 @@ public class Utils {
         } catch (Exception e) {
         }
         return outputStream.toByteArray();
+    }
+
+    public static byte[] compressImage(MultipartFile image) {
+        try {
+            byte[] data = image.getBytes();
+            Deflater deflater = new Deflater();
+            deflater.setLevel(Deflater.BEST_COMPRESSION);
+            deflater.setInput(data);
+            deflater.finish();
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+            byte[] tmp = new byte[4*1024];
+            while (!deflater.finished()) {
+                int size = deflater.deflate(tmp);
+                outputStream.write(tmp, 0, size);
+            }
+            try {
+                outputStream.close();
+            } catch (Exception e) {
+            }
+            return outputStream.toByteArray();
+        }catch (IOException e){
+            System.out.println(e);
+        }
+        return new byte[1];
     }
 
     public static byte[] decompressImage(byte[] data) {

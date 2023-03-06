@@ -3,7 +3,7 @@ package com.indekos.services;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.RoomDetailCreateRequest;
 import com.indekos.model.Room;
-import com.indekos.model.RoomDetail;
+import com.indekos.model.RoomPriceDetail;
 import com.indekos.repository.RoomDetailRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,19 +20,19 @@ public class RoomDetailService {
     @Autowired
     RoomService roomService;
 
-    public RoomDetail addRoomDetail(String roomId, RoomDetailCreateRequest request){
+    public RoomPriceDetail addRoomDetail(String roomId, RoomDetailCreateRequest request){
         Room room = roomService.getById(roomId);
-        RoomDetail newRoomDetail = modelMapper.map(request, RoomDetail.class);
+        RoomPriceDetail newRoomPriceDetail = modelMapper.map(request, RoomPriceDetail.class);
 //        newRoomDetail.setRoom(room);
-        room.getDetails().add(newRoomDetail);
+        room.getDetails().add(newRoomPriceDetail);
 
 //        roomDetailRepository.save(newRoomDetail);
         roomService.save(room);
 
-        return newRoomDetail;
+        return newRoomPriceDetail;
     }
 
-    public RoomDetail getByID(String id){
+    public RoomPriceDetail getByID(String id){
         try {
             return roomDetailRepository.findById(id).get();
         }catch (NoSuchElementException e){
