@@ -2,7 +2,6 @@ package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.AuditableRequest;
-import com.indekos.dto.request.ImageUploadRequest;
 import com.indekos.dto.request.UserUpdateRequest;
 import com.indekos.utils.Utils;
 import org.modelmapper.ModelMapper;
@@ -16,7 +15,6 @@ import com.indekos.model.User;
 import com.indekos.repository.UserRepository;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -54,15 +52,17 @@ public class UserService {
     public User register(UserRegisterRequest userRegisterRequest){
         modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
             mapper.map(src -> false, User::setDeleted);
+            mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
             mapper.map(src -> System.currentTimeMillis(), User::setInactiveSince);
+            mapper.map(src -> src.getRequesterIdUser(), User::create);
+            mapper.map(src -> {return Utils.compressImage(userRegisterRequest.getIdentityCardImage());}, User::setIdentityCardImage);
         });
 
         User user = modelMapper.map(userRegisterRequest, User.class);
 //        user.setIdentityCardImage(Utils.compressImage(userRegisterRequest.getIdentityCardImage()));
-        user.create(userRegisterRequest.getRequesterIdUser());
-
-        user.setDeleted(false);
-        user.setInactiveSince(System.currentTimeMillis());
+//        user.create(userRegisterRequest.getRequesterIdUser());
+//        user.setDeleted(false);
+//        user.setInactiveSince(System.currentTimeMillis());
 
         save(user);
         return user;

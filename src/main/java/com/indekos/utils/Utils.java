@@ -19,7 +19,7 @@ public class Utils {
     }
 
     public static byte[] compressImage(byte[] data) {
-
+        if (data == null) return null;
         Deflater deflater = new Deflater();
         deflater.setLevel(Deflater.BEST_COMPRESSION);
         deflater.setInput(data);
@@ -39,6 +39,7 @@ public class Utils {
     }
 
     public static byte[] compressImage(MultipartFile image) {
+        if (image == null) return null;
         try {
             byte[] data = image.getBytes();
             Deflater deflater = new Deflater();
@@ -64,6 +65,7 @@ public class Utils {
     }
 
     public static byte[] decompressImage(byte[] data) {
+        if (data == null) return null;
         Inflater inflater = new Inflater();
         inflater.setInput(data);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);

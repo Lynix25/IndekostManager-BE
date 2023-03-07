@@ -1,10 +1,10 @@
 package com.indekos.dto.request;
 
-import lombok.Getter;
+import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 
-@Getter
+@Data
 public class AuditableRequest {
     @NotEmpty(message = "User ID requester is required")
     private String requesterIdUser;
