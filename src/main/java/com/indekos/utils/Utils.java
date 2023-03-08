@@ -18,6 +18,15 @@ public class Utils {
         return UUID.randomUUID().toString();
     }
 
+    public static double dayDiv(Long date1, Long date2){
+        Long dayInmilis = 86400000L;
+        Long millisecond = Math.abs(date1-date2);
+
+        double dayDiff = (double) millisecond/ (double) dayInmilis;
+
+        return dayDiff;
+    }
+
     public static byte[] compressImage(byte[] data) {
         if (data == null) return null;
         Deflater deflater = new Deflater();

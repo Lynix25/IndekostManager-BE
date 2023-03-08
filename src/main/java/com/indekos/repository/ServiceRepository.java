@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface ServiceRepository extends JpaRepository<Service, String> {
 
-//    @Query(value = "SELECT * FROM room WHERE name LIKE :room_name AND id NOT LIKE :room_id AND is_deleted IS FALSE", nativeQuery = true)
-//    List<Service> findUnpaidByid(@Param("user_id") String id);
+    @Query(value = "SELECT * FROM service WHERE created_by LIKE :user_id", nativeQuery = true)
+    List<Service> findUnpaidById(@Param("user_id") String id);
 
 }

@@ -54,7 +54,7 @@ public class RoomController {
 	}
 	
 	@PutMapping("/{roomId}")
-	public ResponseEntity<Room> updateRoom(@PathVariable String roomId, @Valid @RequestBody RoomCreateRequest request) {
+	public ResponseEntity<Room> updateRoom(@PathVariable String roomId, @RequestBody RoomCreateRequest request) {
 		Room updatedRoom = roomService.update(roomId, request);
 		return ResponseEntity.ok(updatedRoom);
 	}

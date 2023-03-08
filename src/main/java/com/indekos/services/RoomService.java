@@ -1,20 +1,23 @@
 package com.indekos.services;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import com.indekos.common.helper.exception.*;
+import com.indekos.common.helper.exception.DataAlreadyExistException;
+import com.indekos.common.helper.exception.InternalServerErrorException;
+import com.indekos.common.helper.exception.InvalidRequestException;
+import com.indekos.common.helper.exception.ResourceNotFoundException;
+import com.indekos.dto.request.RoomCreateRequest;
 import com.indekos.dto.request.RoomPriceCreateRequest;
+import com.indekos.dto.response.RoomResponse;
+import com.indekos.model.Room;
 import com.indekos.model.RoomPriceDetail;
+import com.indekos.repository.RoomRepository;
+import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import com.indekos.dto.request.RoomCreateRequest;
-import com.indekos.dto.response.RoomResponse;
-import com.indekos.model.Room;
-import com.indekos.repository.RoomRepository;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class RoomService {
@@ -31,7 +34,7 @@ public class RoomService {
 		try {
 			return roomRepository.findById(id).get();
 		}catch (NoSuchElementException e){
-			throw new InvalidUserCredentialException("Invalid Room ID");
+			throw new ResourceNotFoundException("Room not found for this id :: " + id);
 		}
 	}
 	
@@ -70,19 +73,18 @@ public class RoomService {
 	}
 
 	public Room update(String roomId, RoomCreateRequest request) {
-		Room data = roomRepository.findById(roomId)
-				.orElseThrow(() -> new ResourceNotFoundException("Room not found for this id :: " + roomId));
-	
+		Room room = getById(roomId);
+
+		modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+		modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
+			mapper.map(RoomCreateRequest::getRequesterIdUser, Room::update);
+		});
+
 		if(roomRepository.findByNameAndIdNot(request.getName(), roomId) != null) throw new DataAlreadyExistException();
-		else {
-			data.setName(request.getName());
-			data.setDescription(request.getDescription());
-			data.setQuota(request.getQuota());
-			data.update(request.getRequesterIdUser());
-			
-			final Room updatedData = roomRepository.save(data);
-			return updatedData;
-		}
+
+		modelMapper.map(request, room);
+		save(room);
+		return room;
 	}
 
 	public RoomPriceDetail addRoomDetail(String roomId, RoomPriceCreateRequest request){

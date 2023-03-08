@@ -57,12 +57,11 @@ public class UserController {
         return new ResponseEntity(new Response("Berhasil","User berhasil di tambahkan"), HttpStatus.OK);
     }
 
-//    @PutMapping("/{userId}")
-//    public ResponseEntity updateUser(@PathVariable String userId, @Valid @RequestBody UserUpdateRequest userRegisterRequest, Errors errors){
-//        Validated.request(errors);
-//
-//    	return GlobalAcceptions.data(userService.update(userId, userRegisterRequest),"Success");
-//    }
+    @PutMapping("/{userId}")
+    public ResponseEntity updateUser(@PathVariable String userId, @RequestBody UserRegisterRequest requestBody){
+
+    	return GlobalAcceptions.data(userService.update(userId, requestBody),"Success");
+    }
 
     @DeleteMapping("/{userId}")
     public Map<String, Boolean> deleteUser(@PathVariable String userId, @Valid @RequestBody AuditableRequest responseBody) {

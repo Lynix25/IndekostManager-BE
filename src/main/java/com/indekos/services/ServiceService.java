@@ -24,9 +24,9 @@ public class ServiceService {
         return serviceRepository.findAll();
     }
 
-//    public List<Service> getAllUnpaid(String id){
-//
-//    }
+    public List<Service> getAllUnpaid(String userId){
+        return serviceRepository.findUnpaidById(userId);
+    }
 
     public Service getByID(String id){
         try {
