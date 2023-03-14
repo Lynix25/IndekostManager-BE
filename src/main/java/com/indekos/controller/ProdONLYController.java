@@ -1,6 +1,7 @@
 package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
+import com.indekos.model.RoomDetail;
 import com.indekos.model.RoomPriceDetail;
 import com.indekos.services.RoomDetailService;
 import com.indekos.services.ServiceService;
@@ -31,7 +32,7 @@ public class ProdONLYController {
 
     @GetMapping("/roomdetail/{id}")
     public ResponseEntity getRoomDetail(@PathVariable String id){
-        RoomPriceDetail roomPriceDetail = roomDetailService.getByID(id);
+        RoomDetail roomPriceDetail = roomDetailService.getByID(id);
 
         return GlobalAcceptions.data(roomPriceDetail, "Room Detail Data");
     }

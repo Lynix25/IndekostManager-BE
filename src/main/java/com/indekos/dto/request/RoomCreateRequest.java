@@ -11,6 +11,6 @@ public class RoomCreateRequest extends AuditableRequest {
 	private Integer quota;
 	private Integer floor;
 	private String allotment;
-	private List<RoomFacilityCreateRequest> facilities;
-	private List<RoomDetailCreateRequest> details;
+	private List<RoomDetailsCreateRequest> details;
+	private List<RoomPriceCreateRequest> prices;
 }

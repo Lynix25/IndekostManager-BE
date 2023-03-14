@@ -1,5 +1,6 @@
 package com.indekos.dto.request;
 
+import lombok.Data;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -7,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-@Getter
+@Data
 public class UserRegisterRequest extends AuditableRequest{
     @NotBlank(message = "user name is required")
     private String name;
@@ -39,9 +40,10 @@ public class UserRegisterRequest extends AuditableRequest{
     @NotEmpty(message = "user account id can't be empty")
     private String accountId;
 
-    @NotEmpty(message = "user join on can't be empty")
-    private Long joinedOn;
+//    @NotEmpty(message = "user join on can't be empty")
+//    private Long joinedOn;
 
-    @NotEmpty(message = "user identity card can't be empty")
+//    @NotEmpty(message = "user identity card can't be empty")
     private MultipartFile identityCardImage;
+
 }

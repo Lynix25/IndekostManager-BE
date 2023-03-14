@@ -18,8 +18,17 @@ public class Utils {
         return UUID.randomUUID().toString();
     }
 
-    public static byte[] compressImage(byte[] data) {
+    public static double dayDiv(Long date1, Long date2){
+        Long dayInmilis = 86400000L;
+        Long millisecond = Math.abs(date1-date2);
 
+        double dayDiff = (double) millisecond/ (double) dayInmilis;
+
+        return dayDiff;
+    }
+
+    public static byte[] compressImage(byte[] data) {
+        if (data == null) return null;
         Deflater deflater = new Deflater();
         deflater.setLevel(Deflater.BEST_COMPRESSION);
         deflater.setInput(data);
@@ -39,6 +48,7 @@ public class Utils {
     }
 
     public static byte[] compressImage(MultipartFile image) {
+        if (image == null) return null;
         try {
             byte[] data = image.getBytes();
             Deflater deflater = new Deflater();
@@ -64,6 +74,7 @@ public class Utils {
     }
 
     public static byte[] decompressImage(byte[] data) {
+        if (data == null) return null;
         Inflater inflater = new Inflater();
         inflater.setInput(data);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);

@@ -2,9 +2,10 @@ package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.AuditableRequest;
-import com.indekos.dto.request.ImageUploadRequest;
 import com.indekos.dto.request.UserUpdateRequest;
+import com.indekos.repository.RoomRepository;
 import com.indekos.utils.Utils;
+import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,7 +17,6 @@ import com.indekos.model.User;
 import com.indekos.repository.UserRepository;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -26,6 +26,9 @@ public class UserService {
     ModelMapper modelMapper;
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    RoomRepository roomRepository;
 
     public List<User> getAll() {
         return userRepository.findAllActiveUserOrderByName();
@@ -37,7 +40,7 @@ public class UserService {
             user.setIdentityCardImage(Utils.decompressImage(user.getIdentityCardImage()));
             return user;
         }catch (NoSuchElementException e){
-            throw new InvalidUserCredentialException("Invalid User ID");
+            throw new ResourceNotFoundException("User not found for this id :: " + id);
         }
     }
 
@@ -54,16 +57,19 @@ public class UserService {
     public User register(UserRegisterRequest userRegisterRequest){
         modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
             mapper.map(src -> false, User::setDeleted);
+            mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
             mapper.map(src -> System.currentTimeMillis(), User::setInactiveSince);
+            mapper.map(src -> src.getRequesterIdUser(), User::create);
+            mapper.map(src -> {return Utils.compressImage(userRegisterRequest.getIdentityCardImage());}, User::setIdentityCardImage);
         });
 
         User user = modelMapper.map(userRegisterRequest, User.class);
+//        user.setRoom(roomRepository.findById(userRegisterRequest.getRoomId()).get());
 //        user.setIdentityCardImage(Utils.compressImage(userRegisterRequest.getIdentityCardImage()));
-        user.create(userRegisterRequest.getRequesterIdUser());
-
-        user.setDeleted(false);
-        user.setInactiveSince(System.currentTimeMillis());
-
+//        user.create(userRegisterRequest.getRequesterIdUser());
+//        user.setDeleted(false);
+//        user.setInactiveSince(System.currentTimeMillis());
+//        System.out.println(user.getRoom());
         save(user);
         return user;
     }
@@ -80,12 +86,16 @@ public class UserService {
         }
     }
     
-    public User update(String userId, UserUpdateRequest request) {
-    	User user = userRepository.findById(userId)
-    			.orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId));
+    public User update(String userId, UserRegisterRequest request) {
+    	User user = getById(userId);
+
+        modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+        modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
+           mapper.map(UserRegisterRequest::getRequesterIdUser, User::update);
+        });
 
         modelMapper.map(request, user);
-        user.update(request.getRequesterIdUser());
+//        user.update(request.getRequesterIdUser());
         save(user);
         return user;
     }
