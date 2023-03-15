@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 
 @Data
 @Entity
@@ -23,5 +24,8 @@ public class Announcement extends AuditableEntity {
 	@Column(nullable = false)
 	private String period;
 
+	@Lob
+	@Column(length = 1000)
+	private byte[] image;
 //	private MultipartFile image;
 }
