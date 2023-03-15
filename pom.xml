@@ -13,7 +13,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>indekos</name>
-	<description>Project SaaS Indekos Skripsi</description>
+	<description>Boarding House Management Application</description>
 	
 	<properties>
 		<java.version>18</java.version>
