@@ -48,6 +48,16 @@ public class AuditableEntity extends BaseEntity {
 //		setCreatedDate(Instant.now());
 //	}
 	
+	public void updateCreated (String user) {
+		if(user == "" || user == null)
+//			setLastModifiedBy("system");
+			this.createdBy = "system";
+		else
+//			setLastModifiedBy(user);
+			this.createdBy = "user";
+//		this.createdDate = System.currentTimeMillis();
+	}
+	
 	public void updateLastModified (String user) {
 		if(user == "" || user == null)
 //			setLastModifiedBy("system");
