@@ -1,11 +1,14 @@
 package com.indekos.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.dto.request.RoomCreateRequest;
 import com.indekos.dto.request.RoomPriceCreateRequest;
 import com.indekos.dto.response.RoomResponse;
 import com.indekos.model.Room;
 import com.indekos.services.RoomService;
+import com.indekos.services.UserService;
 import com.indekos.utils.Validated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping(value = "/room")
@@ -25,30 +29,32 @@ public class RoomController {
 	private RoomService roomService;
 	
 	@GetMapping
-	public ResponseEntity getAllRoom() {
+	public ResponseEntity getAllRoom() throws InterruptedException {
 		return GlobalAcceptions.listData(roomService.getAll(), "All Room Data");
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity getRoom (@PathVariable String id){
-		return GlobalAcceptions.data(roomService.getById(id),"Room Data");
+		Room room = roomService.getById(id);
+
+		return GlobalAcceptions.data(room,"Room Data");
 	}
 	
 	@GetMapping("/available")
-	public List<RoomResponse> getAllAvailableRoom(@RequestParam String roomName) {
-		return roomService.getAllAvailable(roomName);
+	public ResponseEntity getAllAvailableRoom(@RequestParam String roomName) {
+		return GlobalAcceptions.listData(roomService.getAllAvailable(roomName), "Room List Data");
 	}
 	
 	@PostMapping
-	public Room createRoom(@Valid @RequestBody RoomCreateRequest request, Errors errors) {
+	public ResponseEntity createRoom(@Valid @RequestBody RoomCreateRequest request, Errors errors) {
 		Validated.request(errors);
 
-		return roomService.create(request);
+		return new ResponseEntity<>(roomService.create(request), HttpStatus.OK);
 	}
 
 	@PostMapping("/{id}/details")
-	public ResponseEntity addRoomDetail(@PathVariable(value = "id") String roomId, @Valid @RequestBody RoomPriceCreateRequest requestBody, Errors erros){
-		Validated.request(erros);
+	public ResponseEntity addRoomDetail(@PathVariable(value = "id") String roomId, @Valid @RequestBody RoomPriceCreateRequest requestBody, Errors errors){
+		Validated.request(errors);
 
 		return GlobalAcceptions.data(roomService.addRoomDetail(roomId, requestBody),"New Room Detail Data");
 	}
@@ -60,15 +66,13 @@ public class RoomController {
 	}
 	
 	@DeleteMapping("/{roomId}")
-	public Map<String, Boolean> deleteRoom(@PathVariable String roomId) {
-		Map<String, Boolean> response = new HashMap<>();
-		response.put("Deleted", roomService.delete(roomId));
-		return response;
+	public ResponseEntity deleteRoom(@PathVariable String roomId) {
+		return GlobalAcceptions.data(roomService.delete(roomId), "Deleted");
 	}
 
 	@DeleteMapping("/test/{roomId}")
 	public ResponseEntity testDeleteRoom(@PathVariable String roomId) {
-		roomService.testDelete(roomId);
+		roomService.deleteV2(roomId);
 		System.out.println(roomId);
 		return new ResponseEntity<>("Deleted", HttpStatus.OK);
 	}

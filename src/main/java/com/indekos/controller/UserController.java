@@ -1,6 +1,7 @@
 package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
+import com.indekos.dto.UserSettingsDTO;
 import com.indekos.dto.request.*;
 import com.indekos.dto.response.Response;
 import com.indekos.model.User;
@@ -8,6 +9,7 @@ import com.indekos.services.UserService;
 import com.indekos.utils.Validated;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -36,6 +38,11 @@ public class UserController {
 
         return ResponseEntity.ok().body(user);
     }
+    @GetMapping("/{id}/settings")
+    public ResponseEntity getUserSettings(@PathVariable String id){
+        UserSettingsDTO userSettings = userService.getSettings(id);
+        return new ResponseEntity<>(userSettings,HttpStatus.OK);
+    }
 //    @PostMapping
 //    public ResponseEntity register(@Valid @RequestBody UserRegisterRequest userRegisterRequest, Errors errors){
 //        Validated.request(errors);
@@ -44,29 +51,35 @@ public class UserController {
 //
 //        return new ResponseEntity(new Response("Berhasil","User berhasil di tambahkan"), HttpStatus.OK);
 //    }
-
+//            @RequestHeader(value = "Requester-ID") String requesterId, @RequestHeader HttpHeaders header,
     @PostMapping
     public ResponseEntity registerV2(
 //            @RequestHeader(value = "Requester-ID") String requesterId, @RequestHeader HttpHeaders header,
-            @ModelAttribute MultipartFile identityCardImage , @Valid @ModelAttribute UserRegisterRequest request, Errors errors){
+            @ModelAttribute MultipartFile identityCardImage , @Valid @ModelAttribute UserRegisterRequest requestBody, Errors errors){
         Validated.request(errors);
-        request.setIdentityCardImage(identityCardImage);
-        User user = userService.register(request);
+        requestBody.setIdentityCardImage(identityCardImage);
+
+        User user = userService.register(requestBody);
 
 //        return new ResponseEntity(user, HttpStatus.OK);
         return new ResponseEntity(new Response("Berhasil","User berhasil di tambahkan"), HttpStatus.OK);
     }
+    @PostMapping("/{id}/contact-able-person")
+    public ResponseEntity addContactAblePerson(@PathVariable String id,@Valid @RequestBody ContactAblePersonCreateRequest requestBody, Errors errors){
+        Validated.request(errors);
 
+        userService.addContactAblePesson(id,requestBody);
+
+        return GlobalAcceptions.emptyData("Success add contactable person");
+    }
     @PutMapping("/{userId}")
     public ResponseEntity updateUser(@PathVariable String userId, @RequestBody UserRegisterRequest requestBody){
 
     	return GlobalAcceptions.data(userService.update(userId, requestBody),"Success");
     }
-
     @DeleteMapping("/{userId}")
-    public Map<String, Boolean> deleteUser(@PathVariable String userId, @Valid @RequestBody AuditableRequest responseBody) {
-    	Map<String, Boolean> response = new HashMap<>();
-		response.put("Deleted", userService.delete(userId, responseBody));
-		return response;
+    public ResponseEntity deleteUser(@PathVariable String userId, @Valid @RequestBody AuditableRequest requestBody) {
+        userService.delete(userId, requestBody);
+        return GlobalAcceptions.emptyData("Succes delete user : " + userId);
     }
 }

@@ -1,8 +1,10 @@
 package com.indekos.services;
 
-import com.indekos.common.helper.exception.InvalidUserCredentialException;
+import com.indekos.common.helper.exception.BadRequestException;
+import com.indekos.dto.UserSettingsDTO;
 import com.indekos.dto.request.AuditableRequest;
-import com.indekos.dto.request.UserUpdateRequest;
+import com.indekos.dto.request.ContactAblePersonCreateRequest;
+import com.indekos.model.ContactAblePerson;
 import com.indekos.repository.RoomRepository;
 import com.indekos.utils.Utils;
 import org.modelmapper.Conditions;
@@ -34,6 +36,9 @@ public class UserService {
         return userRepository.findAllActiveUserOrderByName();
     }
 
+    public List<User> getAllByRoomId(String roomId){
+        return userRepository.findAllByRoomId(roomId);
+    }
     public User getById(String id){
         try {
             User user = userRepository.findById(id).get();
@@ -60,16 +65,21 @@ public class UserService {
             mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
             mapper.map(src -> System.currentTimeMillis(), User::setInactiveSince);
             mapper.map(src -> src.getRequesterIdUser(), User::create);
-            mapper.map(src -> {return Utils.compressImage(userRegisterRequest.getIdentityCardImage());}, User::setIdentityCardImage);
+//            mapper.map(src -> {return Utils.compressImage(userRegisterRequest.getIdentityCardImage());}, User::setIdentityCardImage);
         });
 
         User user = modelMapper.map(userRegisterRequest, User.class);
-//        user.setRoom(roomRepository.findById(userRegisterRequest.getRoomId()).get());
-//        user.setIdentityCardImage(Utils.compressImage(userRegisterRequest.getIdentityCardImage()));
-//        user.create(userRegisterRequest.getRequesterIdUser());
-//        user.setDeleted(false);
-//        user.setInactiveSince(System.currentTimeMillis());
-//        System.out.println(user.getRoom());
+        user.setIdentityCardImage(Utils.compressImage(userRegisterRequest.getIdentityCardImage()));
+        save(user);
+        return user;
+    }
+
+    public User addContactAblePesson(String id,ContactAblePersonCreateRequest request){
+        User user = getById(id);
+        ContactAblePerson contactAblePerson = modelMapper.map(request, ContactAblePerson.class);
+
+        user.getContactAblePeople().add(contactAblePerson);
+
         save(user);
         return user;
     }
@@ -110,13 +120,21 @@ public class UserService {
     }
     
     public boolean delete(String userId, AuditableRequest request) {
-    	User user = userRepository.findById(userId)
-    			.orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId));
+    	User user = getById(userId);
     	
     	user.setDeleted(true);
         user.update(request.getRequesterIdUser());
+
     	userRepository.save(user);
-    	
+
     	return true;
+    }
+
+    public UserSettingsDTO getSettings(String id){
+        User user = getById(id);
+
+        UserSettingsDTO userSettings = modelMapper.map(user, UserSettingsDTO.class);
+
+        return userSettings;
     }
 }
