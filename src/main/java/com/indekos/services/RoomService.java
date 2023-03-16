@@ -64,10 +64,10 @@ public class RoomService {
 //		}
 //	}
 	public Room create(RoomCreateRequest request){
+		modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
+			mapper.map(RoomCreateRequest::getRequesterIdUser, Room::create);
+		});
 		Room room = modelMapper.map(request, Room.class);
-		System.out.println(room);
-		room.create(request.getRequesterIdUser());
-
 		save(room);
 		return room;
 	}
@@ -108,10 +108,17 @@ public class RoomService {
 		} else throw new InternalServerErrorException("This room is still rented by the tenant!");
 	}
 
-	public boolean testDelete(String roomId){
+	public boolean deleteV2(String roomId){
 		Room room = getById(roomId);
-		roomRepository.delete(room);
-		return true;
+
+		if(room.getUsers().size() == 0){
+			room.setDeleted(false);
+
+			save(room);
+			return true;
+		}else{
+			throw new InvalidRequestException("This room is still rented by the tenant!");
+		}
 	}
 
 	public void save(Room room){

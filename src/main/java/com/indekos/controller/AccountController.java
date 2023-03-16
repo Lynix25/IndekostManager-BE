@@ -42,9 +42,9 @@ public class AccountController {
     public ResponseEntity register(@Valid @RequestBody AccountRegisterRequest accountRegisterRequest, Errors errors){
         Validated.request(errors);
 
-        accountService.register(accountRegisterRequest);
+        Account account = accountService.register(accountRegisterRequest);
 
-        return new ResponseEntity(new Response("Sukses", "Success to register"), HttpStatus.OK);
+        return GlobalAcceptions.data(account, "Account success to register");
     }
     @PostMapping("/login")
     public ResponseEntity login (@Valid @RequestBody AccountLoginRequest accountLoginRequest, Errors errors){

@@ -5,9 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
+import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity
@@ -47,9 +46,28 @@ public class User extends AuditableEntity {
 	@Column(nullable = false)
     private String roleId;
 
-//    private String accountId;
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name="room_id")
+	private Room room;
+
+//  private String accountId;
+//	@OneToOne(targetEntity = Account.class, cascade = CascadeType.ALL)
+//	@JoinColumn(name = "account_id", referencedColumnName = "id")
+//	private Account account;
+
+//	@ManyToOne(targetEntity = Room.class, cascade = CascadeType.ALL)
+//	@JoinColumn(name = "user_id", referencedColumnName = "id")
+//	private Room room;
+	@OneToMany(targetEntity = ContactAblePerson.class, cascade = CascadeType.ALL)
+	@JoinColumn(name = "user_id", referencedColumnName = "id")
+	private List<ContactAblePerson> contactAblePeople;
 
 	@Lob
-	@Column(length = 1000)
+	@Column(nullable = false, length = 1000)
 	private byte[] identityCardImage;
+
+	//Settings
+	private boolean shareRoom;
+	private boolean enableNotification;
+
 }
