@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 	"id", "name", "description",
 	"quota", "remainingQuota"
 })
-public interface RoomResponse {
+public interface AvailableRoomResponse {
 	
 	String getId();
 	String getName();
