@@ -1,27 +1,31 @@
 package com.indekos.model;
 
-import com.indekos.common.base.entity.AuditableEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.indekos.common.base.entity.BaseEntity;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
-
+@EqualsAndHashCode(callSuper = false)
 @Data
 @Entity
 @NoArgsConstructor @AllArgsConstructor
-public class Account extends AuditableEntity {
+public class Account extends BaseEntity {
+	
     private static final long serialVersionUID = 1L;
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private String username;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
-    @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 }
