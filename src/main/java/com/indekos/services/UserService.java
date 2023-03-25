@@ -1,89 +1,230 @@
 package com.indekos.services;
 
-import com.indekos.common.helper.exception.BadRequestException;
-import com.indekos.dto.UserSettingsDTO;
+import com.indekos.common.helper.exception.InsertDataErrorException;
+import com.indekos.common.helper.exception.InvalidRequestIdException;
+import com.indekos.dto.DataIdDTO;
 import com.indekos.dto.request.AuditableRequest;
 import com.indekos.dto.request.ContactAblePersonCreateRequest;
 import com.indekos.model.ContactAblePerson;
-import com.indekos.repository.RoomRepository;
+import com.indekos.model.Room;
+import com.indekos.repository.ContactAblePersonRepository;
+import com.indekos.repository.UserDocumentRepository;
+import com.indekos.utils.Constant;
 import com.indekos.utils.Utils;
+
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import com.indekos.common.helper.exception.ResourceNotFoundException;
 import com.indekos.dto.request.UserRegisterRequest;
+import com.indekos.dto.response.UserDocumentResponse;
+import com.indekos.dto.response.UserResponse;
 import com.indekos.model.User;
+import com.indekos.model.UserDocument;
+import com.indekos.model.UserSetting;
 import com.indekos.repository.UserRepository;
+import com.indekos.repository.UserSettingRepository;
+
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class UserService {
+	
     @Autowired
     ModelMapper modelMapper;
+    
     @Autowired
     UserRepository userRepository;
-
+    
     @Autowired
-    RoomRepository roomRepository;
+    UserDocumentRepository userDocumentRepository;
+    
+    @Autowired
+    UserSettingRepository userSettingRepository;
+    
+    @Autowired
+    ContactAblePersonRepository contactAblePersonRepository;
+    
+    @Autowired
+    RoomService roomService;
+    
+    @Autowired
+    RoleService roleService;
+    
+    @Autowired
+    AccountService accountService;
 
-    public List<User> getAll() {
-        return userRepository.findAllActiveUserOrderByName();
+    /* ==================================================== USER ==================================================== */
+    public List<UserResponse> getAll() {
+    	List<UserResponse> listResponse =  new ArrayList<>();
+    	List<User> users = userRepository.findAllActiveUserOrderByName();
+    	users.forEach(user -> {
+    		listResponse.add(getUserWithConvertedDocumentImage(user, null, Constant.DECOMPRESS_MODE));
+    	});
+    	return listResponse;
     }
 
-    public List<User> getAllByRoomId(String roomId){
-        return userRepository.findAllByRoomId(roomId);
+    public List<UserResponse> getAllByRoomId(String roomId){
+    	Room room = roomService.getById(roomId).getRoom();
+    	List<UserResponse> listUser =  new ArrayList<>();
+    	List<User> users = userRepository.findAllByRoomId(room.getId());
+    	users.forEach(user -> {
+    		listUser.add(getUserWithConvertedDocumentImage(user, null, Constant.DECOMPRESS_MODE));
+    	});
+    	return listUser;
     }
-    public User getById(String id){
-        try {
-            User user = userRepository.findById(id).get();
-            user.setIdentityCardImage(Utils.decompressImage(user.getIdentityCardImage()));
-            return user;
-        }catch (NoSuchElementException e){
-            throw new ResourceNotFoundException("User not found for this id :: " + id);
-        }
+    
+    public UserResponse getById(String userId){
+    	User user = userRepository.findById(userId)
+    			.orElseThrow(() -> new InvalidRequestIdException("Invalid User ID"));
+    	
+    	return getUserWithConvertedDocumentImage(user, null, Constant.DECOMPRESS_MODE);
     }
-
-//    public User getByAccountId(String accountId){
-//        try {
-//            User user = userRepository.findByAccountId(accountId);
-//            if(user == null) throw new InvalidUserCredentialException("Invalid Account ID");
-//            return user;
-//        }catch (NoSuchElementException e){
-//            throw new InvalidUserCredentialException("Invalid Account ID");
-//        }
-//    }
-
-    public User register(UserRegisterRequest userRegisterRequest){
-        modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
+    
+    public UserResponse register(UserRegisterRequest userRegisterRequest) {
+    	modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
+        	mapper.map(src -> src.getRequesterIdUser(), User::create);
+        	mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
+            mapper.map(src -> null, User::setInactiveSince);
             mapper.map(src -> false, User::setDeleted);
-            mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
-            mapper.map(src -> System.currentTimeMillis(), User::setInactiveSince);
-            mapper.map(src -> src.getRequesterIdUser(), User::create);
-//            mapper.map(src -> {return Utils.compressImage(userRegisterRequest.getIdentityCardImage());}, User::setIdentityCardImage);
         });
-
         User user = modelMapper.map(userRegisterRequest, User.class);
-        user.setIdentityCardImage(Utils.compressImage(userRegisterRequest.getIdentityCardImage()));
+        user.setUserSetting(new UserSetting(user));
+        user.setRole(roleService.getByRoleId(userRegisterRequest.getRoleId()));
+        
+        if (userRegisterRequest.getRoomId() == null || ((userRegisterRequest.getRoomId()).trim()).equals("")) {
+    		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
+    			throw new InsertDataErrorException("user room id can't be empty");
+    		else user.setRoom(null);
+		} else user.setRoom(roomService.getById(userRegisterRequest.getRoomId()).getRoom()); 
+        
         save(user);
-        return user;
+        accountService.register(user);
+        return getUserWithConvertedDocumentImage(user, userRegisterRequest.getUserDocument(), Constant.COMPRESS_MODE);
+    }
+    
+    public UserResponse update(String userId, UserRegisterRequest request) {
+    	User user = getById(userId).getUser();
+        modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+        modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
+           mapper.map(src -> src.getRequesterIdUser(), User::update);
+        });
+        modelMapper.map(request, user);
+        user.setRole(roleService.getByRoleId(request.getRoleId()));
+        
+        if (request.getRoomId() == null || ((request.getRoomId()).trim()).equals("")) {
+    		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
+    			throw new InsertDataErrorException("user room id can't be empty");
+    		else user.setRoom(null);
+		} else user.setRoom(roomService.getById(request.getRoomId()).getRoom());  
+        
+        save(user);
+        return getUserWithConvertedDocumentImage(user, request.getUserDocument(), Constant.COMPRESS_MODE);
+    }
+    
+    public UserResponse delete(String userId, AuditableRequest request) {
+    	UserResponse response = getById(userId);
+    	User user = response.getUser();
+    	user.setDeleted(true);
+    	user.setInactiveSince(System.currentTimeMillis());
+        user.update(request.getRequesterIdUser());
+        save(user);
+        response.setUser(user);
+    	return response;
+    }
+    
+    /* ================================================ USER DOCUMENT =============================================== */
+    public DataIdDTO removeUserDocument(String userDocumentId, String userId) {
+    	User user = getById(userId).getUser();
+    	UserDocument userDocument = userDocumentRepository.findById(userDocumentId)
+    		.orElseThrow(() -> new InvalidRequestIdException("Invalid User Document ID"));
+    	
+    	DataIdDTO deleted = new DataIdDTO();
+    	deleted.setId(userDocument.getId());
+    	
+    	userDocumentRepository.deleteById(userDocument.getId());
+		user.update(userId);
+    	save(user);
+    	
+        return deleted;
+    }
+    
+    /* ================================================ USER SETTING ================================================ */
+    public UserSetting getSetting(String userId) {
+		User user = getById(userId).getUser();
+		return userSettingRepository.findByUser(user);
+	}
+    
+    public UserSetting updateSetting(String userId, String settingType, boolean value) {
+    	
+    	UserSetting userSetting = getSetting(userId);
+    	if(settingType.equals(Constant.NOTIFICATION))
+    		userSetting.setEnableNotification(value);
+    	else if (settingType.equals(Constant.SHARE_ROOM))
+    		userSetting.setShareRoom(value);
+    	
+    	final UserSetting updated = userSettingRepository.save(userSetting);
+    	User user = getById(userId).getUser();
+    	user.update(userId);
+    	save(user);
+    	
+    	return updated;
     }
 
-    public User addContactAblePesson(String id,ContactAblePersonCreateRequest request){
-        User user = getById(id);
-        ContactAblePerson contactAblePerson = modelMapper.map(request, ContactAblePerson.class);
-
-        user.getContactAblePeople().add(contactAblePerson);
-
-        save(user);
-        return user;
+    /* ========================================== USER CONTACTABLE PERSON =========================================== */
+    public List<ContactAblePerson> getContactAblePerson(String userId) {
+    	User user = getById(userId).getUser();
+    	return contactAblePersonRepository.findByUserAndIsDeleted(user, false);
     }
-
+    
+    public ContactAblePerson addContactAblePerson(String userId, ContactAblePersonCreateRequest request){
+    	User user = getById(userId).getUser();
+    	ContactAblePerson contactAblePerson = modelMapper.map(request, ContactAblePerson.class);
+    	contactAblePerson.setUser(user);
+    	try {
+			contactAblePersonRepository.save(contactAblePerson);
+		} catch (Exception e) {
+			System.out.println(e);
+			throw new InsertDataErrorException("Failed add contactable person");
+		}
+        user.update(userId);
+        save(user);
+        return contactAblePerson;
+    }
+    
+    public ContactAblePerson editContactAblePerson(String contactAblePersonId, String userId, ContactAblePersonCreateRequest request) {
+    	ContactAblePerson contactAblePerson = contactAblePersonRepository.findById(contactAblePersonId)
+    			.orElseThrow(() -> new InvalidRequestIdException("Invalid User Contactable Person ID"));
+    	
+    	modelMapper.map(request, contactAblePerson);
+    	
+    	final ContactAblePerson updated = contactAblePersonRepository.save(contactAblePerson);
+    	User user = getById(userId).getUser();
+    	user.update(userId);
+    	save(user);
+    	
+    	return updated;
+    }
+    
+    public ContactAblePerson deleteContactAblePerson(String contactAblePersonId, String userId) {
+    	ContactAblePerson contactAblePerson = contactAblePersonRepository.findById(contactAblePersonId)
+    			.orElseThrow(() -> new InvalidRequestIdException("Invalid User Contactable Person ID"));
+    	
+    	contactAblePerson.setDeleted(true);
+    	final ContactAblePerson deleted = contactAblePersonRepository.save(contactAblePerson);
+    	User user = getById(userId).getUser();
+    	user.update(userId);
+    	save(user);
+    	
+    	return deleted;
+    }
+    
+    /* ==================================================== UTILS ==================================================== */
     private void save(User user){
         try {
             userRepository.save(user);
@@ -96,45 +237,53 @@ public class UserService {
         }
     }
     
-    public User update(String userId, UserRegisterRequest request) {
-    	User user = getById(userId);
-
-        modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-        modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
-           mapper.map(UserRegisterRequest::getRequesterIdUser, User::update);
-        });
-
-        modelMapper.map(request, user);
-//        user.update(request.getRequesterIdUser());
-        save(user);
-        return user;
-    }
-
-    public User uploadIdentityCard(String userId, MultipartFile request){
-        User user = getById(userId);
-
-        user.setIdentityCardImage(Utils.compressImage(request));
-        user.update("System By Pass");
-        save(user);
-        return user;
+    private UserResponse getUserWithConvertedDocumentImage(User user, List<MultipartFile> documents, String convertMode) {
+    	if(convertMode.equals(Constant.COMPRESS_MODE)) {
+    		if(documents != null) {
+    			documents.forEach(document -> {
+        			UserDocument userDocument = new UserDocument();
+            		userDocument.setIdentityCardImage(Utils.compressImage(document));
+            		userDocument.setUser(user);
+            		userDocumentRepository.save(userDocument);
+            	});
+    		}
+    	}
+    	
+    	UserResponse response = new UserResponse();
+    	response.setUser(user);
+    	
+    	List<UserDocumentResponse> listUserDocumentConverted = new ArrayList<>();
+    	List<UserDocument> listUserDocument = userDocumentRepository.findByUser(user);
+    	listUserDocument.forEach(document -> {
+			UserDocumentResponse userDocument = new UserDocumentResponse();
+			userDocument.setId(document.getId());
+			userDocument.setIdentityCardImage(Utils.decompressImage(document.getIdentityCardImage()));
+			listUserDocumentConverted.add(userDocument);
+    	});
+		response.setUserDocuments(listUserDocumentConverted);
+    	
+    	return response;
     }
     
-    public boolean delete(String userId, AuditableRequest request) {
-    	User user = getById(userId);
-    	
-    	user.setDeleted(true);
-        user.update(request.getRequesterIdUser());
-
-    	userRepository.save(user);
-
-    	return true;
-    }
-
-    public UserSettingsDTO getSettings(String id){
-        User user = getById(id);
-
-        UserSettingsDTO userSettings = modelMapper.map(user, UserSettingsDTO.class);
-
-        return userSettings;
-    }
+//	  public User uploadIdentityCard(String userId, MultipartFile[] requests) throws FileSizeLimitExceededException {
+//		User user = getById(userId).getUser();
+//	    List<byte []> listUserDocumentRequests = new ArrayList<>();
+//	    Arrays.asList(requests).stream().forEach(request -> {
+//	    	listUserDocumentRequests.add(Utils.compressImage(request));
+//	    });
+//	    
+//	    listUserDocumentRequests.forEach(validRequest -> {
+//	    	UserDocument userDocument = new UserDocument();
+//	    	userDocument.setIdentityCardImage(validRequest);
+//	    	userDocument.setUser(user);
+//	    	try {
+//				userDocumentRepository.save(userDocument);
+//			} catch (Exception e) {
+//				System.out.println(e);
+//			}
+//	    });
+//	    user.update(userId);
+//	    save(user);
+//	    return user;
+//	}
 }
