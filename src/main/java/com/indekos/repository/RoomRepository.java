@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.indekos.dto.response.RoomResponse;
+import com.indekos.dto.response.AvailableRoomResponse;
 import com.indekos.model.Room;
 
 @Repository
@@ -25,9 +25,9 @@ public interface RoomRepository extends JpaRepository<Room, String> {
 			+ "(SELECT COUNT(*) FROM user u LEFT JOIN room r "
 			+ "ON u.room_id = r.id WHERE r.is_deleted IS FALSE "
 			+ "AND u.is_deleted IS FALSE)) AS remainingQuota "
-			+ "FROM room WHERE name LIKE %:keyword% "
+			+ "FROM room WHERE name LIKE %:keyword% AND is_deleted IS FALSE "
 			+ "HAVING remainingQuota > 0 ORDER BY name ASC", nativeQuery = true)
-	List<RoomResponse> findAllAvailableRoom(@Param("keyword") String keyword);
+	List<AvailableRoomResponse> findAllAvailableRoom(@Param("keyword") String keyword);
 	
 	@Query(value = "SELECT COUNT(*) FROM user WHERE is_deleted IS FALSE "
 				+ "AND room_id = :room_id", nativeQuery = true)

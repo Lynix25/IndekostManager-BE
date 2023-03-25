@@ -3,11 +3,15 @@ package com.indekos.services;
 import com.indekos.common.helper.exception.DataAlreadyExistException;
 import com.indekos.common.helper.exception.InternalServerErrorException;
 import com.indekos.common.helper.exception.InvalidRequestException;
-import com.indekos.common.helper.exception.ResourceNotFoundException;
+import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.request.RoomCreateRequest;
+import com.indekos.dto.request.RoomDetailsCreateRequest;
 import com.indekos.dto.request.RoomPriceCreateRequest;
-import com.indekos.dto.response.RoomResponse;
+import com.indekos.dto.response.AvailableRoomResponse;
+import com.indekos.dto.response.RoomWithDetails;
+import com.indekos.model.MasterRoomDetailCategory;
 import com.indekos.model.Room;
+import com.indekos.model.RoomDetail;
 import com.indekos.model.RoomPriceDetail;
 import com.indekos.repository.RoomRepository;
 import org.modelmapper.Conditions;
@@ -16,121 +20,176 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class RoomService {
+	
 	@Autowired
 	ModelMapper modelMapper;
+	
 	@Autowired
 	private RoomRepository roomRepository;
 	
-	public List<Room> getAll() {
-		return roomRepository.findAllByOrderByNameAsc();
-	}
-
-	public Room getById(String id){
-		try {
-			return roomRepository.findById(id).get();
-		}catch (NoSuchElementException e){
-			throw new ResourceNotFoundException("Room not found for this id :: " + id);
-		}
+	@Autowired
+	private RoomDetailService roomDetailService;
+	
+	public List<MasterRoomDetailCategory> getRoomDetailsCategory() {
+		return roomDetailService.getRoomDetailCategory();
 	}
 	
-	public List<RoomResponse> getAllAvailable(String keyword) {
+	public List<RoomWithDetails> getAll() {
+		List<RoomWithDetails> listRoom = new ArrayList<>();
+		List<Room> rooms = roomRepository.findAllByOrderByNameAsc();
+		rooms.forEach(room -> {
+			listRoom.add(getRoomDetail(room));
+		});
+		return listRoom;
+	}
+
+	public RoomWithDetails getById(String roomId){
+		Room targetRoom = roomRepository.findById(roomId)
+				.orElseThrow(() -> new InvalidRequestIdException("Invalid Room ID"));
+		return getRoomDetail(targetRoom);
+	}
+	
+	public List<AvailableRoomResponse> getAllAvailable(String keyword) {
 		return roomRepository.findAllAvailableRoom(keyword);
 	}
 	
-//	public MasterRoom create(RoomCreateRequest request) {
-//		MasterRoom targetMasterRoom =roomRepository.findByName(request.getName());
-//		if(targetMasterRoom != null) {
-//			if(targetMasterRoom.isDeleted()) {
-//				targetMasterRoom.setDeleted(false);
-//				targetMasterRoom.setName(request.getName());
-//				targetMasterRoom.setDescription(request.getDescription());
-//				targetMasterRoom.setQuota(request.getQuota());
-//				targetMasterRoom.update(request.getRequesterIdUser());
-//
-//				final MasterRoom createdData = roomRepository.save(targetMasterRoom);
-//				return createdData;
-//			} else throw new DataAlreadyExistException();
-//		}
-//		else {
-//			MasterRoom masterRoom = modelMapper.map(request, MasterRoom.class);
-//			masterRoom.create(request.getRequesterIdUser());
-//			final MasterRoom createdData = roomRepository.save(masterRoom);
-//			return createdData;
-//		}
-//	}
-	public Room create(RoomCreateRequest request){
-		modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
-			mapper.map(RoomCreateRequest::getRequesterIdUser, Room::create);
-		});
-		Room room = modelMapper.map(request, Room.class);
-		save(room);
-		return room;
+	public List<RoomDetail> getDetailsByRoom(String roomId) {
+		Room targetRoom = roomRepository.findById(roomId)
+				.orElseThrow(() -> new InvalidRequestIdException("Invalid Room ID"));
+		
+		return roomDetailService.getDetailsByRoom(targetRoom);
+	}
+	
+	public List<RoomPriceDetail> getPriceDetailsByRoom(String roomId) {
+		Room targetRoom = roomRepository.findById(roomId)
+				.orElseThrow(() -> new InvalidRequestIdException("Invalid Room ID"));
+		
+		return roomDetailService.getPriceDetailsByRoom(targetRoom);
+	}
+	
+	public RoomWithDetails create(RoomCreateRequest request){
+		
+		Room targetRoom = roomRepository.findByName(request.getName());
+		if(targetRoom != null) {
+			if(targetRoom.isDeleted()) {
+				modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+				modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
+					mapper.map(RoomCreateRequest::getRequesterIdUser, Room::update);
+				});
+				targetRoom.setDeleted(false);
+				modelMapper.map(request, targetRoom);
+				save(targetRoom);
+				return getRoomDetail(targetRoom);
+			} else throw new DataAlreadyExistException();
+		}
+		else {
+			modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
+				mapper.map(RoomCreateRequest::getRequesterIdUser, Room::create);
+			});
+			Room room = modelMapper.map(request, Room.class);
+			save(room);
+			roomDetailService.initializeDefaultRoomFacility(room);
+			return getRoomDetail(room);
+		}
 	}
 
-	public Room update(String roomId, RoomCreateRequest request) {
-		Room room = getById(roomId);
-
+	public RoomWithDetails update(String roomId, RoomCreateRequest request) {
+		Room room = getById(roomId).getRoom();
 		modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
 		modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
 			mapper.map(RoomCreateRequest::getRequesterIdUser, Room::update);
 		});
 
 		if(roomRepository.findByNameAndIdNot(request.getName(), roomId) != null) throw new DataAlreadyExistException();
-
 		modelMapper.map(request, room);
 		save(room);
-		return room;
+		
+		return getRoomDetail(room);
 	}
-
-	public RoomPriceDetail addRoomDetail(String roomId, RoomPriceCreateRequest request){
-		Room room = getById(roomId);
-		RoomPriceDetail newRoomPriceDetail = modelMapper.map(request, RoomPriceDetail.class);
-		room.getPrices().add(newRoomPriceDetail);
-
+	
+	public RoomDetail addRoomDetail(String roomId, RoomDetailsCreateRequest request){
+		Room room = getById(roomId).getRoom();
+		RoomDetail newRoomDetail = roomDetailService.addRoomDetail(room, request);
+		room.update(request.getRequesterIdUser());
 		save(room);
-
+	
+		return newRoomDetail;
+	}
+	
+	public RoomPriceDetail addRoomPrice(String roomId, RoomPriceCreateRequest request){
+		Room room = getById(roomId).getRoom();
+		RoomPriceDetail newRoomPriceDetail = roomDetailService.addRoomPrice(room, request);
+		room.update(request.getRequesterIdUser());
+		save(room);
+		
 		return newRoomPriceDetail;
 	}
-	public boolean delete(String roomId) {
-		Room data = roomRepository.findById(roomId)
-				.orElseThrow(() -> new ResourceNotFoundException("Room not found for this id :: " + roomId));
 	
+	public RoomDetail editRoomDetail(Long roomDetailId, String roomId, RoomDetailsCreateRequest request){
+		Room room = getById(roomId).getRoom();
+		RoomDetail roomDetail = roomDetailService.editRoomDetail(roomDetailId, request, room);
+		room.update(request.getRequesterIdUser());
+		save(room);
+	
+		return roomDetail;
+	}
+	
+	public RoomPriceDetail editRoomPrice(Long roomPriceDetailId, String roomId, RoomPriceCreateRequest request){
+		Room room = getById(roomId).getRoom();
+		RoomPriceDetail roomPriceDetail = roomDetailService.editRoomPrice(roomPriceDetailId, request, room);
+		room.update(request.getRequesterIdUser());
+		save(room);
+		
+		return roomPriceDetail;
+	}
+	
+	public RoomWithDetails delete(String roomId, String requesterIdUser) {
+		Room data = getById(roomId).getRoom();
 		if(roomRepository.countCurrentTenantsOfRoom(roomId) == 0) {
 			data.setDeleted(true);
+			data.update(requesterIdUser);
 			roomRepository.save(data);
-			
-			return true;
+			return getRoomDetail(data);
 		} else throw new InternalServerErrorException("This room is still rented by the tenant!");
 	}
-
-	public boolean deleteV2(String roomId){
-		Room room = getById(roomId);
-
-		if(room.getUsers().size() == 0){
-			room.setDeleted(false);
-
-			save(room);
-			return true;
-		}else{
-			throw new InvalidRequestException("This room is still rented by the tenant!");
-		}
+	
+	public RoomDetail removeRoomDetail(Long roomDetailId, String requesterIdUser, String roomId) {
+		Room room = getById(roomId).getRoom();
+		RoomDetail roomDetail = roomDetailService.removeRoomDetail(roomDetailId, room);
+		room.update(requesterIdUser);
+		save(room);
+		return roomDetail;
+	}
+	
+	public RoomPriceDetail removeRoomPrice(Long roomPriceDetailId, String requesterIdUser, String roomId) {
+		Room room = getById(roomId).getRoom();
+		RoomPriceDetail roomPriceDetail = roomDetailService.removeRoomPrice(roomPriceDetailId, room);
+		room.update(requesterIdUser);
+		save(room);
+		return roomPriceDetail;
 	}
 
 	public void save(Room room){
 		try {
 			roomRepository.save(room);
-		}
-		catch (DataIntegrityViolationException e){
+		} catch (DataIntegrityViolationException e){
 			System.out.println(e);
-			throw new InvalidRequestException("DataIntegrityViolationException");
-		}
-		catch (Exception e){
+			throw new InvalidRequestException("Duplicate Data");
+		} catch (Exception e){
 			System.out.println(e);
 		}
+	}
+	
+	public RoomWithDetails getRoomDetail(Room room) {
+		RoomWithDetails roomWithDetails = new RoomWithDetails();
+		roomWithDetails.setRoom(room);
+		roomWithDetails.setPrices(roomDetailService.getPriceDetailsByRoom(room));
+		roomWithDetails.setDetails(roomDetailService.getDetailsByRoom(room));
+		return roomWithDetails;
 	}
 }
