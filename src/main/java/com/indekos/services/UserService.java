@@ -2,9 +2,11 @@ package com.indekos.services;
 
 import com.indekos.common.helper.exception.InsertDataErrorException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
+import com.indekos.dto.AccountDTO;
 import com.indekos.dto.DataIdDTO;
 import com.indekos.dto.request.AuditableRequest;
 import com.indekos.dto.request.ContactAblePersonCreateRequest;
+import com.indekos.model.Account;
 import com.indekos.model.ContactAblePerson;
 import com.indekos.model.Room;
 import com.indekos.repository.ContactAblePersonRepository;
@@ -251,6 +253,9 @@ public class UserService {
     	
     	UserResponse response = new UserResponse();
     	response.setUser(user);
+    	
+    	Account account = accountService.getByUser(user);
+    	response.setAccount(new AccountDTO(account.getId(), account.getUsername()));
     	
     	List<UserDocumentResponse> listUserDocumentConverted = new ArrayList<>();
     	List<UserDocument> listUserDocument = userDocumentRepository.findByUser(user);

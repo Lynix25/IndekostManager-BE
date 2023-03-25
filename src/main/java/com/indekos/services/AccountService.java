@@ -45,6 +45,14 @@ public class AccountService {
     	return account;
     }
     
+    public Account getByUser(User user) {
+    	Account account = accountRepository.findByUser(user);
+    	if(account == null)
+    		throw new InvalidRequestIdException("This user doesn't have an account. Please contact owner/ admin.");
+    	
+    	return account;
+    }
+    
     public Account register(User user){
     	String credential = createCredential(user);
         modelMapper.typeMap(User.class, Account.class).addMappings(mapper -> {
