@@ -3,7 +3,6 @@ package com.indekos.controller;
 import com.indekos.dto.response.CheckTransactionResponse;
 import com.indekos.model.Rent;
 import com.indekos.model.Service;
-import com.indekos.model.Transaction;
 import com.indekos.services.RentService;
 import com.indekos.services.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class TransactionController {
     RentService rentService;
 
     @GetMapping("/unpaid/{userId}")
-    public ResponseEntity getUnpaidTransaction(@PathVariable String userId){
+    public ResponseEntity<?> getUnpaidTransaction(@PathVariable String userId){
         List<Service> services = serviceService.getAllUnpaid(userId);
         List<Rent> rents = rentService.getAllUnpaid(userId);
         Long maxDueDate = 0L;
@@ -45,8 +44,8 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity create(){
+    public ResponseEntity<?> create(){
 
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

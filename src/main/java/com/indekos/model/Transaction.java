@@ -2,18 +2,22 @@ package com.indekos.model;
 
 import com.indekos.common.base.entity.AuditableEntity;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 @Entity
 @AllArgsConstructor @NoArgsConstructor
 public class Transaction extends AuditableEntity {
-    private Long penaltyFee;
+
+	private static final long serialVersionUID = 1L;
+	
+	private Long penaltyFee;
     private String paymentType;
     private String paymentStatus;
 

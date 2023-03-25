@@ -2,7 +2,6 @@ package com.indekos.dto.request;
 
 import lombok.Getter;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Getter

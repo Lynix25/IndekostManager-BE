@@ -1,14 +1,13 @@
 package com.indekos.dto.response;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysql.cj.log.Log;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
-//@NoArgsConstructor
-public class LoginResponse<T, U> extends Response {
+public class LoginResponse<T, U> extends Response<T> {
     private U errors;
 
     public LoginResponse(String message, T data, U errors){

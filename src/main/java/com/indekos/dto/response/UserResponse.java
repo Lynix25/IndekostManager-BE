@@ -2,7 +2,6 @@ package com.indekos.dto.response;
 
 import java.util.List;
 
-import com.indekos.model.ContactAblePerson;
 import com.indekos.model.User;
 
 import lombok.Data;

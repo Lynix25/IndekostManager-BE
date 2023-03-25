@@ -1,14 +1,18 @@
 package com.indekos.common.helper.exception;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 public class InvalidRequestException extends RuntimeException{
+    private static final long serialVersionUID = 1L;
+	
     private final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
     private final List<String> errors;
 

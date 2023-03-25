@@ -10,9 +10,6 @@ import javax.persistence.MappedSuperclass;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
 
-import lombok.Data;
-
-//@Data
 @Getter
 @MappedSuperclass
 public abstract class BaseEntity implements Serializable{
