@@ -9,6 +9,7 @@ import com.indekos.dto.request.RoomPriceCreateRequest;
 import com.indekos.dto.response.RoomResponse;
 import com.indekos.model.Room;
 import com.indekos.model.RoomPriceDetail;
+import com.indekos.model.User;
 import com.indekos.repository.RoomRepository;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
@@ -36,6 +37,16 @@ public class RoomService {
 		}catch (NoSuchElementException e){
 			throw new ResourceNotFoundException("Room not found for this id :: " + id);
 		}
+	}
+
+	public Room getByUser(User user){
+		List<Room> rooms = roomRepository.findAll();
+
+		for (Room room: rooms) {
+			if(room.hasUser(user)) return room;
+		}
+
+		return null;
 	}
 	
 	public List<RoomResponse> getAllAvailable(String keyword) {

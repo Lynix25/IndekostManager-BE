@@ -46,9 +46,9 @@ public class User extends AuditableEntity {
 	@Column(nullable = false)
     private String roleId;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name="room_id")
-	private Room room;
+//	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//	@JoinColumn(name="room_id")
+//	private Room room;
 
 //  private String accountId;
 //	@OneToOne(targetEntity = Account.class, cascade = CascadeType.ALL)

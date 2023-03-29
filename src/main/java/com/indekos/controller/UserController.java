@@ -1,15 +1,16 @@
 package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
+import com.indekos.dto.UserDTO;
 import com.indekos.dto.UserSettingsDTO;
 import com.indekos.dto.request.*;
 import com.indekos.dto.response.Response;
+import com.indekos.model.Room;
 import com.indekos.model.User;
+import com.indekos.services.RoomService;
 import com.indekos.services.UserService;
 import com.indekos.utils.Validated;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -17,8 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
 
 
 @RestController
@@ -26,6 +25,8 @@ import java.util.Map;
 public class UserController {
     @Autowired
 	private UserService userService;
+    @Autowired
+    private RoomService roomService;
     
     @GetMapping
     public ResponseEntity getAllUser() {
@@ -35,8 +36,9 @@ public class UserController {
     @GetMapping(value = "/{id}")
     public ResponseEntity getUser(@PathVariable String id){
         User user = userService.getById(id);
+        Room room = roomService.getByUser(user);
 
-        return ResponseEntity.ok().body(user);
+        return ResponseEntity.ok().body(new UserDTO(user, room));
     }
     @GetMapping("/{id}/settings")
     public ResponseEntity getUserSettings(@PathVariable String id){

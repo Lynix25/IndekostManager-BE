@@ -11,6 +11,7 @@ import com.indekos.model.Account;
 import com.indekos.model.User;
 import com.indekos.services.AccountService;
 import com.indekos.services.UserService;
+import com.indekos.utils.Utils;
 import com.indekos.utils.Validated;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,14 +51,9 @@ public class AccountController {
     public ResponseEntity login (@Valid @RequestBody AccountLoginRequest accountLoginRequest, Errors errors){
         Validated.request(errors);
 
-        Account account = accountService.getByUsername(accountLoginRequest.getUsername());
-        if(accountService.comparePasswordTo(account, accountLoginRequest.getPassword())){
-//            User user = userService.getByAccountId(account.getId());
-            User user = account.getUser();
-            return GlobalAcceptions.loginAllowed(user, "Success");
-        }
+        Account account = accountService.login(accountLoginRequest);
 
-        throw new InvalidUserCredentialException("Invalid username or password");
+        return GlobalAcceptions.loginAllowed(account.getUser(), "Success");
     }
     @PutMapping("/{id}")
     public ResponseEntity updatePassword(@PathVariable String id, @Valid @RequestBody AccountChangePasswordRequest requestBody, Errors errors){

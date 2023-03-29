@@ -1,8 +1,10 @@
 package com.indekos.services;
 
+import com.indekos.common.helper.exception.DataNotFoundException;
 import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.AccountChangePasswordRequest;
+import com.indekos.dto.request.AccountLoginRequest;
 import com.indekos.dto.request.AccountRegisterRequest;
 import com.indekos.model.Account;
 import com.indekos.model.User;
@@ -37,7 +39,7 @@ public class AccountService {
         try {
             return accountRepository.findByUsername(userName).get();
         }catch (NoSuchElementException e){
-            throw new InvalidUserCredentialException("Invalid username");
+            throw new DataNotFoundException("Invalid username");
         }
     }
     private void save(Account account){
@@ -99,10 +101,11 @@ public class AccountService {
     public List<Account> allUser(){
         return accountRepository.findAll();
     }
-    public boolean comparePasswordTo(Account account, String anotherPassword){
-        if(account.getPassword().compareTo(Utils.passwordHashing(anotherPassword)) == 0){
-            return true;
+    public Account login(AccountLoginRequest request){
+        Account account = getByUsername(request.getUsername());
+        if(account.getPassword().equals(Utils.passwordHashing(request.getPassword()))){
+            return account;
         }
-        return false;
+        throw new InvalidUserCredentialException("Invalid username or password");
     }
 }

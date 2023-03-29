@@ -42,13 +42,20 @@ public class Room extends AuditableEntity {
 	@JoinColumn(name = "room_id",referencedColumnName = "id")
 	private List<RoomDetail> details;
 
-//	@OneToMany(targetEntity = User.class, cascade = CascadeType.ALL)
-//	@JoinColumn(name = "room_id", referencedColumnName = "id")
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "room")
+	@OneToMany(targetEntity = User.class, cascade = CascadeType.ALL)
+	@JoinColumn(name = "room_id", referencedColumnName = "id")
+//	@OneToMany(fetch = FetchType.LAZY, mappedBy = "room")
 	private List<User> users;
 
 //	private List<String> rules;
 //	private List<String> specification;
 //	private List<String> bathRoomFacilities;
+
+	public boolean hasUser(User user){
+		for (User u: users) {
+			if(u.getId().equals(user.getId())) return true;
+		}
+		return false;
+	}
 }
 
