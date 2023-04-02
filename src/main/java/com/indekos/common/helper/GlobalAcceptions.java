@@ -30,6 +30,7 @@ public class GlobalAcceptions {
         TokenSessionResponse token = new TokenSessionResponse(Constant.SECRET + user.getId(), Constant.EXPIRES_IN);
         LoginResponse.DataResponseDto<User> data = new LoginResponse.DataResponseDto<>();
         data.setStatus("Authenticated");
+        data.setLoginTime(System.currentTimeMillis());
         data.setUser(user);
         data.setToken(token);
         return successResponse(data, message);

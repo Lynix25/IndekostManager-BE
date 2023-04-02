@@ -24,6 +24,10 @@ public class Account extends BaseEntity {
     @JsonIgnore
     @Column(nullable = false)
     private String password;
+    
+    private Long lastLoginTime;
+    
+    private Long lastLogoutTime;
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")

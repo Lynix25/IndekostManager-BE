@@ -19,6 +19,7 @@ public class LoginResponse<T, U> extends Response<T> {
     @AllArgsConstructor @NoArgsConstructor
     public static class DataResponseDto <V>{
         private String status;
+        private Long loginTime;
         private V user;
         private TokenSessionResponse token;
     }
