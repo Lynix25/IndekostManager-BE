@@ -145,7 +145,18 @@ public class UserService {
     		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
     			throw new InsertDataErrorException("User room id can't be empty");
     		else user.setRoom(null);
-		} else user.setRoom(roomService.getById(userRegisterRequest.getRoomId()).getRoom()); 
+		} else {
+			if(!isRoomAvailable(userRegisterRequest.getRoomId()))
+				throw new InsertDataErrorException("Selected room is fully booked!");
+			else {
+				Room room = roomService.getById(userRegisterRequest.getRoomId()).getRoom();
+				if(room.getAllotment().equals(Constant.PUTRA) && userRegisterRequest.getGender().equals(Constant.PEREMPUAN))
+					throw new InsertDataErrorException("Selected room is for men only");
+				else if(room.getAllotment().equals(Constant.PUTRI) && userRegisterRequest.getGender().equals(Constant.LAKI_LAKI))
+					throw new InsertDataErrorException("Selected room is for women only");
+				else user.setRoom(room);
+			}
+		} 
         
         save(user);
         accountService.register(user);
@@ -279,6 +290,14 @@ public class UserService {
         catch (Exception e){
             System.out.println(e);
         }
+    }
+    
+    private boolean isRoomAvailable(String roomId) {
+    	if(userRepository.findAllByRoomId(roomId).size() == 0) return true;
+    	else {
+    		if(roomService.isRoomShared(roomId) && !roomService.isRoomFullyBooked(roomId)) return true;
+    		else return false;
+    	}
     }
     
     private UserResponse getUserWithConvertedDocumentImage(User user, List<MultipartFile> documents, String convertMode) {
