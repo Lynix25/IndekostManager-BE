@@ -25,6 +25,30 @@ public class UserController {
     @Autowired
 	private UserService userService;
     
+    /* ================================================ USER ACCOUNT ================================================ */
+    @PostMapping("/login")
+    public ResponseEntity<?> login (@Valid @RequestBody AccountLoginRequest accountLoginRequest, Errors errors){
+        Validated.request(errors);
+        return GlobalAcceptions.loginAllowed(userService.login(accountLoginRequest), "Success Login");
+    }
+    
+    @PutMapping("/changepassword")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody AccountChangePasswordRequest requestBody, Errors errors){
+        Validated.request(errors);
+        return GlobalAcceptions.data(userService.changePassword(requestBody), "Success change password");
+    }
+    
+    @PutMapping("/resetpassword")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody AccountForgotPasswordRequest requestBody, Errors errors){
+        Validated.request(errors);
+        return GlobalAcceptions.data(userService.forgotPassword(requestBody), "Success reset password");
+    }
+    
+    @PutMapping("/logout")	// account = accountId
+    public ResponseEntity<?> logout (@Valid @RequestParam String account){
+       return GlobalAcceptions.data(userService.logout(account), "Success logout");
+    }
+    
     /* ==================================================== USER ==================================================== */
     @GetMapping	// room = roomId
     public ResponseEntity<?> getAllUser(@RequestParam String room) {

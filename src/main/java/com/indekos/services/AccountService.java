@@ -3,8 +3,8 @@ package com.indekos.services;
 import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
-import com.indekos.common.helper.exception.UnauthorizedException;
 import com.indekos.dto.request.AccountChangePasswordRequest;
+import com.indekos.dto.request.AccountForgotPasswordRequest;
 import com.indekos.model.Account;
 import com.indekos.model.User;
 import com.indekos.repository.AccountRepository;
@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class AccountService {
@@ -64,31 +66,76 @@ public class AccountService {
         return account;
     }
     
-    public Account changePassword(String accountId, AccountChangePasswordRequest requestData){
-    	if(!(requestData.getRequesterIdUser()).equals(getById(accountId).getUser().getId()))
-    		throw new UnauthorizedException("You're not authorized to change the password because not account owner");
-        if (requestData.getNewPassword().compareTo(requestData.getReTypeNewPassword()) != 0){
-            throw new InvalidRequestException("Miss match retype password", new ArrayList<>());
-        }
-        Account account = getById(accountId);
+    public Account changePassword(User user, AccountChangePasswordRequest requestData){
+    	Account account = getByUser(user);
         if(account.getPassword().compareTo(Utils.passwordHashing(requestData.getOldPassword())) != 0){
             throw new InvalidUserCredentialException("Wrong old password");
         }
+        if (requestData.getNewPassword().compareTo(requestData.getReTypeNewPassword()) != 0){
+            throw new InvalidRequestException("Miss match retype password", new ArrayList<>());
+        }
+        if(requestData.getNewPassword().length() < 8 || !isAlphaNumeric(requestData.getNewPassword()))
+        	throw new InvalidRequestException("Password length must contain at least 8 characters in alphanumeric");
+        account.setPassword(Utils.passwordHashing(requestData.getNewPassword()));
+        accountRepository.save(account);
+        return account;
+    }
+    
+    public Account forgotPassword(AccountForgotPasswordRequest requestData){
+    	Account account = accountRepository.findByUsername(requestData.getUsername());
+    	if(account == null)
+    		throw new InvalidRequestException("Invalid username");
+    	
+    	if (requestData.getNewPassword().compareTo(requestData.getReTypeNewPassword()) != 0){
+            throw new InvalidRequestException("Miss match retype password", new ArrayList<>());
+        }
+    	 if(requestData.getNewPassword().length() < 8 || !isAlphaNumeric(requestData.getNewPassword()))
+         	throw new InvalidRequestException("Password length must contain at least 8 characters in alphanumeric");
         account.setPassword(Utils.passwordHashing(requestData.getNewPassword()));
         accountRepository.save(account);
         return account;
     }
     
     public String createCredential(User user){
-    	/* Default: username = password = lowercase(firstname) + 3 digits random number */
-    	String[] firstName = (user.getName()).split("\\s+");
-    	String credential = "";
+    	/* Default: username = password = alphanumeric generated lowercase(firstname) + 3 digits random number */
+    	/*  */
+    	String[] splittedName = (user.getName()).split("\\s+");
+    	String chosenName = "";
+    	for (String name : splittedName) {
+			if(name.length() > 3) {
+				chosenName = name;
+				break;
+			}
+		}
     	
+    	if(chosenName.equals("")) chosenName = "user";
+    	
+    	String credential = "";
     	while (credential.equals("") || accountRepository.findByUsername(credential) != null) {
-    		System.out.println("Searching for unique number... ");
-    		credential = (firstName[0]).toLowerCase() + String.valueOf((int)(Math.random() * (999 - 100) + 100));
+    		credential = (chosenName).toLowerCase() + String.valueOf((int)(Math.random() * (999 - 100) + 100));
 		}
     	return credential;
+    }
+    
+    public static boolean isAlphaNumeric(String str) {
+    	if (str == null || str.equals("")) return false;
+        
+    	// Regex to check string is alphanumeric or not.
+        String regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(str);
+        
+        Integer countAlpha = 0;
+        Integer countNumber = 0;
+        Integer len = str.length();
+        if(m.matches()) {
+        	for (int i = 0; i < len; i++) {
+				if(Character.isAlphabetic(str.charAt(i))) countAlpha++;
+				else countNumber++;
+			}
+        }
+        if(countAlpha > 0 && countNumber > 0) return true;
+        return false;
     }
     
     public boolean comparePasswordTo(Account account, String anotherPassword){
@@ -98,7 +145,7 @@ public class AccountService {
         return false;
     }
     
-    private void save(Account account){
+    public void save(Account account){
         try {
             accountRepository.save(account);
         }

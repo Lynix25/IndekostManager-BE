@@ -2,8 +2,12 @@ package com.indekos.services;
 
 import com.indekos.common.helper.exception.InsertDataErrorException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
+import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.AccountDTO;
 import com.indekos.dto.DataIdDTO;
+import com.indekos.dto.request.AccountChangePasswordRequest;
+import com.indekos.dto.request.AccountForgotPasswordRequest;
+import com.indekos.dto.request.AccountLoginRequest;
 import com.indekos.dto.request.AuditableRequest;
 import com.indekos.dto.request.ContactAblePersonCreateRequest;
 import com.indekos.model.Account;
@@ -61,6 +65,44 @@ public class UserService {
     @Autowired
     AccountService accountService;
 
+    /* ================================================ USER ACCOUNT ================================================ */
+    public User login(AccountLoginRequest accountLoginRequest) {
+    	Account account = accountService.getByUsername(accountLoginRequest.getUsername());
+        if(accountService.comparePasswordTo(account, accountLoginRequest.getPassword())){
+        	account.setLastLoginTime(System.currentTimeMillis());
+        	accountService.save(account);
+            return account.getUser();
+        }
+        throw new InvalidUserCredentialException("Invalid username or password");
+    }
+    
+    public Account changePassword(AccountChangePasswordRequest requestBody) {
+    	User user = getById(requestBody.getRequesterIdUser()).getUser();
+    	Account account = accountService.changePassword(user, requestBody);
+        user.update(account.getId());
+        save(user);
+        return account;
+    }
+    
+    public Account forgotPassword(AccountForgotPasswordRequest requestBody) {
+    	Account account = accountService.forgotPassword(requestBody);
+        User user = account.getUser();
+        user.update(accountService.getByUsername(requestBody.getUsername()).getUser().getId());
+        save(user);
+        return account;
+    }
+    
+    public Account logout(String accountId) {
+    	Account account = accountService.getById(accountId);
+        try {
+        	account.setLastLogoutTime(System.currentTimeMillis());
+        	accountService.save(account);
+        	return account;
+		} catch (Exception e) {
+			throw e;
+		}
+    }
+    
     /* ==================================================== USER ==================================================== */
     public List<UserResponse> getAll() {
     	List<UserResponse> listResponse =  new ArrayList<>();
@@ -101,7 +143,7 @@ public class UserService {
         
         if (userRegisterRequest.getRoomId() == null || ((userRegisterRequest.getRoomId()).trim()).equals("")) {
     		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
-    			throw new InsertDataErrorException("user room id can't be empty");
+    			throw new InsertDataErrorException("User room id can't be empty");
     		else user.setRoom(null);
 		} else user.setRoom(roomService.getById(userRegisterRequest.getRoomId()).getRoom()); 
         
