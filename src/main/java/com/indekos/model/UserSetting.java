@@ -39,5 +39,7 @@ public class UserSetting {
 	public UserSetting(User user) {
 		super();
 		this.user = user;
+		this.shareRoom = true;
+		this.enableNotification = true;
 	}
 }
