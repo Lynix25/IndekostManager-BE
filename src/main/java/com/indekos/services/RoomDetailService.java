@@ -53,7 +53,7 @@ public class RoomDetailService {
     }
     
     public List<MasterRoomDetailCategory> getRoomDetailCategory() {
-    	return masterRoomDetailCategoryRepository.findAll();
+    	return masterRoomDetailCategoryRepository.findAllByOrderByIdAsc();
     }
     
     /* ============================== ROOM DETAIL ============================== */

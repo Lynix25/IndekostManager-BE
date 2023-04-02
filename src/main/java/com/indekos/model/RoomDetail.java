@@ -48,5 +48,6 @@ public class RoomDetail {
 		this.name = name;
 		this.masterRoomDetailCategory = masterRoomDetailCategory;
 		this.room = room;
+		this.enable = true;
 	}
 }

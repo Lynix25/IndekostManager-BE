@@ -14,4 +14,6 @@ public class RoomWithDetails {
 	Room room;
 	List<RoomPriceDetail> prices;
 	List<RoomDetail> details;
+	Integer tenantsInRoom;
+	String roomStatus;
 }

@@ -29,7 +29,10 @@ public interface RoomRepository extends JpaRepository<Room, String> {
 			+ "HAVING remainingQuota > 0 ORDER BY name ASC", nativeQuery = true)
 	List<AvailableRoomResponse> findAllAvailableRoom(@Param("keyword") String keyword);
 	
-	@Query(value = "SELECT COUNT(*) FROM user WHERE is_deleted IS FALSE "
-				+ "AND room_id = :room_id", nativeQuery = true)
+	@Query(value = "SELECT COUNT(*) FROM user WHERE is_deleted IS FALSE AND room_id = :room_id", nativeQuery = true)
 	int countCurrentTenantsOfRoom(@Param("room_id") String roomId);
+	
+	@Query(value = "SELECT COUNT(*) FROM user u JOIN user_setting us ON u.id = us.user_id "
+			+ "WHERE is_deleted IS FALSE AND share_room IS TRUE AND room_id = :room_id", nativeQuery = true)
+	int checkIfRoomIsShared(@Param("room_id") String roomId);
 }

@@ -187,9 +187,25 @@ public class RoomService {
 	
 	public RoomWithDetails getRoomDetail(Room room) {
 		RoomWithDetails roomWithDetails = new RoomWithDetails();
+		int tenants = roomRepository.countCurrentTenantsOfRoom(room.getId());
+		
 		roomWithDetails.setRoom(room);
 		roomWithDetails.setPrices(roomDetailService.getPriceDetailsByRoom(room));
 		roomWithDetails.setDetails(roomDetailService.getDetailsByRoom(room));
+		roomWithDetails.setTenantsInRoom(tenants);
+		if(tenants > 0 && roomRepository.checkIfRoomIsShared(room.getId()) == 0) roomWithDetails.setRoomStatus("Disewa pribadi");
+		else if(room.getQuota() - tenants == 0) roomWithDetails.setRoomStatus("Penuh");
+		else roomWithDetails.setRoomStatus("Tersedia");
+		
 		return roomWithDetails;
+	}
+	
+	public boolean isRoomShared(String roomId) {
+		return roomRepository.checkIfRoomIsShared(roomId) > 0 ? true : false;
+    }
+	
+	public boolean isRoomFullyBooked(String roomId) {
+		Room room = getById(roomId).getRoom();
+		return (room.getQuota() - roomRepository.countCurrentTenantsOfRoom(roomId)) == 0 ? true : false;
 	}
 }
