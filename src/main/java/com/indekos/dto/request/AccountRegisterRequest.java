@@ -6,9 +6,11 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 public class AccountRegisterRequest extends AuditableRequest{
-    @NotBlank(message = "username is required")
+    
+	@NotBlank(message = "username is required")
     private String username;
-    @NotBlank(message = "password is required")
+    
+	@NotBlank(message = "password is required")
     private String password;
 
     private UserRegisterRequest user;

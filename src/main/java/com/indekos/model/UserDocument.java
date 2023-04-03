@@ -1,5 +1,12 @@
 package com.indekos.model;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.indekos.common.base.entity.BaseEntity;
 
@@ -8,28 +15,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Entity
 @NoArgsConstructor @AllArgsConstructor
-public class Account extends BaseEntity {
+public class UserDocument extends BaseEntity {
 	
-    private static final long serialVersionUID = 1L;
-
-    @Column(unique = true, nullable = false)
-    private String username;
-
-    @JsonIgnore
-    @Column(nullable = false)
-    private String password;
-    
-    private Long lastLoginTime;
-    
-    private Long lastLogoutTime;
-
-    @OneToOne
+	private static final long serialVersionUID = 1L;
+	
+	@Lob
+	@Column(length = 1000)
+	private byte[] identityCardImage;
+	
+	@JsonIgnore
+	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 }

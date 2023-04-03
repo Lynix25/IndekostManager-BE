@@ -1,8 +1,6 @@
 package com.indekos.controller;
 
-import com.indekos.dto.request.ImageUploadRequest;
 import com.indekos.dto.response.ImageGetResponse;
-import com.indekos.dto.response.ImageUploadResponse;
 import com.indekos.model.ImageData;
 import com.indekos.services.ImageDataService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,27 +14,26 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/image")
 public class ImageDataController {
-    @Autowired
+    
+	@Autowired
     private ImageDataService imageDataService;
 
     @PostMapping("/{testId}")
-    public ResponseEntity uploadImage(@PathVariable String testId, @RequestBody MultipartFile image) throws IOException {
-        ImageUploadResponse response = imageDataService.uploadImage(image);
+    public ResponseEntity<?> uploadImage(@PathVariable String testId, @RequestBody MultipartFile image) throws IOException {
+//        ImageUploadResponse response = imageDataService.uploadImage(image);
+    	imageDataService.uploadImage(image);
         System.out.println(testId);
-        return ResponseEntity.status(HttpStatus.OK.OK)
-                .body("asdsad");
+        return ResponseEntity.status(HttpStatus.OK).body("asdsad");
     }
 
     @GetMapping("/info/{name}")
-    public ResponseEntity getImageInfoByName(@PathVariable("name") String name){
+    public ResponseEntity<?> getImageInfoByName(@PathVariable("name") String name){
         ImageData image = imageDataService.getInfoByImageByName(name);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(image);
+        return ResponseEntity.status(HttpStatus.OK).body(image);
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity getImageByName(@PathVariable("name") String name){
+    public ResponseEntity<?> getImageByName(@PathVariable("name") String name){
         byte[] image = imageDataService.getImage(name);
         ImageGetResponse response = new ImageGetResponse();
         response.setImage(image);

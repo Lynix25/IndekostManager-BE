@@ -4,11 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.indekos.model.Account;
-
-import java.util.List;
-import java.util.Optional;
+import com.indekos.model.User;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, String> {
-    Optional<Account> findByUsername(String username);
+    Account findByUsername(String username);
+    Account findByUser(User user);
 }

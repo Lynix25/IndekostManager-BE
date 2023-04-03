@@ -1,85 +1,50 @@
 package com.indekos.services;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.indekos.common.helper.exception.DataAlreadyExistException;
-import com.indekos.common.helper.exception.DataNotFoundException;
-import com.indekos.common.helper.exception.InternalServerErrorException;
-import com.indekos.common.helper.exception.ResourceNotFoundException;
-import com.indekos.dto.request.RoleRequest;
+import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.model.MasterRole;
 import com.indekos.repository.RoleRepository;
-import com.indekos.repository.UserRepository;
 
 @Service
 public class RoleService {
+	
 	@Autowired
 	private RoleRepository roleRepository;
+	
 	@Autowired
-	private UserRepository userRepository;
-	public List<MasterRole> getAll() {
-		return roleRepository.findAllActiveByOrderByNameAsc();
+    private JdbcTemplate jdbcTemplate;
+	
+	private static List<String> OWNER = new ArrayList<>(Arrays.asList("Owner", "Pemilik Indekos"));
+    private static List<String> ADMIN = new ArrayList<>(Arrays.asList("Admin", "Pengelola/ Penjaga Indekos"));
+    private static List<String> TENANT = new ArrayList<>(Arrays.asList("Tenant", "Penyewa Indekos"));
+	
+	@PostConstruct
+	void initializeMasterRole() {
+		
+		String targetField = "(id, created_by, created_date, last_modified_by, last_modified_date, name, description)";
+		String auditDataValue = "UUID(), 'system', UNIX_TIMESTAMP(), 'system', UNIX_TIMESTAMP()";
+		jdbcTemplate.update("INSERT IGNORE INTO master_role " + targetField + " VALUES (" + auditDataValue + ", '" + OWNER.get(0) + "', '" + OWNER.get(1) + "')");
+    	jdbcTemplate.update("INSERT IGNORE INTO master_role " + targetField + " VALUES (" + auditDataValue + ", '" + ADMIN.get(0) + "', '" + ADMIN.get(1) + "')");
+    	jdbcTemplate.update("INSERT IGNORE INTO master_role " + targetField + " VALUES (" + auditDataValue + ", '" + TENANT.get(0) + "', '" + TENANT.get(1) + "')");
 	}
 	
-	public MasterRole getByName(String roleName) {
-		MasterRole targetMasterRole = roleRepository.findByName(roleName);
-		if(targetMasterRole == null)
-			throw new DataNotFoundException("Role not found for this name :: " + roleName);
+	public List<MasterRole> getAll() {
+		return roleRepository.findAll();
+	}
+	
+	public MasterRole getByRoleId(String roleId) {
+		MasterRole targetMasterRole = roleRepository.findById(roleId)
+				.orElseThrow(() -> new InvalidRequestIdException("Invalid Role ID"));
 		
 		return targetMasterRole;
 	}
-	
-	public MasterRole create(RoleRequest request) {
-		MasterRole targetMasterRole = roleRepository.findByName(request.getName());
-		if(targetMasterRole != null) {
-			if(targetMasterRole.isDeleted()) {
-				targetMasterRole.setDeleted(false);
-				targetMasterRole.setDescription(request.getDescription());
-				targetMasterRole.update(request.getRequesterIdUser());
-				
-				final MasterRole createdData = roleRepository.save(targetMasterRole);
-				return createdData;
-			} else throw new DataAlreadyExistException();
-		}
-		else {
-			MasterRole newData = new MasterRole();
-			newData.setName(request.getName());
-			newData.setDescription(request.getDescription());
-			newData.setDeleted(false);
-			newData.update(request.getRequesterIdUser());
-			
-			final MasterRole createdData = roleRepository.save(newData);
-			return createdData;
-		}
-	}
-
-	public MasterRole update(String roleId, RoleRequest request) {
-		MasterRole data = roleRepository.findById(roleId)
-				.orElseThrow(() -> new ResourceNotFoundException("Role not found for this id :: " + roleId));
-	
-		if(roleRepository.findByNameAndIdNot(request.getName(), roleId) != null) throw new DataAlreadyExistException();
-		else {
-			data.setName(request.getName());
-			data.setDescription(request.getDescription());
-			data.update(request.getRequesterIdUser());
-			
-			final MasterRole updatedData = roleRepository.save(data);
-			return updatedData;
-		}
-	}
-	
-	public boolean delete(String roleId) {
-		MasterRole data = roleRepository.findById(roleId)
-				.orElseThrow(() -> new ResourceNotFoundException("Role not found for this id :: " + roleId));
-	
-		if(userRepository.findByRoleId(data.getId()).size() == 0) {
-			data.setDeleted(true);
-			roleRepository.save(data);
-			
-			return true;
-		} else throw new InternalServerErrorException("This role still has user!");
-	} 
 }

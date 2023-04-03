@@ -31,7 +31,7 @@ public class ProdONLYController {
     }
 
     @GetMapping("/roomdetail/{id}")
-    public ResponseEntity getRoomDetail(@PathVariable String id){
+    public ResponseEntity getRoomDetail(@PathVariable Long id){
         RoomDetail roomPriceDetail = roomDetailService.getByID(id);
 
         return GlobalAcceptions.data(roomPriceDetail, "Room Detail Data");
