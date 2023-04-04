@@ -3,6 +3,12 @@ package com.indekos.utils;
 public class Constant {
 	
 	/* ========================== MAIN ========================== */
+	// Boarding House
+	public static String PRABAYAR = "Prabayar";
+	public static String PASCABAYAR = "Pascabayar";
+	public static String BULANAN = "Bulanan";
+	public static String TAHUNAN = "Tahunan";
+	
 	// Login Token Config
 	public static String SECRET = "indekossecret";
 	public static int EXPIRES_IN = 1;
