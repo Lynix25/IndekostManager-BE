@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class RentController {
     @Autowired
     RentService rentService;
-    @PostMapping
-    public ResponseEntity creteRent(){
-        return new ResponseEntity<>(rentService.create(), HttpStatus.OK);
-    }
+//    @PostMapping
+//    public ResponseEntity creteRent(){
+//        return new ResponseEntity<>(rentService.create(), HttpStatus.OK);
+//    }
 }

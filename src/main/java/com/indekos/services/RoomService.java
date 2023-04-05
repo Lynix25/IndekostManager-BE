@@ -13,7 +13,6 @@ import com.indekos.model.MasterRoomDetailCategory;
 import com.indekos.model.Room;
 import com.indekos.model.RoomDetail;
 import com.indekos.model.RoomPriceDetail;
-import com.indekos.model.User;
 import com.indekos.repository.RoomRepository;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
@@ -40,15 +39,15 @@ public class RoomService {
 		return roomDetailService.getRoomDetailCategory();
 	}
 
-	public Room getByUser(User user){
-		List<Room> rooms = roomRepository.findAll();
-
-		for (Room room: rooms) {
-			if(room.hasUser(user)) return room;
-		}
-
-		return null;
-	}
+//	public Room getByUser(User user){
+//		List<Room> rooms = roomRepository.findAll();
+//
+//		for (Room room: rooms) {
+//			if(room.hasUser(user)) return room;
+//		}
+//
+//		return null;
+//	}
 	
 	public List<RoomWithDetails> getAll() {
 		List<RoomWithDetails> listRoom = new ArrayList<>();
@@ -90,7 +89,7 @@ public class RoomService {
 			if(targetRoom.isDeleted()) {
 				modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
 				modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
-					mapper.map(RoomCreateRequest::getRequesterIdUser, Room::update);
+					mapper.map(RoomCreateRequest::getRequesterId, Room::update);
 				});
 				targetRoom.setDeleted(false);
 				modelMapper.map(request, targetRoom);
@@ -100,7 +99,7 @@ public class RoomService {
 		}
 		else {
 			modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
-				mapper.map(RoomCreateRequest::getRequesterIdUser, Room::create);
+				mapper.map(RoomCreateRequest::getRequesterId, Room::create);
 			});
 			Room room = modelMapper.map(request, Room.class);
 			save(room);
@@ -113,7 +112,7 @@ public class RoomService {
 		Room room = getById(roomId).getRoom();
 		modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
 		modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
-			mapper.map(RoomCreateRequest::getRequesterIdUser, Room::update);
+			mapper.map(RoomCreateRequest::getRequesterId, Room::update);
 		});
 
 		if(roomRepository.findByNameAndIdNot(request.getName(), roomId) != null) throw new DataAlreadyExistException();
@@ -126,7 +125,7 @@ public class RoomService {
 	public RoomDetail addRoomDetail(String roomId, RoomDetailsCreateRequest request){
 		Room room = getById(roomId).getRoom();
 		RoomDetail newRoomDetail = roomDetailService.addRoomDetail(room, request);
-		room.update(request.getRequesterIdUser());
+		room.update(request.getRequesterId());
 		save(room);
 	
 		return newRoomDetail;
@@ -135,7 +134,7 @@ public class RoomService {
 	public RoomPriceDetail addRoomPrice(String roomId, RoomPriceCreateRequest request){
 		Room room = getById(roomId).getRoom();
 		RoomPriceDetail newRoomPriceDetail = roomDetailService.addRoomPrice(room, request);
-		room.update(request.getRequesterIdUser());
+		room.update(request.getRequesterId());
 		save(room);
 		
 		return newRoomPriceDetail;
@@ -144,7 +143,7 @@ public class RoomService {
 	public RoomDetail editRoomDetail(Long roomDetailId, String roomId, RoomDetailsCreateRequest request){
 		Room room = getById(roomId).getRoom();
 		RoomDetail roomDetail = roomDetailService.editRoomDetail(roomDetailId, request, room);
-		room.update(request.getRequesterIdUser());
+		room.update(request.getRequesterId());
 		save(room);
 	
 		return roomDetail;
@@ -153,7 +152,7 @@ public class RoomService {
 	public RoomPriceDetail editRoomPrice(Long roomPriceDetailId, String roomId, RoomPriceCreateRequest request){
 		Room room = getById(roomId).getRoom();
 		RoomPriceDetail roomPriceDetail = roomDetailService.editRoomPrice(roomPriceDetailId, request, room);
-		room.update(request.getRequesterIdUser());
+		room.update(request.getRequesterId());
 		save(room);
 		
 		return roomPriceDetail;

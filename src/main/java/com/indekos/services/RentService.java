@@ -17,12 +17,10 @@ public class RentService {
         return rentRepository.findUnpaidById(userId);
     }
 
-    public Rent create(){
-        Rent rent = new Rent("0a71db18-6995-411b-8fe6-4b51b0c4ce22",1500000,"Jan",1676879105844L,0);
-        rent.create("98e6e4b5-9597-4a61-8499-8fd1567af7ff");
-        save(rent);
-        return rent;
-    }
+//    public Rent create(){
+//        save(rent);
+//        return rent;
+//    }
 
     private void save(Rent rent){
         try {

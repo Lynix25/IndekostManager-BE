@@ -90,16 +90,16 @@ public class RoomController {
 	
 	@DeleteMapping("/{roomId}")
 	public ResponseEntity<?> deleteRoom(@PathVariable String roomId, @Valid @RequestBody AuditableRequest request) {
-		return GlobalAcceptions.data(roomService.delete(roomId, request.getRequesterIdUser()), "Deleted Room Data");
+		return GlobalAcceptions.data(roomService.delete(roomId, request.getRequesterId()), "Deleted Room Data");
 	}
 	
 	@DeleteMapping("/{roomId}/details") // delete = roomDetailId
 	public ResponseEntity<?> deleteRoomDetail(@RequestParam Long delete, @PathVariable String roomId, @Valid @RequestBody AuditableRequest request){
-		return GlobalAcceptions.data(roomService.removeRoomDetail(delete, request.getRequesterIdUser(), roomId), "Deleted Room Detail Data");
+		return GlobalAcceptions.data(roomService.removeRoomDetail(delete, request.getRequesterId(), roomId), "Deleted Room Detail Data");
 	}
 	
 	@DeleteMapping("/{roomId}/prices") // delete = roomPriceDetailId
 	public ResponseEntity<?> deleteRoomPrice(@RequestParam Long delete, @PathVariable String roomId, @Valid @RequestBody AuditableRequest request){
-		return GlobalAcceptions.data(roomService.removeRoomPrice(delete, request.getRequesterIdUser(), roomId), "Deleted Room Price Data");
+		return GlobalAcceptions.data(roomService.removeRoomPrice(delete, request.getRequesterId(), roomId), "Deleted Room Price Data");
 	}
 }

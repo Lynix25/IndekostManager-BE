@@ -21,8 +21,8 @@ public class TaskService {
 
     public Task register(TaskCreateRequest taskCreateRequest){
         Task task = modelMapper.map(taskCreateRequest, Task.class);
-        task.create(taskCreateRequest.getRequesterIdUser());
-        task.setRequestedBy(taskCreateRequest.getRequesterIdUser());
+        task.create(taskCreateRequest.getRequesterId());
+        task.setRequestedBy(taskCreateRequest.getRequesterId());
         task.setStatus(0);
         taskRepository.save(task);
         return task;
@@ -39,7 +39,7 @@ public class TaskService {
     public Task update(String id,TaskUpdateRequest request){
         Task task = getById(id);
         task.setStatus(request.getStatus());
-        task.update(request.getRequesterIdUser());
+        task.update(request.getRequesterId());
 
         taskRepository.save(task);
         return task;

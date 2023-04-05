@@ -29,7 +29,7 @@ public class TransactionService {
 
     public Transaction create(TransactionCreateRequest request){
         Transaction transaction = modelMapper.map(request, Transaction.class);
-        transaction.create(request.getRequesterIdUser());
+        transaction.create(request.getRequesterId());
         transaction.setPaymentStatus("Menunggu Pembayaran");
         transaction.setPenaltyFee(0L);
 
