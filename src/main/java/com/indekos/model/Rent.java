@@ -13,14 +13,11 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor @AllArgsConstructor
 public class Rent extends AuditableEntity {
-	
 	private static final long serialVersionUID = 1L;
-	
     private Integer price;
     private String month;
     private Long dueDate;
     private Integer status;
-    
     private String roomId;
 
 //    @ManyToOne(targetEntity = Transaction.class, cascade = CascadeType.ALL)

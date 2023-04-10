@@ -33,7 +33,7 @@ public class ServiceService {
     }
     public Service register(ServiceCreateRequest requestBody){
         Service service = modelMapper.map(requestBody, Service.class);
-        service.create(requestBody.getRequesterIdUser());
+        service.create(requestBody.getRequesterId());
 
         serviceRepository.save(service);
         return service;
@@ -42,7 +42,7 @@ public class ServiceService {
         Service service = getByID(id);
 
         modelMapper.map(requestBody, service);
-        service.update(requestBody.getRequesterIdUser());
+        service.update(requestBody.getRequesterId());
         serviceRepository.save(service);
         return service;
     }

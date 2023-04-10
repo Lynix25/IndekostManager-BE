@@ -77,7 +77,7 @@ public class UserService {
     }
     
     public Account changePassword(AccountChangePasswordRequest requestBody) {
-    	User user = getById(requestBody.getRequesterIdUser()).getUser();
+    	User user = getById(requestBody.getRequesterId()).getUser();
     	Account account = accountService.changePassword(user, requestBody);
         user.update(account.getId());
         save(user);
@@ -132,7 +132,7 @@ public class UserService {
     
     public UserResponse register(UserRegisterRequest userRegisterRequest) {
     	modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
-        	mapper.map(src -> src.getRequesterIdUser(), User::create);
+        	mapper.map(src -> src.getRequesterId(), User::create);
         	mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
             mapper.map(src -> null, User::setInactiveSince);
             mapper.map(src -> false, User::setDeleted);
@@ -167,7 +167,7 @@ public class UserService {
     	User user = getById(userId).getUser();
         modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
-           mapper.map(src -> src.getRequesterIdUser(), User::update);
+           mapper.map(src -> src.getRequesterId(), User::update);
         });
         modelMapper.map(request, user);
         user.setRole(roleService.getByRoleId(request.getRoleId()));
@@ -187,7 +187,7 @@ public class UserService {
     	User user = response.getUser();
     	user.setDeleted(true);
     	user.setInactiveSince(System.currentTimeMillis());
-        user.update(request.getRequesterIdUser());
+        user.update(request.getRequesterId());
         save(user);
         response.setUser(user);
     	return response;

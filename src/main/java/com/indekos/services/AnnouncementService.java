@@ -44,8 +44,8 @@ public class AnnouncementService {
 			newData.setTitle(request.getTitle());
 			newData.setDescription(request.getDescription());
 			newData.setPeriod(request.getPeriod());
-			newData.create(request.getRequesterIdUser());
-			newData.update(request.getRequesterIdUser());
+			newData.create(request.getRequesterId());
+			newData.update(request.getRequesterId());
 			newData.setImage(Utils.compressImage(request.getImage()));
 
 			final Announcement createdData = announcementRepository.save(newData);
@@ -63,7 +63,7 @@ public class AnnouncementService {
 			data.setDescription(request.getDescription());
 			data.setPeriod(request.getPeriod());
 			data.setImage(Utils.compressImage(request.getImage()));
-			data.update(request.getRequesterIdUser());
+			data.update(request.getRequesterId());
 			
 			final Announcement updatedData = announcementRepository.save(data);
 			return updatedData;

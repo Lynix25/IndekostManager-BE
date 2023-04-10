@@ -7,5 +7,5 @@ import javax.validation.constraints.NotEmpty;
 @Data
 public class AuditableRequest {
     @NotEmpty(message = "User ID requester is required")
-    private String requesterIdUser;
+    private String requesterId;
 }
