@@ -1,5 +1,6 @@
 package com.indekos.common.helper;
 
+import com.indekos.model.Account;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -23,15 +24,15 @@ public class GlobalAcceptions {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public static ResponseEntity<?> loginAllowed(User user, String message){
-    	if(user == null || user.isDeleted()) {
+    public static ResponseEntity<?> loginAllowed(Account account, String message){
+    	if(account.getUser() == null || account.getUser().isDeleted()) {
         	throw new InvalidUserCredentialException("User not registered");
         }
-        TokenSessionResponse token = new TokenSessionResponse(Constant.SECRET + user.getId(), Constant.EXPIRES_IN);
+        TokenSessionResponse token = new TokenSessionResponse(Constant.SECRET + account.getUser().getId(), Constant.EXPIRES_IN);
         LoginResponse.DataResponseDto<User> data = new LoginResponse.DataResponseDto<>();
         data.setStatus("Authenticated");
         data.setLoginTime(System.currentTimeMillis());
-        data.setUser(user);
+        data.setUser(account.getUser());
         data.setToken(token);
         return successResponse(data, message);
     }

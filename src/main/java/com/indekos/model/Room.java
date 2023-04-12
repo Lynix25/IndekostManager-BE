@@ -40,21 +40,14 @@ public class Room extends AuditableEntity {
 	private boolean isDeleted;
 
 	/* Alokasi harga */
-	@JsonIgnore
 	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
 	private List<RoomPriceDetail> prices;
 
 	/* Detail fasilitas */
-	@JsonIgnore
 	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
 	private List<RoomDetail> details;
 
 	/* User yang tinggal pada ruangan */
-	@JsonIgnore
 	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
 	private List<User> users;
-
-//	private List<String> rules;
-//	private List<String> specification;
-//	private List<String> bathRoomFacilities;
 }

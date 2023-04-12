@@ -5,6 +5,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
@@ -25,6 +27,27 @@ public class Utils {
         double dayDiff = (double) millisecond/ (double) dayInmilis;
 
         return dayDiff;
+    }
+
+    public static boolean isAlphaNumeric(String str) {
+        if (str == null || str.equals("")) return false;
+
+        // Regex to check string is alphanumeric or not.
+        String regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(str);
+
+        Integer countAlpha = 0;
+        Integer countNumber = 0;
+        Integer len = str.length();
+        if(m.matches()) {
+            for (int i = 0; i < len; i++) {
+                if(Character.isAlphabetic(str.charAt(i))) countAlpha++;
+                else countNumber++;
+            }
+        }
+        if(countAlpha > 0 && countNumber > 0) return true;
+        return false;
     }
 
     public static byte[] compressImage(byte[] data) {

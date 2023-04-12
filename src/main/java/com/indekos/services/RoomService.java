@@ -8,7 +8,7 @@ import com.indekos.dto.request.RoomCreateRequest;
 import com.indekos.dto.request.RoomDetailsCreateRequest;
 import com.indekos.dto.request.RoomPriceCreateRequest;
 import com.indekos.dto.response.AvailableRoomResponse;
-import com.indekos.dto.response.RoomWithDetails;
+import com.indekos.dto.response.RoomDTO;
 import com.indekos.model.MasterRoomDetailCategory;
 import com.indekos.model.Room;
 import com.indekos.model.RoomDetail;
@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -49,16 +48,12 @@ public class RoomService {
 //		return null;
 //	}
 	
-	public List<RoomWithDetails> getAll() {
-		List<RoomWithDetails> listRoom = new ArrayList<>();
+	public List<Room> getAll() {
 		List<Room> rooms = roomRepository.findAllByOrderByNameAsc();
-		rooms.forEach(room -> {
-			listRoom.add(getRoomDetail(room));
-		});
-		return listRoom;
+		return rooms;
 	}
 
-	public RoomWithDetails getById(String roomId){
+	public RoomDTO getById(String roomId){
 		Room targetRoom = roomRepository.findById(roomId)
 				.orElseThrow(() -> new InvalidRequestIdException("Invalid Room ID"));
 		return getRoomDetail(targetRoom);
@@ -82,7 +77,7 @@ public class RoomService {
 		return roomDetailService.getPriceDetailsByRoom(targetRoom);
 	}
 	
-	public RoomWithDetails create(RoomCreateRequest request){
+	public RoomDTO create(RoomCreateRequest request){
 		
 		Room targetRoom = roomRepository.findByName(request.getName());
 		if(targetRoom != null) {
@@ -108,7 +103,7 @@ public class RoomService {
 		}
 	}
 
-	public RoomWithDetails update(String roomId, RoomCreateRequest request) {
+	public RoomDTO update(String roomId, RoomCreateRequest request) {
 		Room room = getById(roomId).getRoom();
 		modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
 		modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
@@ -158,7 +153,7 @@ public class RoomService {
 		return roomPriceDetail;
 	}
 	
-	public RoomWithDetails delete(String roomId, String requesterIdUser) {
+	public RoomDTO delete(String roomId, String requesterIdUser) {
 		Room data = getById(roomId).getRoom();
 		if(roomRepository.countCurrentTenantsOfRoom(roomId) == 0) {
 			data.setDeleted(true);
@@ -195,19 +190,17 @@ public class RoomService {
 		}
 	}
 	
-	public RoomWithDetails getRoomDetail(Room room) {
-		RoomWithDetails roomWithDetails = new RoomWithDetails();
+	public RoomDTO getRoomDetail(Room room) {
+		RoomDTO roomDTO = new RoomDTO();
 		int tenants = roomRepository.countCurrentTenantsOfRoom(room.getId());
 		
-		roomWithDetails.setRoom(room);
-		roomWithDetails.setPrices(roomDetailService.getPriceDetailsByRoom(room));
-		roomWithDetails.setDetails(roomDetailService.getDetailsByRoom(room));
-		roomWithDetails.setTenantsInRoom(tenants);
-		if(tenants > 0 && roomRepository.checkIfRoomIsShared(room.getId()) == 0) roomWithDetails.setRoomStatus("Disewa pribadi");
-		else if(room.getQuota() - tenants == 0) roomWithDetails.setRoomStatus("Penuh");
-		else roomWithDetails.setRoomStatus("Tersedia");
+		roomDTO.setRoom(room);
+		roomDTO.setTotalTenants(tenants);
+		if(tenants > 0 && roomRepository.checkIfRoomIsShared(room.getId()) == 0) roomDTO.setStatus("Disewa pribadi");
+		else if(room.getQuota() - tenants == 0) roomDTO.setStatus("Penuh");
+		else roomDTO.setStatus("Tersedia");
 		
-		return roomWithDetails;
+		return roomDTO;
 	}
 	
 	public boolean isRoomShared(String roomId) {
@@ -216,6 +209,6 @@ public class RoomService {
 	
 	public boolean isRoomFullyBooked(String roomId) {
 		Room room = getById(roomId).getRoom();
-		return (room.getQuota() - roomRepository.countCurrentTenantsOfRoom(roomId)) == 0 ? true : false;
+		return (room.getQuota() - room.getUsers().size()) <= 0 ? true : false;
 	}
 }

@@ -2,7 +2,11 @@ package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.common.helper.exception.InsertDataErrorException;
+import com.indekos.dto.UserDTO;
 import com.indekos.dto.request.*;
+import com.indekos.model.Account;
+import com.indekos.model.User;
+import com.indekos.services.AccountService;
 import com.indekos.services.UserService;
 import com.indekos.utils.Validated;
 
@@ -21,15 +25,20 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-	
     @Autowired
 	private UserService userService;
+    @Autowired
+    private AccountService accountService;
+
     
     /* ================================================ USER ACCOUNT ================================================ */
     @PostMapping("/login")
     public ResponseEntity<?> login (@Valid @RequestBody AccountLoginRequest accountLoginRequest, Errors errors){
         Validated.request(errors);
-        return GlobalAcceptions.loginAllowed(userService.login(accountLoginRequest), "Success Login");
+
+        Account account = accountService.login(accountLoginRequest);
+
+        return GlobalAcceptions.loginAllowed(account, "Success Login");
     }
     
     @PutMapping("/changepassword")
@@ -60,7 +69,9 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable String userId){
-    	return GlobalAcceptions.data(userService.getById(userId), "User Data");
+        User user = userService.getById(userId);
+        UserDTO userDTO = new UserDTO(user, user.getRoom());
+    	return GlobalAcceptions.data(userDTO, "User Data");
     }
     
     @PostMapping
@@ -106,8 +117,8 @@ public class UserController {
     /* User setting auto added when user registered */
     
     @PutMapping("/{userId}/settings") // type = settingType; value = true/false
-    public ResponseEntity<?> updateUserSetting(@PathVariable String userId, @RequestParam String type, @RequestParam boolean value) {
-    	return GlobalAcceptions.data(userService.updateSetting(userId, type, value), "Updated User Setting Data");
+    public ResponseEntity<?> updateUserSetting(@PathVariable String userId, @RequestBody UserSettingsUpdateRequest request) {
+    	return GlobalAcceptions.data(userService.updateSetting(userId, request), "Updated User Setting Data");
     }
 
     /* ========================================== USER CONTACTABLE PERSON =========================================== */

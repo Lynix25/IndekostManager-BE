@@ -1,11 +1,6 @@
 package com.indekos.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.indekos.common.base.entity.BaseEntity;
@@ -20,12 +15,15 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor @AllArgsConstructor
 public class UserDocument extends BaseEntity {
-	
 	private static final long serialVersionUID = 1L;
 	
 	@Lob
 	@Column(length = 1000)
-	private byte[] identityCardImage;
+	private byte[] image;
+
+//	@OneToMany(mappedBy = "userDocument", cascade = CascadeType.ALL)
+//	@JoinColumn(name = "category_id", referencedColumnName = "id")
+//	private MasterDocumentCategory name;
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)

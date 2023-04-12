@@ -15,7 +15,6 @@ import java.util.List;
 @Entity
 @AllArgsConstructor @NoArgsConstructor
 public class User extends AuditableEntity {
-	
 	private static final long serialVersionUID = 1L;
 	
 	@Column(nullable = false)
@@ -47,7 +46,7 @@ public class User extends AuditableEntity {
 	private Long joinedOn;
 	
 	/* Jika tidak tinggal di kos lagi */
-	private Long inactiveSince;
+	private Long inActiveSince;
 	
 	@Column(nullable = false, columnDefinition = "boolean default false")
     private boolean isDeleted;
@@ -59,17 +58,16 @@ public class User extends AuditableEntity {
 	@Transient
 	@JsonIgnore
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private List<UserDocument> userDocument;
-	
-	@Transient
-	@JsonIgnore
+	private List<UserDocument> documents;
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private List<ContactAblePerson> contactAblePerson;
+	private List<ContactAblePerson> contactAblePersons;
 
 	/* Settings */
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-	private UserSetting userSetting;
-	
+	private UserSetting setting;
+
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="room_id", referencedColumnName = "id")
 	private Room room;
@@ -77,4 +75,9 @@ public class User extends AuditableEntity {
 	@JsonIgnore
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
 	private Account account;
+
+	public void delete(){
+		this.isDeleted = true;
+		this.inActiveSince = System.currentTimeMillis();
+	}
 }

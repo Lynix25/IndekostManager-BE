@@ -14,7 +14,6 @@ import javax.persistence.Entity;
 @Entity
 @AllArgsConstructor @NoArgsConstructor
 public class Task extends AuditableEntity {
-
 	private static final long serialVersionUID = 1L;
 	
 	@Column(nullable = false)
@@ -26,8 +25,6 @@ public class Task extends AuditableEntity {
 	private String summary;
     
 	private String notes;
-    
-	private String requestedBy;
     
 	private Long finishDate;
     /**

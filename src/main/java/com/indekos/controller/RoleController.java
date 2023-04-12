@@ -24,6 +24,6 @@ public class RoleController {
 	
 	@GetMapping("/{roleId}")
 	public ResponseEntity<?> getRoleById(@PathVariable String roleId){
-		return GlobalAcceptions.data(roleService.getByRoleId(roleId), "Master Role Data");
+		return GlobalAcceptions.data(roleService.getById(roleId), "Master Role Data");
 	}
 }

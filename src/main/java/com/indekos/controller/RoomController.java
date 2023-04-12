@@ -5,7 +5,7 @@ import com.indekos.dto.request.AuditableRequest;
 import com.indekos.dto.request.RoomCreateRequest;
 import com.indekos.dto.request.RoomDetailsCreateRequest;
 import com.indekos.dto.request.RoomPriceCreateRequest;
-import com.indekos.dto.response.RoomWithDetails;
+import com.indekos.dto.response.RoomDTO;
 import com.indekos.services.RoomService;
 import com.indekos.utils.Validated;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class RoomController {
 
 	@GetMapping("/{roomId}")
 	public ResponseEntity<?> getRoom (@PathVariable String roomId){
-		RoomWithDetails room = roomService.getById(roomId);
+		RoomDTO room = roomService.getById(roomId);
 		return GlobalAcceptions.data(room, "Room Data");
 	}
 	
