@@ -59,6 +59,7 @@ public class AccountService {
         modelMapper.typeMap(User.class, Account.class).addMappings(mapper -> {
            mapper.map(src -> credential, Account::setUsername);
            mapper.map(src -> Utils.passwordHashing(credential), Account::setPassword);
+           mapper.map(src -> {return user;}, Account::setUser);
         });
         Account account = modelMapper.map(user, Account.class);
         save(account);

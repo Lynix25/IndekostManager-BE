@@ -120,7 +120,7 @@ public class UserService {
     public UserResponse register(UserRegisterRequest request) {
     	modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
         	mapper.map(src -> src.getRequesterId(), User::create);
-			mapper.map(UserRegisterRequest::getRoleId, User::setRole);
+//			mapper.map(src -> roleService.getById(src.getRoleId()), User::setRole);
         	mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
             mapper.map(src -> null, User::setInActiveSince);
             mapper.map(src -> false, User::setDeleted);
@@ -128,7 +128,7 @@ public class UserService {
         });
         User user = modelMapper.map(request, User.class);
         user.setSetting(new UserSetting(user));
-//        user.setRole(roleService.getByRoleId(request.getRoleId()));
+        user.setRole(roleService.getById(request.getRoleId()));
         
         if (request.getRoomId() == null || ((request.getRoomId()).trim()).equals("")) {
     		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
