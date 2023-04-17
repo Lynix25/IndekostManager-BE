@@ -13,7 +13,7 @@ public class AccountController {
 	@Autowired
     private AccountService accountService;
     
-	@GetMapping
+	@GetMapping("/all")
     public ResponseEntity<?> getAllAccount(){
         return GlobalAcceptions.listData(accountService.getAll(), "All User Account Data");
     }
@@ -21,6 +21,11 @@ public class AccountController {
     @GetMapping("/{accountId}")
     public ResponseEntity<?> getAccountById(@PathVariable String accountId) {
     	return GlobalAcceptions.data(accountService.getById(accountId), "User Account Data");
+    }
+    
+    @GetMapping
+    public ResponseEntity<?> getAccountByUsername(@RequestParam String username) {
+    	return GlobalAcceptions.data(accountService.getByUsername(username), "User Account Data");
     }
     
     /* Account autocreate when user registered by owner */
