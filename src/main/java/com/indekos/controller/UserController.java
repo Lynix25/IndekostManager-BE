@@ -4,9 +4,7 @@ import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.common.helper.exception.InsertDataErrorException;
 import com.indekos.dto.UserDTO;
 import com.indekos.dto.request.*;
-import com.indekos.model.Account;
 import com.indekos.model.User;
-import com.indekos.services.AccountService;
 import com.indekos.services.UserService;
 import com.indekos.utils.Validated;
 
@@ -22,11 +20,9 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+	
     @Autowired
 	private UserService userService;
-    @Autowired
-    private AccountService accountService;
-
     
     /* ================================================ USER ACCOUNT ================================================ */
     @PostMapping("/login")

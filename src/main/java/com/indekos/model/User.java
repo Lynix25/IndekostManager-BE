@@ -1,5 +1,6 @@
 package com.indekos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.indekos.common.base.entity.AuditableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;

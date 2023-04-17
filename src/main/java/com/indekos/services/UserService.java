@@ -21,7 +21,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.indekos.dto.request.UserRegisterRequest;
-import com.indekos.dto.response.UserDocumentResponse;
 import com.indekos.dto.response.UserResponse;
 import com.indekos.model.User;
 import com.indekos.model.UserDocument;
@@ -60,7 +59,7 @@ public class UserService {
     AccountService accountService;
 
     /* ================================================ USER ACCOUNT ================================================ */
-    public User login(AccountLoginRequest accountLoginRequest) {
+    public Account login(AccountLoginRequest accountLoginRequest) {
     	Account account = accountService.getByUsername(accountLoginRequest.getUsername());
     	if(account == null)
     		throw new InvalidUserCredentialException("User tidak terdaftar");
@@ -68,7 +67,7 @@ public class UserService {
         if(account.authorized(accountLoginRequest.getPassword())){
         	account.setLoginTime(System.currentTimeMillis());
         	accountService.save(account);
-            return account.getUser();
+            return account;
         }
         throw new InvalidUserCredentialException("Username atau password tidak valid");
     }
@@ -90,7 +89,7 @@ public class UserService {
     }
     
     public Account logout(String userId) {
-    	Account account = accountService.getByUser(getById(userId).getUser());
+    	Account account = accountService.getByUser(getById(userId));
         try {
         	account.setLogoutTime(System.currentTimeMillis());
         	accountService.save(account);
@@ -124,7 +123,7 @@ public class UserService {
     	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
     	
-    	return getUserWithConvertedDocumentImage(user);
+    	return user;
     }
 
     
@@ -146,13 +145,13 @@ public class UserService {
     			throw new InsertDataErrorException("User room id can't be empty");
     		else user.setRoom(null);
 		} else {
-			if(!isRoomAvailable(userRegisterRequest.getRoomId()))
+			if(!isRoomAvailable(request.getRoomId()))
 				throw new InsertDataErrorException("Kamar penuh");
 			else {
-				Room room = roomService.getById(userRegisterRequest.getRoomId()).getRoom();
-				if(room.getAllotment().equals(Constant.PUTRA) && userRegisterRequest.getGender().equals(Constant.PEREMPUAN))
+				Room room = roomService.getById(request.getRoomId()).getRoom();
+				if(room.getAllotment().equals(Constant.PUTRA) && request.getGender().equals(Constant.PEREMPUAN))
 					throw new InsertDataErrorException("Kamar khusus putra");
-				else if(room.getAllotment().equals(Constant.PUTRI) && userRegisterRequest.getGender().equals(Constant.LAKI_LAKI))
+				else if(room.getAllotment().equals(Constant.PUTRI) && request.getGender().equals(Constant.LAKI_LAKI))
 					throw new InsertDataErrorException("Kamar khusus putri");
 				else user.setRoom(room);
 			}
@@ -172,7 +171,7 @@ public class UserService {
         });
         modelMapper.map(request, user);
         user.setIdentityCardImage(Utils.compressImage(request.getIdentityCard()));
-        user.setRole(roleService.getByRoleId(request.getRoleId()));
+        user.setRole(roleService.getById(request.getRoleId()));
         
         if (request.getRoomId() == null || ((request.getRoomId()).trim()).equals("")) {
     		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
@@ -180,7 +179,7 @@ public class UserService {
     		else user.setRoom(null);
 		} else user.setRoom(roomService.getById(request.getRoomId()).getRoom());  
         
-        save(user);
+        save(request.getRequesterId(), user);
         return getUserWithConvertedDocumentImage(user);
     }
     
@@ -236,7 +235,6 @@ public class UserService {
     	User user = getById(userId);
     	ContactAblePerson contactAblePerson = modelMapper.map(request, ContactAblePerson.class);
 		contactAblePerson.setUser(user);
-		user.getContactAblePersons().add(contactAblePerson);
 
     	try {
 			save(userId, user);
@@ -244,8 +242,6 @@ public class UserService {
 			System.out.println(e);
 			throw new InsertDataErrorException("Gagal menambahkan data relasi yang dapat dihubungi");
 		}
-//        user.update(userId);
-//        save(userId,user);
         return contactAblePerson;
     }
     
@@ -269,7 +265,7 @@ public class UserService {
     	contactAblePerson.setDeleted(true);
     	final ContactAblePerson deleted = contactAblePersonRepository.save(contactAblePerson);
     	User user = getById(userId);
-    	save(userId,user);
+    	save(userId, user);
 
     	return deleted;
     }
