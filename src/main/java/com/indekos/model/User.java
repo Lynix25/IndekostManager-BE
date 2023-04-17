@@ -1,6 +1,5 @@
 package com.indekos.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.indekos.common.base.entity.AuditableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -56,15 +54,9 @@ public class User extends AuditableEntity {
     @JoinColumn(name = "role_id", referencedColumnName = "id")
     private MasterRole role;
 	
-	@Transient
-	@JsonIgnore
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private List<UserDocument> userDocument;
-	
-	@Transient
-	@JsonIgnore
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private List<ContactAblePerson> contactAblePerson;
+	@Lob
+	@Column(length = 1000)
+	private byte[] identityCardImage;
 
 	/* Settings */
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
@@ -73,8 +65,4 @@ public class User extends AuditableEntity {
 	@ManyToOne
 	@JoinColumn(name="room_id", referencedColumnName = "id")
 	private Room room;
-
-	@JsonIgnore
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-	private Account account;
 }

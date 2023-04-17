@@ -25,15 +25,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.indekos.dto.request.UserRegisterRequest;
-import com.indekos.dto.response.UserDocumentResponse;
 import com.indekos.dto.response.UserResponse;
 import com.indekos.model.User;
 import com.indekos.model.UserDocument;
 import com.indekos.model.UserSetting;
 import com.indekos.repository.UserRepository;
 import com.indekos.repository.UserSettingRepository;
-
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +70,7 @@ public class UserService {
         	accountService.save(account);
             return account.getUser();
         }
-        throw new InvalidUserCredentialException("Invalid username or password");
+        throw new InvalidUserCredentialException("Username atau password tidak valid");
     }
     
     public Account changePassword(AccountChangePasswordRequest requestBody) {
@@ -92,8 +89,8 @@ public class UserService {
         return account;
     }
     
-    public Account logout(String accountId) {
-    	Account account = accountService.getById(accountId);
+    public Account logout(String userId) {
+    	Account account = accountService.getByUser(getById(userId).getUser());
         try {
         	account.setLastLogoutTime(System.currentTimeMillis());
         	accountService.save(account);
@@ -108,7 +105,7 @@ public class UserService {
     	List<UserResponse> listResponse =  new ArrayList<>();
     	List<User> users = userRepository.findAllActiveUserOrderByName();
     	users.forEach(user -> {
-    		listResponse.add(getUserWithConvertedDocumentImage(user, null, Constant.DECOMPRESS_MODE));
+    		listResponse.add(getUserWithConvertedDocumentImage(user));
     	});
     	return listResponse;
     }
@@ -118,16 +115,16 @@ public class UserService {
     	List<UserResponse> listUser =  new ArrayList<>();
     	List<User> users = userRepository.findAllByRoomId(room.getId());
     	users.forEach(user -> {
-    		listUser.add(getUserWithConvertedDocumentImage(user, null, Constant.DECOMPRESS_MODE));
+    		listUser.add(getUserWithConvertedDocumentImage(user));
     	});
     	return listUser;
     }
     
     public UserResponse getById(String userId){
     	User user = userRepository.findById(userId)
-    			.orElseThrow(() -> new InvalidRequestIdException("Invalid User ID"));
+    			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
     	
-    	return getUserWithConvertedDocumentImage(user, null, Constant.DECOMPRESS_MODE);
+    	return getUserWithConvertedDocumentImage(user);
     }
     
     public UserResponse register(UserRegisterRequest userRegisterRequest) {
@@ -138,6 +135,7 @@ public class UserService {
             mapper.map(src -> false, User::setDeleted);
         });
         User user = modelMapper.map(userRegisterRequest, User.class);
+        user.setIdentityCardImage(Utils.compressImage(userRegisterRequest.getIdentityCard()));
         user.setUserSetting(new UserSetting(user));
         user.setRole(roleService.getByRoleId(userRegisterRequest.getRoleId()));
         
@@ -147,20 +145,20 @@ public class UserService {
     		else user.setRoom(null);
 		} else {
 			if(!isRoomAvailable(userRegisterRequest.getRoomId()))
-				throw new InsertDataErrorException("Selected room is fully booked!");
+				throw new InsertDataErrorException("Kamar penuh");
 			else {
 				Room room = roomService.getById(userRegisterRequest.getRoomId()).getRoom();
 				if(room.getAllotment().equals(Constant.PUTRA) && userRegisterRequest.getGender().equals(Constant.PEREMPUAN))
-					throw new InsertDataErrorException("Selected room is for men only");
+					throw new InsertDataErrorException("Kamar khusus putra");
 				else if(room.getAllotment().equals(Constant.PUTRI) && userRegisterRequest.getGender().equals(Constant.LAKI_LAKI))
-					throw new InsertDataErrorException("Selected room is for women only");
+					throw new InsertDataErrorException("Kamar khusus putri");
 				else user.setRoom(room);
 			}
 		} 
         
         save(user);
         accountService.register(user);
-        return getUserWithConvertedDocumentImage(user, userRegisterRequest.getUserDocument(), Constant.COMPRESS_MODE);
+        return getUserWithConvertedDocumentImage(user);
     }
     
     public UserResponse update(String userId, UserRegisterRequest request) {
@@ -170,6 +168,7 @@ public class UserService {
            mapper.map(src -> src.getRequesterId(), User::update);
         });
         modelMapper.map(request, user);
+        user.setIdentityCardImage(Utils.compressImage(request.getIdentityCard()));
         user.setRole(roleService.getByRoleId(request.getRoleId()));
         
         if (request.getRoomId() == null || ((request.getRoomId()).trim()).equals("")) {
@@ -179,7 +178,7 @@ public class UserService {
 		} else user.setRoom(roomService.getById(request.getRoomId()).getRoom());  
         
         save(user);
-        return getUserWithConvertedDocumentImage(user, request.getUserDocument(), Constant.COMPRESS_MODE);
+        return getUserWithConvertedDocumentImage(user);
     }
     
     public UserResponse delete(String userId, AuditableRequest request) {
@@ -245,7 +244,7 @@ public class UserService {
 			contactAblePersonRepository.save(contactAblePerson);
 		} catch (Exception e) {
 			System.out.println(e);
-			throw new InsertDataErrorException("Failed add contactable person");
+			throw new InsertDataErrorException("Gagal menambahkan data relasi yang dapat dihubungi");
 		}
         user.update(userId);
         save(user);
@@ -300,34 +299,26 @@ public class UserService {
     	}
     }
     
-    private UserResponse getUserWithConvertedDocumentImage(User user, List<MultipartFile> documents, String convertMode) {
-    	if(convertMode.equals(Constant.COMPRESS_MODE)) {
-    		if(documents != null) {
-    			documents.forEach(document -> {
-        			UserDocument userDocument = new UserDocument();
-            		userDocument.setIdentityCardImage(Utils.compressImage(document));
-            		userDocument.setUser(user);
-            		userDocumentRepository.save(userDocument);
-            	});
-    		}
-    	}
-    	
+    private List<UserDocument> getAllUserDocument(User user) {
+    	List<UserDocument> documents = userDocumentRepository.findByUser(user);
+    	if(documents != null) {
+    		List<UserDocument> listConvertedDocument = new ArrayList<>();
+			documents.forEach(document -> {
+    			UserDocument userDocument = document;
+    			userDocument.setImage(Utils.decompressImage(document.getImage()));
+        		listConvertedDocument.add(userDocument);
+        	});
+			return listConvertedDocument;
+		}
+    	return null;
+    }
+    
+    private UserResponse getUserWithConvertedDocumentImage(User user) { 
     	UserResponse response = new UserResponse();
-    	response.setUser(user);
-    	
     	Account account = accountService.getByUser(user);
     	response.setAccount(new AccountDTO(account.getId(), account.getUsername()));
-    	
-    	List<UserDocumentResponse> listUserDocumentConverted = new ArrayList<>();
-    	List<UserDocument> listUserDocument = userDocumentRepository.findByUser(user);
-    	listUserDocument.forEach(document -> {
-			UserDocumentResponse userDocument = new UserDocumentResponse();
-			userDocument.setId(document.getId());
-			userDocument.setIdentityCardImage(Utils.decompressImage(document.getIdentityCardImage()));
-			listUserDocumentConverted.add(userDocument);
-    	});
-		response.setUserDocuments(listUserDocumentConverted);
-    	
+//    	user.setIdentityCardImage(Utils.decompressImage(user.getIdentityCardImage()));
+    	response.setUser(user);
     	return response;
     }
     
