@@ -41,9 +41,6 @@ public class AccountService {
     
     public Account getByUsername(String username){
     	Account account = accountRepository.findByUsername(username);
-    	if(account == null)
-    		throw new InvalidRequestIdException("Invalid Username");
-    	
     	return account;
     }
     
