@@ -19,7 +19,6 @@ import javax.persistence.OneToMany;
 @Entity
 @AllArgsConstructor @NoArgsConstructor
 public class MasterRole extends AuditableEntity {
-	
 	private static final long serialVersionUID = 1L;
 	
 	// OWNER, ADMIN, TENANT
@@ -29,7 +28,7 @@ public class MasterRole extends AuditableEntity {
 	@Column(columnDefinition = "text")
 	private String description;
 	
-	@JsonIgnore
-	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-    private List<User> user;
+//	@JsonIgnore
+//	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
+//    private List<User> user;
 }

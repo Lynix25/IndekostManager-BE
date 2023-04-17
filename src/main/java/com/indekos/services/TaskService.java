@@ -3,10 +3,13 @@ package com.indekos.services;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.dto.request.TaskUpdateRequest;
+import com.indekos.dto.request.UserRegisterRequest;
 import com.indekos.model.Task;
+import com.indekos.model.User;
 import com.indekos.repository.TaskRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,15 +22,6 @@ public class TaskService {
     @Autowired
     TaskRepository taskRepository;
 
-    public Task register(TaskCreateRequest taskCreateRequest){
-        Task task = modelMapper.map(taskCreateRequest, Task.class);
-        task.create(taskCreateRequest.getRequesterId());
-        task.setRequestedBy(taskCreateRequest.getRequesterId());
-        task.setStatus(0);
-        taskRepository.save(task);
-        return task;
-    }
-
     public Task getById(String id){
         try {
             return taskRepository.findById(id).get();
@@ -36,16 +30,40 @@ public class TaskService {
         }
     }
 
+    public List<Task> getAll() {
+        return taskRepository.findAllByOrderByCreatedDateDesc();
+    }
+
+    private void save(String modifierId, Task task){
+        try {
+            task.update(modifierId);
+            taskRepository.save(task);
+        }
+        catch (DataIntegrityViolationException e){
+            System.out.println(e);
+        }
+        catch (Exception e){
+            System.out.println(e);
+            throw new RuntimeException();
+        }
+    }
+
     public Task update(String id,TaskUpdateRequest request){
         Task task = getById(id);
         task.setStatus(request.getStatus());
-        task.update(request.getRequesterId());
 
-        taskRepository.save(task);
+        save(request.getRequesterId(), task);
         return task;
     }
 
-    public List<Task> getAll() {
-        return taskRepository.findAllByOrderByCreatedDateDesc();
+    public Task register(TaskCreateRequest request){
+        modelMapper.typeMap(TaskCreateRequest.class, Task.class).addMappings(mapper -> {
+            mapper.map(TaskCreateRequest::getRequesterId, Task::create);
+        });
+
+        Task task = modelMapper.map(request, Task.class);
+
+        save(request.getServiceId(), task);
+        return task;
     }
 }

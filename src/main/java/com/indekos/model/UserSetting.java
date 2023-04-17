@@ -20,16 +20,15 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 public class UserSetting {
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(nullable = false, columnDefinition = "boolean default true")
-	private boolean shareRoom;
+	private Boolean shareRoom;
 	
 	@Column(nullable = false, columnDefinition = "boolean default true")
-	private boolean enableNotification;
+	private Boolean enableNotification;
 	
 	@JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)

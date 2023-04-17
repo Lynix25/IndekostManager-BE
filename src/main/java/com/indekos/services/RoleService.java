@@ -41,7 +41,7 @@ public class RoleService {
 		return roleRepository.findAll();
 	}
 	
-	public MasterRole getByRoleId(String roleId) {
+	public MasterRole getById(String roleId) {
 		MasterRole targetMasterRole = roleRepository.findById(roleId)
 				.orElseThrow(() -> new InvalidRequestIdException("Invalid Role ID"));
 		

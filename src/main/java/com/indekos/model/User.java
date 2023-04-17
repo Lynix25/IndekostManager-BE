@@ -13,7 +13,6 @@ import javax.persistence.*;
 @Entity
 @AllArgsConstructor @NoArgsConstructor
 public class User extends AuditableEntity {
-	
 	private static final long serialVersionUID = 1L;
 	
 	@Column(nullable = false)
@@ -45,7 +44,7 @@ public class User extends AuditableEntity {
 	private Long joinedOn;
 	
 	/* Jika tidak tinggal di kos lagi */
-	private Long inactiveSince;
+	private Long inActiveSince;
 	
 	@Column(nullable = false, columnDefinition = "boolean default false")
     private boolean isDeleted;
@@ -60,9 +59,19 @@ public class User extends AuditableEntity {
 
 	/* Settings */
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-	private UserSetting userSetting;
-	
+	private UserSetting setting;
+
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="room_id", referencedColumnName = "id")
 	private Room room;
+
+	@JsonIgnore
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+	private Account account;
+
+	public void delete(){
+		this.isDeleted = true;
+		this.inActiveSince = System.currentTimeMillis();
+	}
 }

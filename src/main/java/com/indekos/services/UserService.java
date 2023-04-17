@@ -5,11 +5,7 @@ import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.AccountDTO;
 import com.indekos.dto.DataIdDTO;
-import com.indekos.dto.request.AccountChangePasswordRequest;
-import com.indekos.dto.request.AccountForgotPasswordRequest;
-import com.indekos.dto.request.AccountLoginRequest;
-import com.indekos.dto.request.AuditableRequest;
-import com.indekos.dto.request.ContactAblePersonCreateRequest;
+import com.indekos.dto.request.*;
 import com.indekos.model.Account;
 import com.indekos.model.ContactAblePerson;
 import com.indekos.model.Room;
@@ -25,6 +21,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.indekos.dto.request.UserRegisterRequest;
+import com.indekos.dto.response.UserDocumentResponse;
 import com.indekos.dto.response.UserResponse;
 import com.indekos.model.User;
 import com.indekos.model.UserDocument;
@@ -65,34 +62,37 @@ public class UserService {
     /* ================================================ USER ACCOUNT ================================================ */
     public User login(AccountLoginRequest accountLoginRequest) {
     	Account account = accountService.getByUsername(accountLoginRequest.getUsername());
-        if(accountService.comparePasswordTo(account, accountLoginRequest.getPassword())){
-        	account.setLastLoginTime(System.currentTimeMillis());
+    	if(account == null)
+    		throw new InvalidUserCredentialException("User tidak terdaftar");
+    	
+        if(account.authorized(accountLoginRequest.getPassword())){
+        	account.setLoginTime(System.currentTimeMillis());
         	accountService.save(account);
             return account.getUser();
         }
         throw new InvalidUserCredentialException("Username atau password tidak valid");
     }
     
-    public Account changePassword(AccountChangePasswordRequest requestBody) {
-    	User user = getById(requestBody.getRequesterId()).getUser();
-    	Account account = accountService.changePassword(user, requestBody);
+    public Account changePassword(AccountChangePasswordRequest request) {
+    	User user = getById(request.getRequesterId());
+    	Account account = accountService.changePassword(user, request);
         user.update(account.getId());
-        save(user);
+        save(request.getRequesterId(),user);
         return account;
     }
     
-    public Account forgotPassword(AccountForgotPasswordRequest requestBody) {
-    	Account account = accountService.forgotPassword(requestBody);
+    public Account forgotPassword(AccountForgotPasswordRequest request) {
+    	Account account = accountService.forgotPassword(request);
         User user = account.getUser();
-        user.update(accountService.getByUsername(requestBody.getUsername()).getUser().getId());
-        save(user);
+        user.update(accountService.getByUsername(request.getUsername()).getUser().getId());
+        save("system",user);
         return account;
     }
     
     public Account logout(String userId) {
     	Account account = accountService.getByUser(getById(userId).getUser());
         try {
-        	account.setLastLogoutTime(System.currentTimeMillis());
+        	account.setLogoutTime(System.currentTimeMillis());
         	accountService.save(account);
         	return account;
 		} catch (Exception e) {
@@ -120,26 +120,28 @@ public class UserService {
     	return listUser;
     }
     
-    public UserResponse getById(String userId){
+    public User getById(String userId){
     	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
     	
     	return getUserWithConvertedDocumentImage(user);
     }
+
     
-    public UserResponse register(UserRegisterRequest userRegisterRequest) {
+    public UserResponse register(UserRegisterRequest request) {
     	modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
         	mapper.map(src -> src.getRequesterId(), User::create);
         	mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
-            mapper.map(src -> null, User::setInactiveSince);
+            mapper.map(src -> null, User::setInActiveSince);
             mapper.map(src -> false, User::setDeleted);
+
         });
-        User user = modelMapper.map(userRegisterRequest, User.class);
-        user.setIdentityCardImage(Utils.compressImage(userRegisterRequest.getIdentityCard()));
-        user.setUserSetting(new UserSetting(user));
-        user.setRole(roleService.getByRoleId(userRegisterRequest.getRoleId()));
+        User user = modelMapper.map(request, User.class);
+        user.setIdentityCardImage(Utils.compressImage(request.getIdentityCard()));
+        user.setSetting(new UserSetting(user));
+        user.setRole(roleService.getById(request.getRoleId()));
         
-        if (userRegisterRequest.getRoomId() == null || ((userRegisterRequest.getRoomId()).trim()).equals("")) {
+        if (request.getRoomId() == null || ((request.getRoomId()).trim()).equals("")) {
     		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
     			throw new InsertDataErrorException("User room id can't be empty");
     		else user.setRoom(null);
@@ -156,16 +158,17 @@ public class UserService {
 			}
 		} 
         
-        save(user);
+        save(request.getRequesterId(),user);
         accountService.register(user);
         return getUserWithConvertedDocumentImage(user);
     }
     
     public UserResponse update(String userId, UserRegisterRequest request) {
-    	User user = getById(userId).getUser();
+    	User user = getById(userId);
         modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
-           mapper.map(src -> src.getRequesterId(), User::update);
+//           mapper.map(src -> src.getRequesterId(), User::update);
+		   mapper.map(src -> roleService.getById(src.getRoleId()), User::setRole);
         });
         modelMapper.map(request, user);
         user.setIdentityCardImage(Utils.compressImage(request.getIdentityCard()));
@@ -181,20 +184,17 @@ public class UserService {
         return getUserWithConvertedDocumentImage(user);
     }
     
-    public UserResponse delete(String userId, AuditableRequest request) {
-    	UserResponse response = getById(userId);
-    	User user = response.getUser();
-    	user.setDeleted(true);
-    	user.setInactiveSince(System.currentTimeMillis());
-        user.update(request.getRequesterId());
-        save(user);
-        response.setUser(user);
-    	return response;
+    public User delete(String userId, AuditableRequest request) {
+    	User user = getById(userId);
+		user.delete();
+
+        save(request.getRequesterId(), user);
+		return user;
     }
     
     /* ================================================ USER DOCUMENT =============================================== */
     public DataIdDTO removeUserDocument(String userDocumentId, String userId) {
-    	User user = getById(userId).getUser();
+    	User user = getById(userId);
     	UserDocument userDocument = userDocumentRepository.findById(userDocumentId)
     		.orElseThrow(() -> new InvalidRequestIdException("Invalid User Document ID"));
     	
@@ -202,52 +202,50 @@ public class UserService {
     	deleted.setId(userDocument.getId());
     	
     	userDocumentRepository.deleteById(userDocument.getId());
-		user.update(userId);
-    	save(user);
+    	save(userId, user);
     	
         return deleted;
     }
     
     /* ================================================ USER SETTING ================================================ */
     public UserSetting getSetting(String userId) {
-		User user = getById(userId).getUser();
+		User user = getById(userId);
 		return userSettingRepository.findByUser(user);
 	}
     
-    public UserSetting updateSetting(String userId, String settingType, boolean value) {
-    	
-    	UserSetting userSetting = getSetting(userId);
-    	if(settingType.equals(Constant.NOTIFICATION))
-    		userSetting.setEnableNotification(value);
-    	else if (settingType.equals(Constant.SHARE_ROOM))
-    		userSetting.setShareRoom(value);
-    	
+    public UserSetting updateSetting(String userId, UserSettingsUpdateRequest request) {
+		UserSetting userSetting = getSetting(userId);
+
+		modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+		modelMapper.map(request, userSetting);
+
     	final UserSetting updated = userSettingRepository.save(userSetting);
-    	User user = getById(userId).getUser();
-    	user.update(userId);
-    	save(user);
+//    	User user = getById(userId);
+//    	save(userId,user);
     	
     	return updated;
     }
 
     /* ========================================== USER CONTACTABLE PERSON =========================================== */
     public List<ContactAblePerson> getContactAblePerson(String userId) {
-    	User user = getById(userId).getUser();
+    	User user = getById(userId);
     	return contactAblePersonRepository.findByUserAndIsDeleted(user, false);
     }
     
     public ContactAblePerson addContactAblePerson(String userId, ContactAblePersonCreateRequest request){
-    	User user = getById(userId).getUser();
+    	User user = getById(userId);
     	ContactAblePerson contactAblePerson = modelMapper.map(request, ContactAblePerson.class);
-    	contactAblePerson.setUser(user);
+		contactAblePerson.setUser(user);
+		user.getContactAblePersons().add(contactAblePerson);
+
     	try {
-			contactAblePersonRepository.save(contactAblePerson);
+			save(userId, user);
 		} catch (Exception e) {
 			System.out.println(e);
 			throw new InsertDataErrorException("Gagal menambahkan data relasi yang dapat dihubungi");
 		}
-        user.update(userId);
-        save(user);
+//        user.update(userId);
+//        save(userId,user);
         return contactAblePerson;
     }
     
@@ -258,9 +256,8 @@ public class UserService {
     	modelMapper.map(request, contactAblePerson);
     	
     	final ContactAblePerson updated = contactAblePersonRepository.save(contactAblePerson);
-    	User user = getById(userId).getUser();
-    	user.update(userId);
-    	save(user);
+    	User user = getById(userId);
+    	save(userId, user);
     	
     	return updated;
     }
@@ -271,16 +268,16 @@ public class UserService {
     	
     	contactAblePerson.setDeleted(true);
     	final ContactAblePerson deleted = contactAblePersonRepository.save(contactAblePerson);
-    	User user = getById(userId).getUser();
-    	user.update(userId);
-    	save(user);
-    	
+    	User user = getById(userId);
+    	save(userId,user);
+
     	return deleted;
     }
     
     /* ==================================================== UTILS ==================================================== */
-    private void save(User user){
+    private void save(String modifierId, User user){
         try {
+			user.update(modifierId);
             userRepository.save(user);
         }
         catch (DataIntegrityViolationException e){
@@ -288,6 +285,7 @@ public class UserService {
         }
         catch (Exception e){
             System.out.println(e);
+			throw new RuntimeException();
         }
     }
     

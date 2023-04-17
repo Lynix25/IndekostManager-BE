@@ -1,11 +1,6 @@
 package com.indekos.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.indekos.common.base.entity.BaseEntity;
@@ -20,7 +15,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor @AllArgsConstructor
 public class UserDocument extends BaseEntity {
-	
 	private static final long serialVersionUID = 1L;
 	
 	@Column
