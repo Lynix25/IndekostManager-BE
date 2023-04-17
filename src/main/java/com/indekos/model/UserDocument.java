@@ -23,9 +23,12 @@ public class UserDocument extends BaseEntity {
 	
 	private static final long serialVersionUID = 1L;
 	
+	@Column
+	private String name;
+	
 	@Lob
 	@Column(length = 1000)
-	private byte[] identityCardImage;
+	private byte[] image;
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
