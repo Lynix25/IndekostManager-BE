@@ -40,9 +40,6 @@ public class AccountService {
     
     public Account getByUsername(String username){
     	Account account = accountRepository.findByUsername(username);
-    	if(account == null)
-    		throw new InvalidRequestException("Invalid Username");
-    	
     	return account;
     }
     
@@ -76,20 +73,20 @@ public class AccountService {
             return account;
         }
 
-        throw new InvalidUserCredentialException("Invalid username or password");
+        throw new InvalidUserCredentialException("Username atau password tidak valid");
     }
 
     public Account changePassword(User user, AccountChangePasswordRequest request){
     	Account account = getByUser(user);
 
-        if(account.authorized(request.getOldPassword()))
-            throw new InvalidUserCredentialException("Wrong old password");
+        if(!account.authorized(request.getOldPassword()))
+            throw new InvalidUserCredentialException("Password lama salah");
 
         if (request.getNewPassword().compareTo(request.getReTypeNewPassword()) != 0)
-            throw new InvalidRequestException("Miss match retype password", new ArrayList<>());
+            throw new InvalidRequestException("Password baru dan konfirmasi tidak sesuai", new ArrayList<>());
 
         if(request.getNewPassword().length() < 8 || !Utils.isAlphaNumeric(request.getNewPassword()))
-        	throw new InvalidRequestException("Password length must contain at least 8 characters in alphanumeric");
+        	throw new InvalidRequestException("Panjang password harus minimal 8 karakter dalam alfanumerik");
 
         account.setPassword(Utils.passwordHashing(request.getNewPassword()));
         save(account);
@@ -101,10 +98,10 @@ public class AccountService {
     	Account account = getByUsername(requestData.getUsername());
     	
     	if (requestData.getNewPassword().compareTo(requestData.getReTypeNewPassword()) != 0)
-            throw new InvalidRequestException("Miss match retype password", new ArrayList<>());
+            throw new InvalidRequestException("Password baru dan konfirmasi tidak sesuai", new ArrayList<>());
 
         if(requestData.getNewPassword().length() < 8 || !Utils.isAlphaNumeric(requestData.getNewPassword()))
-            throw new InvalidRequestException("Password length must contain at least 8 characters in alphanumeric");
+            throw new InvalidRequestException("Panjang password harus minimal 8 karakter dalam alfanumerik");
 
         account.setPassword(Utils.passwordHashing(requestData.getNewPassword()));
         save(account);

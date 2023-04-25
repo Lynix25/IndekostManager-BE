@@ -3,9 +3,15 @@ package com.indekos.utils;
 public class Constant {
 	
 	/* ========================== MAIN ========================== */
+	// Boarding House
+	public static String PRABAYAR = "Prabayar";
+	public static String PASCABAYAR = "Pascabayar";
+	public static String BULANAN = "Bulanan";
+	public static String TAHUNAN = "Tahunan";
+	
 	// Login Token Config
 	public static String SECRET = "indekossecret";
-	public static int EXPIRES_IN = 1;
+	public static int EXPIRES_IN = 5;
 	
 	// Room Category
 	public static String KAMAR_TIDUR = "Kamar Tidur";
@@ -26,9 +32,4 @@ public class Constant {
 	// User Setting --> Setting Type
 	public static String SHARE_ROOM = "Share Room";
 	public static String NOTIFICATION = "Notification";
-	
-	/* ========================== UTILS ========================== */
-	// Convert Image Mode
-	public static String COMPRESS_MODE = "Compress Image";
-    public static String DECOMPRESS_MODE = "Decompress Image";
 }

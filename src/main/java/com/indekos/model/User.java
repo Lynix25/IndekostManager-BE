@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -55,13 +54,9 @@ public class User extends AuditableEntity {
     @JoinColumn(name = "role_id", referencedColumnName = "id")
     private MasterRole role;
 	
-	@Transient
-	@JsonIgnore
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private List<UserDocument> documents;
-
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private List<ContactAblePerson> contactAblePersons;
+	@Lob
+	@Column(length = 1000)
+	private byte[] identityCardImage;
 
 	/* Settings */
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)

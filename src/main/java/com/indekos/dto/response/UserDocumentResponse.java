@@ -8,5 +8,6 @@ import lombok.NoArgsConstructor;
 public class UserDocumentResponse {
 	
 	private String id;
+	private String name;
 	private byte[] identityCardImage;
 }

@@ -5,8 +5,6 @@ import lombok.EqualsAndHashCode;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -39,5 +37,5 @@ public class UserRegisterRequest extends AuditableRequest{
 
     private String roomId;
 
-    private List<MultipartFile> userDocument;
+    private MultipartFile identityCard;
 }
