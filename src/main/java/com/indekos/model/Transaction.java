@@ -14,7 +14,6 @@ import java.util.List;
 @Entity
 @AllArgsConstructor @NoArgsConstructor
 public class Transaction extends AuditableEntity {
-
 	private static final long serialVersionUID = 1L;
 	
 	private Long penaltyFee;

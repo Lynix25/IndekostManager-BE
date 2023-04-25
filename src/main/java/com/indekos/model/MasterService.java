@@ -14,7 +14,6 @@ import javax.persistence.Entity;
 @Entity
 @AllArgsConstructor @NoArgsConstructor
 public class MasterService extends AuditableEntity {
-    
     private static final long serialVersionUID = 1L;
     
 	@Column(unique = true, nullable = false)

@@ -15,7 +15,6 @@ import javax.persistence.Id;
 @Entity
 @NoArgsConstructor
 public class MasterRoomDetailCategory {
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
