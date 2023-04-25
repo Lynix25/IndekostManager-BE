@@ -34,13 +34,13 @@ public class UserController {
     @PutMapping("/changepassword")
     public ResponseEntity<?> changePassword(@Valid @RequestBody AccountChangePasswordRequest requestBody, Errors errors){
         Validated.request(errors);
-        return GlobalAcceptions.data(userService.changePassword(requestBody), "Berhasil mengubah password");
+        return GlobalAcceptions.data(userService.changePassword(requestBody), "Berhasil mengubah password. Silakan coba login ulang.");
     }
     
     @PutMapping("/resetpassword")
     public ResponseEntity<?> forgotPassword(@Valid @RequestBody AccountForgotPasswordRequest requestBody, Errors errors){
         Validated.request(errors);
-        return GlobalAcceptions.data(userService.forgotPassword(requestBody), "Berhasil mengubah password");
+        return GlobalAcceptions.data(userService.forgotPassword(requestBody), "Berhasil mengubah password. Silakan coba login ulang.");
     }
     
     @PutMapping("/logout")	// user = userId
@@ -65,29 +65,30 @@ public class UserController {
     }
     
     @PostMapping
-    public ResponseEntity<?> registerUser(@Valid @RequestParam MultipartFile identityCard, @Valid @ModelAttribute UserRegisterRequest request, Errors errors) throws FileSizeLimitExceededException {
+    public ResponseEntity<?> registerUser(@Valid @RequestParam MultipartFile identityCardImage, @Valid @ModelAttribute UserRegisterRequest request, Errors errors) throws FileSizeLimitExceededException {
     	Validated.request(errors);
-    	if(identityCard == null) throw new InsertDataErrorException("Mohon unggah foto KTP Anda");
-    	request.setIdentityCard(identityCard);
-        return GlobalAcceptions.data(userService.register(request), "Created User Data");
+    	if(identityCardImage == null) throw new InsertDataErrorException("Mohon unggah foto KTP Anda");
+    	request.setIdentityCardImage(identityCardImage);
+        return GlobalAcceptions.data(userService.register(request), "Berhasil menambahkan data user");
     }
     
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(@PathVariable String userId, @Valid @RequestParam MultipartFile identityCard, @Valid @ModelAttribute UserRegisterRequest request) throws FileSizeLimitExceededException {
-    	if(identityCard == null) throw new InsertDataErrorException("Mohon unggah foto KTP Anda");
-    	request.setIdentityCard(identityCard);
-    	return GlobalAcceptions.data(userService.update(userId, request), "Updated User Data");
+    public ResponseEntity<?> updateUser(@PathVariable String userId, @ModelAttribute MultipartFile identityCardImage, @ModelAttribute UserRegisterRequest request) throws FileSizeLimitExceededException {
+    	if(identityCardImage != null) request.setIdentityCardImage(identityCardImage);
+    	User user = userService.update(userId, request).getUser();
+    	UserDTO userDTO = new UserDTO(user, user.getRoom());
+    	return GlobalAcceptions.data(userDTO, "Berhasil memperbaharui profil");
     }
     
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUser(@PathVariable String userId, @Valid @RequestBody AuditableRequest request) {
-        return GlobalAcceptions.data(userService.delete(userId, request), "Deleted User Data");
+        return GlobalAcceptions.data(userService.delete(userId, request), "Berhasil menghapus data user");
     }
     
     /* ================================================ USER DOCUMENT =============================================== */
     @DeleteMapping("/{userId}/document")	// document = userDocumentId
     public ResponseEntity<?> removeUserDocument(@RequestParam String document, @PathVariable String userId) {
-    	return GlobalAcceptions.data(userService.removeUserDocument(document, userId), "Deleted User Document");
+    	return GlobalAcceptions.data(userService.removeUserDocument(document, userId), "Berhasil menghapus dokumen user");
     }
     
     /* ================================================ USER SETTING ================================================ */
@@ -100,28 +101,28 @@ public class UserController {
     
     @PutMapping("/{userId}/settings") // type = settingType; value = true/false
     public ResponseEntity<?> updateUserSetting(@PathVariable String userId, @RequestBody UserSettingsUpdateRequest request) {
-    	return GlobalAcceptions.data(userService.updateSetting(userId, request), "Updated User Setting Data");
+    	return GlobalAcceptions.data(userService.updateSetting(userId, request), "Berhasil memperbaharui pengaturan");
     }
 
     /* ========================================== USER CONTACTABLE PERSON =========================================== */
-    @GetMapping("/{userId}/contactable")
-    public ResponseEntity<?> getActiveContactAblePerson(@PathVariable String userId) {
-    	return GlobalAcceptions.listData(userService.getContactAblePerson(userId), "All Active Contactable Person");
+    @GetMapping("/{userId}/contactable")	// person = contactablePersonId
+    public ResponseEntity<?> getActiveContactAblePerson(@RequestParam String person, @PathVariable String userId) {
+    	return GlobalAcceptions.listData(userService.getContactAblePerson(userId, person), "All Active Contactable Person");
     }
     
     @PostMapping("/{userId}/contactable")
     public ResponseEntity<?> addContactAblePerson(@PathVariable String userId, @Valid @RequestBody ContactAblePersonCreateRequest request, Errors errors) {
         Validated.request(errors);
-        return GlobalAcceptions.data(userService.addContactAblePerson(userId, request), "Created Contactable Person Data");
+        return GlobalAcceptions.data(userService.addContactAblePerson(userId, request), "Berhasil menambahkan kontak alternatif");
     }
     
     @PutMapping("/{userId}/contactable")	// person = contactablePersonId
     public ResponseEntity<?> updateContactAblePerson(@RequestParam String person, @PathVariable String userId, @Valid @RequestBody ContactAblePersonCreateRequest request) {
-        return GlobalAcceptions.data(userService.editContactAblePerson(person, userId, request), "Updated Contactable Person Data");
+        return GlobalAcceptions.data(userService.editContactAblePerson(person, userId, request), "Berhasil memperbaharui kontak alternatif");
     }
     
     @DeleteMapping("/{userId}/contactable")	// person = contactablePersonId
     public ResponseEntity<?> deleteContactAblePerson(@RequestParam String person, @PathVariable String userId) {
-        return GlobalAcceptions.data(userService.deleteContactAblePerson(person, userId), "Deleted Contactable Person Data");
+        return GlobalAcceptions.data(userService.deleteContactAblePerson(person, userId), "Berhasil menghapus kontak alternatif");
     }
 }

@@ -32,10 +32,10 @@ public class UserRegisterRequest extends AuditableRequest{
 
     private String description;
 
-    @NotBlank(message = "user role id is required")
+//    @NotBlank(message = "user role id is required")
     private String roleId;
 
     private String roomId;
 
-    private MultipartFile identityCard;
+    private MultipartFile identityCardImage;
 }
