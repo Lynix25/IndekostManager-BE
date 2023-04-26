@@ -28,7 +28,7 @@ public class TransactionController {
     public ResponseEntity<?> getUnpaidTransaction(@PathVariable String userId){
         List<Service> services = serviceService.getAllUnpaid(userId);
         List<Rent> rents = rentService.getAllUnpaid(userId);
-        Long maxDueDate = 0L;
+        Long maxDueDate = -1L;
         Long unpaidTotal = 0L;
         for (Rent rent: rents) {
             unpaidTotal += rent.getPrice();

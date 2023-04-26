@@ -9,8 +9,8 @@ import com.indekos.dto.request.*;
 import com.indekos.model.Account;
 import com.indekos.model.ContactAblePerson;
 import com.indekos.model.Room;
-import com.indekos.repository.ContactAblePersonRepository;
-import com.indekos.repository.UserDocumentRepository;
+import com.indekos.controller.repository.ContactAblePersonRepository;
+import com.indekos.controller.repository.UserDocumentRepository;
 import com.indekos.utils.Constant;
 import com.indekos.utils.Utils;
 
@@ -25,8 +25,8 @@ import com.indekos.dto.response.UserResponse;
 import com.indekos.model.User;
 import com.indekos.model.UserDocument;
 import com.indekos.model.UserSetting;
-import com.indekos.repository.UserRepository;
-import com.indekos.repository.UserSettingRepository;
+import com.indekos.controller.repository.UserRepository;
+import com.indekos.controller.repository.UserSettingRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +61,7 @@ public class UserService {
     /* ================================================ USER ACCOUNT ================================================ */
     public Account login(AccountLoginRequest accountLoginRequest) {
     	Account account = accountService.getByUsername(accountLoginRequest.getUsername());
-    	if(account == null)
+    	if(account == null || account.getUser().isDeleted())
     		throw new InvalidUserCredentialException("User tidak terdaftar");
     	
         if(account.authorized(accountLoginRequest.getPassword())){
@@ -122,7 +122,7 @@ public class UserService {
     public User getById(String userId){
     	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
-    	
+
     	return user;
     }
 
@@ -136,7 +136,7 @@ public class UserService {
 
         });
         User user = modelMapper.map(request, User.class);
-        user.setIdentityCardImage(Utils.compressImage(request.getIdentityCard()));
+        user.setIdentityCardImage(Utils.compressImage(request.getIdentityCardImage()));
         user.setSetting(new UserSetting(user));
         user.setRole(roleService.getById(request.getRoleId()));
         
@@ -167,17 +167,20 @@ public class UserService {
         modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
 //           mapper.map(src -> src.getRequesterId(), User::update);
-		   mapper.map(src -> roleService.getById(src.getRoleId()), User::setRole);
+//		   mapper.map(src -> roleService.getById(src.getRoleId()), User::setRole);
         });
         modelMapper.map(request, user);
-        user.setIdentityCardImage(Utils.compressImage(request.getIdentityCard()));
-        user.setRole(roleService.getById(request.getRoleId()));
+        if(request.getIdentityCardImage() != null)
+        	user.setIdentityCardImage(Utils.compressImage(request.getIdentityCardImage()));
         
-        if (request.getRoomId() == null || ((request.getRoomId()).trim()).equals("")) {
-    		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
-    			throw new InsertDataErrorException("user room id can't be empty");
-    		else user.setRoom(null);
-		} else user.setRoom(roomService.getById(request.getRoomId()).getRoom());  
+        if(request.getRoleId() != null)
+        	user.setRole(roleService.getById(request.getRoleId()));
+        
+        if(request.getRoomId() != null)
+        	user.setRoom(roomService.getById(request.getRoomId()).getRoom());
+        else {
+        	if(!(user.getRole().getName()).equalsIgnoreCase("Tenant")) user.setRoom(null);
+        }
         
         save(request.getRequesterId(), user);
         return getUserWithConvertedDocumentImage(user);
@@ -226,9 +229,8 @@ public class UserService {
     }
 
     /* ========================================== USER CONTACTABLE PERSON =========================================== */
-    public List<ContactAblePerson> getContactAblePerson(String userId) {
-    	User user = getById(userId);
-    	return contactAblePersonRepository.findByUserAndIsDeleted(user, false);
+    public List<ContactAblePerson> getContactAblePerson(String userId, String contactableId) {
+    	return contactAblePersonRepository.findActiveContactable(userId, contactableId);
     }
     
     public ContactAblePerson addContactAblePerson(String userId, ContactAblePersonCreateRequest request){
@@ -237,7 +239,7 @@ public class UserService {
 		contactAblePerson.setUser(user);
 
     	try {
-			save(userId, user);
+			contactAblePersonRepository.save(contactAblePerson);
 		} catch (Exception e) {
 			System.out.println(e);
 			throw new InsertDataErrorException("Gagal menambahkan data relasi yang dapat dihubungi");
@@ -261,13 +263,12 @@ public class UserService {
     public ContactAblePerson deleteContactAblePerson(String contactAblePersonId, String userId) {
     	ContactAblePerson contactAblePerson = contactAblePersonRepository.findById(contactAblePersonId)
     			.orElseThrow(() -> new InvalidRequestIdException("Invalid User Contactable Person ID"));
-    	
-    	contactAblePerson.setDeleted(true);
+
     	final ContactAblePerson deleted = contactAblePersonRepository.save(contactAblePerson);
     	User user = getById(userId);
     	save(userId, user);
 
-    	return deleted;
+		return contactAblePerson;
     }
     
     /* ==================================================== UTILS ==================================================== */

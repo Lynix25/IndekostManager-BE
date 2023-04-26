@@ -1,4 +1,4 @@
-package com.indekos.repository;
+package com.indekos.controller.repository;
 
 import com.indekos.model.Rent;
 import org.springframework.data.jpa.repository.JpaRepository;
