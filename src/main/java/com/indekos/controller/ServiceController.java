@@ -26,9 +26,14 @@ public class ServiceController {
 	@Autowired
     ServiceService serviceService;
     
+	@GetMapping("/category")
+	public ResponseEntity<?> getAllServiceCategory(){
+		return GlobalAcceptions.listData(serviceService.getAllServiceCategory(), "All Master Service Data"); 
+	}
+	
 	@GetMapping
     private ResponseEntity<?> getAllService(){
-        return GlobalAcceptions.listData(serviceService.getAll(), "All Master Service Data");
+        return GlobalAcceptions.listData(serviceService.getAll(), "All Service Data");
     }
     
 	@GetMapping("/{id}")
@@ -42,16 +47,12 @@ public class ServiceController {
     @PostMapping
     private ResponseEntity<?> createService(@Valid @RequestBody ServiceCreateRequest requestBody, Errors errors){
         Validated.request(errors);
-        serviceService.register(requestBody);
-
-        return new ResponseEntity<>(new Response<>("Success", "Service Registered"), HttpStatus.OK);
+        return GlobalAcceptions.data(serviceService.register(requestBody), "Berhasil menambahkan layanan");
     }
     
-    @PutMapping(value = "{id}")
+    @PutMapping(value = "/{id}")
     private ResponseEntity<?> updateService(@PathVariable String id, @Valid @RequestBody ServiceCreateRequest requestBody, Errors errors){
-        Validated.request(errors);
-        serviceService.update(id, requestBody);
-
-        return new ResponseEntity<>(new Response<>("Success", "Service Updated"), HttpStatus.OK);
+    	Validated.request(errors);
+    	return GlobalAcceptions.data(serviceService.update(id, requestBody), "Berhasil memperbaharui layanan");
     }
 }
