@@ -51,7 +51,7 @@ public class ServiceService {
     }
     
     public List<Service> getAll(){
-        return serviceRepository.findAll();
+        return serviceRepository.findAllByOrderByVariantAsc();
     }
 
     public List<Service> getAllUnpaid(String userId){

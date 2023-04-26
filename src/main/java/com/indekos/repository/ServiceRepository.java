@@ -13,4 +13,6 @@ public interface ServiceRepository extends JpaRepository<Service, String> {
 
     @Query(value = "SELECT * FROM service WHERE created_by LIKE :user_id", nativeQuery = true)
     List<Service> findUnpaidById(@Param("user_id") String id);
+    
+    List<Service> findAllByOrderByVariantAsc();
 }

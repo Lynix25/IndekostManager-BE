@@ -2,14 +2,12 @@ package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.dto.request.ServiceCreateRequest;
-import com.indekos.dto.response.Response;
 import com.indekos.dto.MasterServiceDTO;
 import com.indekos.model.Service;
 import com.indekos.services.ServiceService;
 import com.indekos.utils.Validated;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
