@@ -10,13 +10,13 @@ import lombok.EqualsAndHashCode;
 @Data
 public class AnnouncementRequest extends AuditableRequest {
 	
-	@NotBlank(message = "Title name is required")
+	@NotBlank(message = "Title is required")
 	private String title;
 	
-	@NotBlank(message = "Description name is required")
+	@NotBlank(message = "Description is required")
 	private String description;
 	
-	@NotBlank(message = "Period name is required")
+	@NotBlank(message = "Period is required")
 	private String period;
 	
 	private MultipartFile image;

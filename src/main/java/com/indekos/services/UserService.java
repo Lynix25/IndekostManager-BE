@@ -2,6 +2,7 @@ package com.indekos.services;
 
 import com.indekos.common.helper.exception.InsertDataErrorException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
+import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.AccountDTO;
 import com.indekos.dto.DataIdDTO;
 import com.indekos.dto.request.*;
@@ -19,15 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import com.indekos.dto.response.UserDocumentResponse;
+import com.indekos.dto.request.UserRegisterRequest;
 import com.indekos.dto.response.UserResponse;
 import com.indekos.model.User;
 import com.indekos.model.UserDocument;
 import com.indekos.model.UserSetting;
 import com.indekos.repository.UserRepository;
 import com.indekos.repository.UserSettingRepository;
-
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +59,18 @@ public class UserService {
     AccountService accountService;
 
     /* ================================================ USER ACCOUNT ================================================ */
+    public Account login(AccountLoginRequest accountLoginRequest) {
+    	Account account = accountService.getByUsername(accountLoginRequest.getUsername());
+    	if(account == null)
+    		throw new InvalidUserCredentialException("User tidak terdaftar");
+    	
+        if(account.authorized(accountLoginRequest.getPassword())){
+        	account.setLoginTime(System.currentTimeMillis());
+        	accountService.save(account);
+            return account;
+        }
+        throw new InvalidUserCredentialException("Username atau password tidak valid");
+    }
     
     public Account changePassword(AccountChangePasswordRequest request) {
     	User user = getById(request.getRequesterId());
@@ -77,8 +88,8 @@ public class UserService {
         return account;
     }
     
-    public Account logout(String accountId) {
-    	Account account = accountService.getById(accountId);
+    public Account logout(String userId) {
+    	Account account = accountService.getByUser(getById(userId));
         try {
         	account.setLogoutTime(System.currentTimeMillis());
         	accountService.save(account);
@@ -93,7 +104,7 @@ public class UserService {
     	List<UserResponse> listResponse =  new ArrayList<>();
     	List<User> users = userRepository.findAllActiveUserOrderByName();
     	users.forEach(user -> {
-    		listResponse.add(getUserWithConvertedDocumentImage(user, null, Constant.DECOMPRESS_MODE));
+    		listResponse.add(getUserWithConvertedDocumentImage(user));
     	});
     	return listResponse;
     }
@@ -103,30 +114,29 @@ public class UserService {
     	List<UserResponse> listUser =  new ArrayList<>();
     	List<User> users = userRepository.findAllByRoomId(room.getId());
     	users.forEach(user -> {
-    		listUser.add(getUserWithConvertedDocumentImage(user, null, Constant.DECOMPRESS_MODE));
+    		listUser.add(getUserWithConvertedDocumentImage(user));
     	});
     	return listUser;
     }
     
     public User getById(String userId){
     	User user = userRepository.findById(userId)
-    			.orElseThrow(() -> new InvalidRequestIdException("Invalid User ID"));
+    			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
     	
-//    	return getUserWithConvertedDocumentImage(user, null, Constant.DECOMPRESS_MODE);
-		return user;
+    	return user;
     }
 
     
     public UserResponse register(UserRegisterRequest request) {
     	modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
         	mapper.map(src -> src.getRequesterId(), User::create);
-//			mapper.map(src -> roleService.getById(src.getRoleId()), User::setRole);
         	mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
             mapper.map(src -> null, User::setInActiveSince);
             mapper.map(src -> false, User::setDeleted);
 
         });
         User user = modelMapper.map(request, User.class);
+        user.setIdentityCardImage(Utils.compressImage(request.getIdentityCardImage()));
         user.setSetting(new UserSetting(user));
         user.setRole(roleService.getById(request.getRoleId()));
         
@@ -136,20 +146,20 @@ public class UserService {
     		else user.setRoom(null);
 		} else {
 			if(!isRoomAvailable(request.getRoomId()))
-				throw new InsertDataErrorException("Selected room is fully booked!");
+				throw new InsertDataErrorException("Kamar penuh");
 			else {
 				Room room = roomService.getById(request.getRoomId()).getRoom();
 				if(room.getAllotment().equals(Constant.PUTRA) && request.getGender().equals(Constant.PEREMPUAN))
-					throw new InsertDataErrorException("Selected room is for men only");
+					throw new InsertDataErrorException("Kamar khusus putra");
 				else if(room.getAllotment().equals(Constant.PUTRI) && request.getGender().equals(Constant.LAKI_LAKI))
-					throw new InsertDataErrorException("Selected room is for women only");
+					throw new InsertDataErrorException("Kamar khusus putri");
 				else user.setRoom(room);
 			}
 		} 
         
         save(request.getRequesterId(),user);
         accountService.register(user);
-        return getUserWithConvertedDocumentImage(user, request.getUserDocument(), Constant.COMPRESS_MODE);
+        return getUserWithConvertedDocumentImage(user);
     }
     
     public UserResponse update(String userId, UserRegisterRequest request) {
@@ -157,18 +167,23 @@ public class UserService {
         modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
 //           mapper.map(src -> src.getRequesterId(), User::update);
-		   mapper.map(src -> roleService.getById(src.getRoleId()), User::setRole);
+//		   mapper.map(src -> roleService.getById(src.getRoleId()), User::setRole);
         });
         modelMapper.map(request, user);
+        if(request.getIdentityCardImage() != null)
+        	user.setIdentityCardImage(Utils.compressImage(request.getIdentityCardImage()));
         
-        if (request.getRoomId() == null || ((request.getRoomId()).trim()).equals("")) {
-    		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
-    			throw new InsertDataErrorException("user room id can't be empty");
-    		else user.setRoom(null);
-		} else user.setRoom(roomService.getById(request.getRoomId()).getRoom());  
+        if(request.getRoleId() != null)
+        	user.setRole(roleService.getById(request.getRoleId()));
+        
+        if(request.getRoomId() != null)
+        	user.setRoom(roomService.getById(request.getRoomId()).getRoom());
+        else {
+        	if(!(user.getRole().getName()).equalsIgnoreCase("Tenant")) user.setRoom(null);
+        }
         
         save(request.getRequesterId(), user);
-        return getUserWithConvertedDocumentImage(user, request.getUserDocument(), Constant.COMPRESS_MODE);
+        return getUserWithConvertedDocumentImage(user);
     }
     
     public User delete(String userId, AuditableRequest request) {
@@ -214,25 +229,21 @@ public class UserService {
     }
 
     /* ========================================== USER CONTACTABLE PERSON =========================================== */
-    public List<ContactAblePerson> getContactAblePerson(String userId) {
-    	User user = getById(userId);
-    	return contactAblePersonRepository.findByUserAndIsDeleted(user, false);
+    public List<ContactAblePerson> getContactAblePerson(String userId, String contactableId) {
+    	return contactAblePersonRepository.findActiveContactable(userId, contactableId);
     }
     
     public ContactAblePerson addContactAblePerson(String userId, ContactAblePersonCreateRequest request){
     	User user = getById(userId);
     	ContactAblePerson contactAblePerson = modelMapper.map(request, ContactAblePerson.class);
 		contactAblePerson.setUser(user);
-		user.getContactAblePersons().add(contactAblePerson);
 
     	try {
-			save(userId, user);
+			contactAblePersonRepository.save(contactAblePerson);
 		} catch (Exception e) {
 			System.out.println(e);
-			throw new InsertDataErrorException("Failed add contactable person");
+			throw new InsertDataErrorException("Gagal menambahkan data relasi yang dapat dihubungi");
 		}
-//        user.update(userId);
-//        save(userId,user);
         return contactAblePerson;
     }
     
@@ -256,7 +267,7 @@ public class UserService {
     	contactAblePerson.setDeleted(true);
     	final ContactAblePerson deleted = contactAblePersonRepository.save(contactAblePerson);
     	User user = getById(userId);
-    	save(userId,user);
+    	save(userId, user);
 
     	return deleted;
     }
@@ -284,34 +295,26 @@ public class UserService {
     	}
     }
     
-    private UserResponse getUserWithConvertedDocumentImage(User user, List<MultipartFile> documents, String convertMode) {
-    	if(convertMode.equals(Constant.COMPRESS_MODE)) {
-    		if(documents != null) {
-    			documents.forEach(document -> {
-        			UserDocument userDocument = new UserDocument();
-            		userDocument.setImage(Utils.compressImage(document));
-            		userDocument.setUser(user);
-            		userDocumentRepository.save(userDocument);
-            	});
-    		}
-    	}
-    	
+    private List<UserDocument> getAllUserDocument(User user) {
+    	List<UserDocument> documents = userDocumentRepository.findByUser(user);
+    	if(documents != null) {
+    		List<UserDocument> listConvertedDocument = new ArrayList<>();
+			documents.forEach(document -> {
+    			UserDocument userDocument = document;
+    			userDocument.setImage(Utils.decompressImage(document.getImage()));
+        		listConvertedDocument.add(userDocument);
+        	});
+			return listConvertedDocument;
+		}
+    	return null;
+    }
+    
+    private UserResponse getUserWithConvertedDocumentImage(User user) { 
     	UserResponse response = new UserResponse();
-    	response.setUser(user);
-    	
     	Account account = accountService.getByUser(user);
     	response.setAccount(new AccountDTO(account.getId(), account.getUsername()));
-    	
-    	List<UserDocumentResponse> listUserDocumentConverted = new ArrayList<>();
-    	List<UserDocument> listUserDocument = userDocumentRepository.findByUser(user);
-    	listUserDocument.forEach(document -> {
-			UserDocumentResponse userDocument = new UserDocumentResponse();
-			userDocument.setId(document.getId());
-			userDocument.setIdentityCardImage(Utils.decompressImage(document.getImage()));
-			listUserDocumentConverted.add(userDocument);
-    	});
-		response.setUserDocuments(listUserDocumentConverted);
-    	
+//    	user.setIdentityCardImage(Utils.decompressImage(user.getIdentityCardImage()));
+    	response.setUser(user);
     	return response;
     }
     

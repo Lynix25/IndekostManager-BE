@@ -5,8 +5,6 @@ import lombok.EqualsAndHashCode;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -34,10 +32,10 @@ public class UserRegisterRequest extends AuditableRequest{
 
     private String description;
 
-    @NotBlank(message = "user role id is required")
+//    @NotBlank(message = "user role id is required")
     private String roleId;
 
     private String roomId;
 
-    private List<MultipartFile> userDocument;
+    private MultipartFile identityCardImage;
 }
