@@ -32,11 +32,18 @@ public class ServiceService {
     private JdbcTemplate jdbcTemplate;
     
     @PostConstruct
-    private void initializeMasterService() {
+    private void initializeService() {
+    	// Master Service
     	jdbcTemplate.update("INSERT IGNORE INTO master_service (id, name) VALUES (1, 'Laundry')");
     	jdbcTemplate.update("INSERT IGNORE INTO master_service (id, name) VALUES (2, 'Pembersihan Kamar')");
     	jdbcTemplate.update("INSERT IGNORE INTO master_service (id, name) VALUES (3, 'Perbaikan Fasilitas')");
     	jdbcTemplate.update("INSERT IGNORE INTO master_service (id, name) VALUES (4, 'Layanan Lainnya')");
+    	
+    	// Other Service
+    	String insertKeyAuditData = "id, created_by, created_date, last_modified_by, last_modified_date, ";
+    	String insertValueAuditData = "'system', UNIX_TIMESTAMP(), 'system', UNIX_TIMESTAMP(), ";
+    	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant, price) VALUES ('e2e315f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 4), 'Lainnya', 0)");
+    	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant, price) VALUES ('e2e335f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 4), 'Pindah Kamar', 0)");
     }
     
     public List<MasterService> getAllServiceCategory() {
