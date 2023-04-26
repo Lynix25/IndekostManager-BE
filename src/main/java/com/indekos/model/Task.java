@@ -38,4 +38,7 @@ public class Task extends AuditableEntity {
      */
     @Column(nullable = false)
     private String status;
+    
+    @Column(columnDefinition = "int default 0")
+    private Integer priceAdjustment;
 }

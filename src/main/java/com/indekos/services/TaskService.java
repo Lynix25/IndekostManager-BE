@@ -53,6 +53,8 @@ public class TaskService {
     public Task update(String id,TaskUpdateRequest request){
         Task task = getById(id);
         task.setStatus(request.getStatus());
+        task.setNotes(request.getNotes());
+        task.setPriceAdjustment(request.getPriceAdjustment());
 
         save(request.getRequesterId(), task);
         return task;
