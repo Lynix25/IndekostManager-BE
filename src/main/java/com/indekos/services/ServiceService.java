@@ -3,7 +3,7 @@ package com.indekos.services;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.ServiceCreateRequest;
 import com.indekos.model.Service;
-import com.indekos.repository.ServiceRepository;
+import com.indekos.controller.repository.ServiceRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 

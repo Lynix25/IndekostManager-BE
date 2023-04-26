@@ -11,7 +11,7 @@ import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.ResourceNotFoundException;
 import com.indekos.dto.request.AnnouncementRequest;
 import com.indekos.model.Announcement;
-import com.indekos.repository.AnnouncementRepository;
+import com.indekos.controller.repository.AnnouncementRepository;
 import com.indekos.utils.Utils;
 
 @Service

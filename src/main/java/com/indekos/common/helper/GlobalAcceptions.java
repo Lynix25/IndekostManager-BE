@@ -25,11 +25,10 @@ public class GlobalAcceptions {
     }
 
     public static ResponseEntity<?> loginAllowed(Account account, String message){
-    	if(account.getUser() == null || account.getUser().isDeleted()) {
-        	throw new InvalidUserCredentialException("User not registered");
-        }
+
         TokenSessionResponse token = new TokenSessionResponse(Constant.SECRET + account.getUser().getId(), Constant.EXPIRES_IN);
         LoginResponse.DataResponseDto<User> data = new LoginResponse.DataResponseDto<>();
+
         data.setStatus("Authenticated");
         data.setLoginTime(System.currentTimeMillis());
         data.setUser(account.getUser());

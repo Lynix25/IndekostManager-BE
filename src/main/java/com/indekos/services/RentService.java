@@ -1,7 +1,7 @@
 package com.indekos.services;
 
 import com.indekos.model.Rent;
-import com.indekos.repository.RentRepository;
+import com.indekos.controller.repository.RentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

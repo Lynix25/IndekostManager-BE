@@ -1,4 +1,4 @@
-package com.indekos.repository;
+package com.indekos.controller.repository;
 
 import java.util.List;
 

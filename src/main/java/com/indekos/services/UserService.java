@@ -9,8 +9,8 @@ import com.indekos.dto.request.*;
 import com.indekos.model.Account;
 import com.indekos.model.ContactAblePerson;
 import com.indekos.model.Room;
-import com.indekos.repository.ContactAblePersonRepository;
-import com.indekos.repository.UserDocumentRepository;
+import com.indekos.controller.repository.ContactAblePersonRepository;
+import com.indekos.controller.repository.UserDocumentRepository;
 import com.indekos.utils.Constant;
 import com.indekos.utils.Utils;
 
@@ -25,8 +25,8 @@ import com.indekos.dto.response.UserResponse;
 import com.indekos.model.User;
 import com.indekos.model.UserDocument;
 import com.indekos.model.UserSetting;
-import com.indekos.repository.UserRepository;
-import com.indekos.repository.UserSettingRepository;
+import com.indekos.controller.repository.UserRepository;
+import com.indekos.controller.repository.UserSettingRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +61,7 @@ public class UserService {
     /* ================================================ USER ACCOUNT ================================================ */
     public Account login(AccountLoginRequest accountLoginRequest) {
     	Account account = accountService.getByUsername(accountLoginRequest.getUsername());
-    	if(account == null)
+    	if(account == null || account.getUser().isDeleted())
     		throw new InvalidUserCredentialException("User tidak terdaftar");
     	
         if(account.authorized(accountLoginRequest.getPassword())){
@@ -122,7 +122,7 @@ public class UserService {
     public User getById(String userId){
     	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
-    	
+
     	return user;
     }
 
@@ -263,13 +263,12 @@ public class UserService {
     public ContactAblePerson deleteContactAblePerson(String contactAblePersonId, String userId) {
     	ContactAblePerson contactAblePerson = contactAblePersonRepository.findById(contactAblePersonId)
     			.orElseThrow(() -> new InvalidRequestIdException("Invalid User Contactable Person ID"));
-    	
-    	contactAblePerson.setDeleted(true);
+
     	final ContactAblePerson deleted = contactAblePersonRepository.save(contactAblePerson);
     	User user = getById(userId);
     	save(userId, user);
 
-    	return deleted;
+		return contactAblePerson;
     }
     
     /* ==================================================== UTILS ==================================================== */
