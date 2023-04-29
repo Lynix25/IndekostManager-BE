@@ -43,17 +43,17 @@ public class AnnouncementController {
 	public ResponseEntity<?> createAnnouncement(@ModelAttribute MultipartFile image, @Valid @ModelAttribute AnnouncementRequest request, Errors errors) throws FileSizeLimitExceededException {
 		Validated.request(errors);
 		request.setImage(image);
-		return GlobalAcceptions.data(announcementService.create(request), "Created Announcement Data");
+		return GlobalAcceptions.data(announcementService.create(request), "Berhasil menambahkan pengumuman");
 	}
 	
 	@PutMapping("/{announcementId}")
-	public ResponseEntity<?> updateAnnouncement(@PathVariable String announcementId, @ModelAttribute MultipartFile image, @Valid @ModelAttribute AnnouncementRequest request) throws ResourceNotFoundException, FileSizeLimitExceededException {
+	public ResponseEntity<?> updateAnnouncement(@PathVariable String announcementId, @ModelAttribute MultipartFile image, @ModelAttribute AnnouncementRequest request) throws ResourceNotFoundException, FileSizeLimitExceededException {
 		request.setImage(image);
-		return GlobalAcceptions.data(announcementService.update(announcementId, request), "Updated Announcement Data");
+		return GlobalAcceptions.data(announcementService.update(announcementId, request), "Berhasil memperbaharui pengumuman");
 	}
 	
 	@DeleteMapping("/{announcementId}")
 	public ResponseEntity<?> deleteAnnouncement(@PathVariable String announcementId) throws ResourceNotFoundException {
-		return GlobalAcceptions.data(announcementService.delete(announcementId), "Deleted Announcement Data");
+		return GlobalAcceptions.data(announcementService.delete(announcementId), "Berhasil menghapus pengumuman");
 	}
 }
