@@ -40,5 +40,5 @@ public class Task extends AuditableEntity {
     private String status;
     
     @Column(columnDefinition = "int default 0")
-    private Integer priceAdjustment;
+    private Integer charge;
 }

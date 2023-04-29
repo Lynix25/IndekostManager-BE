@@ -20,8 +20,8 @@ public class TaskController {
     TaskService taskService;
     
     @GetMapping
-    private ResponseEntity<?> getAllTask(@RequestParam String status){
-        return GlobalAcceptions.listData(taskService.getAll(status), "All Task Data");
+    private ResponseEntity<?> getAllTask(@RequestParam String requestor){
+        return GlobalAcceptions.listData(taskService.getAll(requestor), "All Task Data");
     }
     
     @GetMapping("/{id}")

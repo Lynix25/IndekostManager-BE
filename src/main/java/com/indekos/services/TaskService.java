@@ -32,8 +32,12 @@ public class TaskService {
         }
     }
 
-    public List<Task> getAll(String status) {
-        return taskRepository.findAllTask(status);
+//    public List<Task> getAll(String requestor) {
+//        return taskRepository.findAllByRequestor(requestor);
+//    }
+    
+    public List<Task> getAll(String requestor) {
+        return taskRepository.findActiveTaskByRequestor(requestor);
     }
 
     private void save(String modifierId, Task task){
@@ -54,7 +58,7 @@ public class TaskService {
         Task task = getById(id);
         task.setStatus(request.getStatus());
         task.setNotes(request.getNotes());
-        task.setPriceAdjustment(request.getPriceAdjustment());
+        task.setCharge(request.getCharge());
 
         save(request.getRequesterId(), task);
         return task;

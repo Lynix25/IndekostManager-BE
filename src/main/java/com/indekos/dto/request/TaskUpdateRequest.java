@@ -9,5 +9,5 @@ public class TaskUpdateRequest extends AuditableRequest {
     @NotNull(message = "status cannot be empty")
     private String status;
     private String notes;
-    private Integer priceAdjustment;
+    private Integer charge;
 }
