@@ -11,4 +11,9 @@ public class AccountLoginRequest {
 
     @NotEmpty(message = "password is required")
     private String password;
+
+    private boolean rememberMe;
+
+    private String token;
+
 }

@@ -1,6 +1,7 @@
 package com.indekos.services;
 
 import com.indekos.common.helper.exception.InsertDataErrorException;
+import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.AccountDTO;
@@ -58,17 +59,27 @@ public class UserService {
     @Autowired
     AccountService accountService;
 
+	@Autowired
+	RememberMeTokenService rememberMeTokenService;
+
     /* ================================================ USER ACCOUNT ================================================ */
-    public Account login(AccountLoginRequest accountLoginRequest) {
-    	Account account = accountService.getByUsername(accountLoginRequest.getUsername());
-    	if(account == null || account.getUser().isDeleted())
-    		throw new InvalidUserCredentialException("User tidak terdaftar");
-    	
-        if(account.authorized(accountLoginRequest.getPassword())){
-        	account.setLoginTime(System.currentTimeMillis());
-        	accountService.save(account);
-            return account;
-        }
+    public Account login(AccountLoginRequest request) {
+    	Account account = request.getToken() != null ? rememberMeTokenService.getById(request.getToken()).getAccount() : accountService.getByUsername(request.getUsername());
+
+		if(request.getToken() != null){
+			account.setLoginTime(System.currentTimeMillis());
+			accountService.save(account);
+			return account;
+		}else{
+			if(account == null || account.getUser().isDeleted())
+				throw new InvalidUserCredentialException("User tidak terdaftar");
+
+			if(account.authorized(request.getPassword())){
+				account.setLoginTime(System.currentTimeMillis());
+				accountService.save(account);
+				return account;
+			}
+		}
         throw new InvalidUserCredentialException("Username atau password tidak valid");
     }
     
@@ -93,9 +104,13 @@ public class UserService {
         try {
         	account.setLogoutTime(System.currentTimeMillis());
         	accountService.save(account);
+
+			rememberMeTokenService.deleteByAccount(account);
+
         	return account;
 		} catch (Exception e) {
-			throw e;
+			System.out.println(e);
+			throw new  InvalidRequestException(e.getMessage());
 		}
     }
     
