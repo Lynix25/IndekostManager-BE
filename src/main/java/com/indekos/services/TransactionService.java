@@ -4,12 +4,11 @@ import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.TransactionCreateRequest;
 import com.indekos.model.Rent;
 import com.indekos.model.Transaction;
+import com.indekos.repository.TransactionRepository;
 import com.indekos.utils.Utils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.indekos.controller.repository.TransactionRepository;
 
 import java.util.NoSuchElementException;
 

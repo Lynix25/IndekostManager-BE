@@ -8,7 +8,7 @@ import com.indekos.dto.request.AccountForgotPasswordRequest;
 import com.indekos.dto.request.AccountLoginRequest;
 import com.indekos.model.Account;
 import com.indekos.model.User;
-import com.indekos.controller.repository.AccountRepository;
+import com.indekos.repository.AccountRepository;
 import com.indekos.utils.Utils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

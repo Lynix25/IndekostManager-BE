@@ -2,9 +2,10 @@ package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
-import com.indekos.controller.repository.RememberMeTokenRepository;
 import com.indekos.model.Account;
 import com.indekos.model.RememberMeToken;
+import com.indekos.repository.RememberMeTokenRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

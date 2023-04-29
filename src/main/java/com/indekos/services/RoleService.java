@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.model.MasterRole;
-import com.indekos.controller.repository.RoleRepository;
+import com.indekos.repository.RoleRepository;
 
 @Service
 public class RoleService {
