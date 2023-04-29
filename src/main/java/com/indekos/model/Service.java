@@ -22,8 +22,4 @@ public class Service extends AuditableEntity {
     private String variant;
     
 	private Integer price;
-
-//    @ManyToOne(targetEntity = Transaction.class, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
-//    private Transaction transaction;
 }

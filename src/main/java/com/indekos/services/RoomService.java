@@ -13,7 +13,8 @@ import com.indekos.model.MasterRoomDetailCategory;
 import com.indekos.model.Room;
 import com.indekos.model.RoomDetail;
 import com.indekos.model.RoomPriceDetail;
-import com.indekos.controller.repository.RoomRepository;
+import com.indekos.repository.RoomRepository;
+
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

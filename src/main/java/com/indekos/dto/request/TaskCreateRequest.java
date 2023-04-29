@@ -9,4 +9,5 @@ public class TaskCreateRequest extends AuditableRequest {
     private String notes;
     private Long taskDate;
     private String serviceId;
+    private Integer charge;
 }

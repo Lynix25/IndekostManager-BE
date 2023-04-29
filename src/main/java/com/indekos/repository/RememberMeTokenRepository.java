@@ -1,4 +1,4 @@
-package com.indekos.controller.repository;
+package com.indekos.repository;
 
 import com.indekos.model.Account;
 import com.indekos.model.RememberMeToken;

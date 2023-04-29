@@ -7,9 +7,9 @@ import com.indekos.model.MasterRoomDetailCategory;
 import com.indekos.model.Room;
 import com.indekos.model.RoomDetail;
 import com.indekos.model.RoomPriceDetail;
-import com.indekos.controller.repository.MasterRoomDetailCategoryRepository;
-import com.indekos.controller.repository.RoomDetailRepository;
-import com.indekos.controller.repository.RoomPriceDetailRepository;
+import com.indekos.repository.MasterRoomDetailCategoryRepository;
+import com.indekos.repository.RoomDetailRepository;
+import com.indekos.repository.RoomPriceDetailRepository;
 import com.indekos.utils.Constant;
 
 import org.modelmapper.ModelMapper;

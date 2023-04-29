@@ -4,7 +4,9 @@ import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.dto.request.TaskUpdateRequest;
 import com.indekos.model.Task;
-import com.indekos.controller.repository.TaskRepository;
+import com.indekos.repository.TaskRepository;
+import com.indekos.utils.Constant;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -15,8 +17,10 @@ import java.util.NoSuchElementException;
 
 @Service
 public class TaskService {
+	
     @Autowired
     ModelMapper modelMapper;
+    
     @Autowired
     TaskRepository taskRepository;
 
@@ -28,8 +32,12 @@ public class TaskService {
         }
     }
 
-    public List<Task> getAll() {
-        return taskRepository.findAllByOrderByCreatedDateDesc();
+//    public List<Task> getAll(String requestor) {
+//        return taskRepository.findAllByRequestor(requestor);
+//    }
+    
+    public List<Task> getAll(String requestor) {
+        return taskRepository.findActiveTaskByRequestor(requestor);
     }
 
     private void save(String modifierId, Task task){
@@ -49,6 +57,8 @@ public class TaskService {
     public Task update(String id,TaskUpdateRequest request){
         Task task = getById(id);
         task.setStatus(request.getStatus());
+        task.setNotes(request.getNotes());
+        task.setCharge(request.getCharge());
 
         save(request.getRequesterId(), task);
         return task;
@@ -60,6 +70,7 @@ public class TaskService {
         });
 
         Task task = modelMapper.map(request, Task.class);
+        task.setStatus(Constant.SUBMITTED);
 
         save(request.getServiceId(), task);
         return task;

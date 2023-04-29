@@ -7,5 +7,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 public class TaskUpdateRequest extends AuditableRequest {
     @NotNull(message = "status cannot be empty")
-    private Integer status;
+    private String status;
+    private String notes;
+    private Integer charge;
 }

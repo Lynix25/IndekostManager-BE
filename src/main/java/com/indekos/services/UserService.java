@@ -10,8 +10,6 @@ import com.indekos.dto.request.*;
 import com.indekos.model.Account;
 import com.indekos.model.ContactAblePerson;
 import com.indekos.model.Room;
-import com.indekos.controller.repository.ContactAblePersonRepository;
-import com.indekos.controller.repository.UserDocumentRepository;
 import com.indekos.utils.Constant;
 import com.indekos.utils.Utils;
 
@@ -26,8 +24,10 @@ import com.indekos.dto.response.UserResponse;
 import com.indekos.model.User;
 import com.indekos.model.UserDocument;
 import com.indekos.model.UserSetting;
-import com.indekos.controller.repository.UserRepository;
-import com.indekos.controller.repository.UserSettingRepository;
+import com.indekos.repository.ContactAblePersonRepository;
+import com.indekos.repository.UserDocumentRepository;
+import com.indekos.repository.UserRepository;
+import com.indekos.repository.UserSettingRepository;
 
 import java.util.ArrayList;
 import java.util.List;

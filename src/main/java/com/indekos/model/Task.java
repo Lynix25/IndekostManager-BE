@@ -17,10 +17,10 @@ public class Task extends AuditableEntity {
 	private static final long serialVersionUID = 1L;
 	
 	@Column(nullable = false)
-    private Long taskDate;
-    
+	private String serviceId;
+
 	@Column(nullable = false)
-    private String serviceId;
+    private Long taskDate;
     
 	private String summary;
     
@@ -30,12 +30,15 @@ public class Task extends AuditableEntity {
     /**
      * Status state
      *
-     * -1 rejected
-     * 0 submited
-     * 1 approved
-     * 2 on prosses
-     * 3 completed
+     * 1. REJECTED
+     * 2. SUBMITEED
+     * 3. ACCEPTED
+     * 4. ON PROCESS
+     * 5. COMPLETED
      */
     @Column(nullable = false)
-    private Integer status;
+    private String status;
+    
+    @Column(columnDefinition = "int default 0")
+    private Integer charge;
 }

@@ -2,7 +2,6 @@ package com.indekos.utils;
 
 public class Constant {
 	
-	/* ========================== MAIN ========================== */
 	// Boarding House
 	public static String PRABAYAR = "Prabayar";
 	public static String PASCABAYAR = "Pascabayar";
@@ -32,4 +31,11 @@ public class Constant {
 	// User Setting --> Setting Type
 	public static String SHARE_ROOM = "Share Room";
 	public static String NOTIFICATION = "Notification";
+	
+	// Task
+	public static String REJECTED = "Ditolak";
+	public static String SUBMITTED = "Menunggu Konfirmasi";
+    public static String ACCEPTED = "Diterima";
+    public static String ON_PROCESS = "Dalam Pengerjaan";
+    public static String COMPLETED = "Selesai";
 }
