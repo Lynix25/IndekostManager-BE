@@ -9,7 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.indekos.repository.TransactionRepository;
+import com.indekos.controller.repository.TransactionRepository;
 
 import java.util.NoSuchElementException;
 

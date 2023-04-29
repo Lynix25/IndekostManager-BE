@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -57,6 +58,9 @@ public class User extends AuditableEntity {
 	@Lob
 	@Column(length = 1000)
 	private byte[] identityCardImage;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private List<ContactAblePerson> contactAblePersons;
 
 	/* Settings */
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)

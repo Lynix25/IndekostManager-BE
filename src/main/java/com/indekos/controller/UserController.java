@@ -2,9 +2,13 @@ package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.common.helper.exception.InsertDataErrorException;
+import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.dto.UserDTO;
 import com.indekos.dto.request.*;
+import com.indekos.model.Account;
+import com.indekos.model.RememberMeToken;
 import com.indekos.model.User;
+import com.indekos.services.RememberMeTokenService;
 import com.indekos.services.UserService;
 import com.indekos.utils.Validated;
 
@@ -23,12 +27,23 @@ public class UserController {
 	
     @Autowired
 	private UserService userService;
+
+    @Autowired
+    private RememberMeTokenService rememberMeTokenService;
     
     /* ================================================ USER ACCOUNT ================================================ */
     @PostMapping("/login")
-    public ResponseEntity<?> login (@Valid @RequestBody AccountLoginRequest accountLoginRequest, Errors errors){
+    public ResponseEntity<?> login (@Valid @RequestBody AccountLoginRequest request, Errors errors){
         Validated.request(errors);
-        return GlobalAcceptions.loginAllowed(userService.login(accountLoginRequest), "Login berhasil");
+        Account account = userService.login(request);
+        if(account != null){
+            if(request.isRememberMe()){
+                RememberMeToken rememberMeToken = rememberMeTokenService.rememberAccount(account);
+                return GlobalAcceptions.loginAllowed(account, "Login berhasil dengan Remember Me", rememberMeToken);
+            }
+            return GlobalAcceptions.loginAllowed(account,"Login Berhasil", null);
+        }
+        throw new InvalidRequestException("Account Tidak Terdaftar");
     }
     
     @PutMapping("/changepassword")
@@ -45,7 +60,8 @@ public class UserController {
     
     @PutMapping("/logout")	// user = userId
     public ResponseEntity<?> logout (@Valid @RequestParam String user){
-       return GlobalAcceptions.data(userService.logout(user), "Logout berhasil");
+       Account account = userService.logout(user);
+       return GlobalAcceptions.logoutSuccess("Logout berhasil");
     }
     
     /* ==================================================== USER ==================================================== */

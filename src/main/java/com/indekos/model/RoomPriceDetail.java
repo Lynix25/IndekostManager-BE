@@ -24,7 +24,6 @@ public class RoomPriceDetail {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
     private Integer capacity;
     private Integer price;
 

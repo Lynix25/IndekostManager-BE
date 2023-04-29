@@ -2,7 +2,7 @@ package com.indekos.services;
 
 import com.indekos.dto.response.ImageUploadResponse;
 import com.indekos.model.ImageData;
-import com.indekos.repository.ImageDataRepository;
+import com.indekos.controller.repository.ImageDataRepository;
 import com.indekos.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

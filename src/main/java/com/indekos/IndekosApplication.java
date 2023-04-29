@@ -24,7 +24,6 @@ public class IndekosApplication {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-//				registry.addMapping("/user/all").allowedOrigins("http://127.0.0.1:5500");
 				registry.addMapping("/**").allowedOrigins("*");
 				registry.addMapping("/**").allowedMethods("*");
 			}

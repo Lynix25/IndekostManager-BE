@@ -13,7 +13,6 @@ import javax.persistence.*;
 @Entity
 @AllArgsConstructor @NoArgsConstructor
 public class Service extends AuditableEntity {
-    
 	private static final long serialVersionUID = 1L;
 	
 	@Column(nullable = false)
