@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -65,6 +66,17 @@ public class ServiceService {
             throw new InvalidUserCredentialException("Invalid ID");
         }
     }
+
+    public List<Service> getManyById(List<String> ids){
+        List<Service> services = new ArrayList<>();
+
+        for (String id: ids) {
+            services.add(getByID(id));
+        }
+
+        return services;
+    }
+
     public Service register(ServiceCreateRequest requestBody){
         Service service = modelMapper.map(requestBody, Service.class);
         service.create(requestBody.getRequesterId());

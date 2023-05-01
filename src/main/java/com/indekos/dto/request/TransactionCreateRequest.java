@@ -8,6 +8,5 @@ import java.util.List;
 
 @Getter
 public class TransactionCreateRequest extends AuditableRequest{
-    private List<Service> serviceItem;
-    private List<Rent> rentItem;
+    private List<String> serviceItemIds;
 }

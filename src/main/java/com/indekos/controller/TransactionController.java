@@ -1,8 +1,11 @@
 package com.indekos.controller;
 
+import com.indekos.common.helper.SnapAPI;
+import com.indekos.dto.request.TransactionCreateRequest;
 import com.indekos.dto.response.CheckTransactionResponse;
 import com.indekos.model.Rent;
 import com.indekos.model.Service;
+import com.indekos.model.Transaction;
 import com.indekos.services.RentService;
 import com.indekos.services.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +29,7 @@ public class TransactionController {
 
     @GetMapping("/unpaid/{userId}")
     public ResponseEntity<?> getUnpaidTransaction(@PathVariable String userId){
-        List<Service> services = serviceService.getAllUnpaid(userId);
+        List<Service> services = serviceService.getAll();
         List<Rent> rents = rentService.getAllUnpaid(userId);
         Long maxDueDate = -1L;
         Long unpaidTotal = 0L;
@@ -44,8 +47,9 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(){
-
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> create(@RequestBody TransactionCreateRequest request){
+        Transaction transaction = transactionService.create(request);
+        String transactionToken = SnapAPI.createTransaction(transaction.getId(), transactionService.getTotalPayment(transaction));
+        return new ResponseEntity<>(transactionToken,HttpStatus.OK);
     }
 }

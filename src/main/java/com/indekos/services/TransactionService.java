@@ -3,13 +3,16 @@ package com.indekos.services;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.TransactionCreateRequest;
 import com.indekos.model.Rent;
+import com.indekos.model.Task;
 import com.indekos.model.Transaction;
 import com.indekos.repository.TransactionRepository;
 import com.indekos.utils.Utils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -18,6 +21,9 @@ public class TransactionService {
     ModelMapper modelMapper;
     @Autowired
     TransactionRepository transactionRepository;
+
+    @Autowired
+    ServiceService serviceService;
     public Transaction getByID(String id){
         try {
             return transactionRepository.findById(id).get();
@@ -27,11 +33,14 @@ public class TransactionService {
     }
 
     public Transaction create(TransactionCreateRequest request){
-        Transaction transaction = modelMapper.map(request, Transaction.class);
+        Transaction transaction = new Transaction();
+
+        transaction.setServiceItem(serviceService.getManyById(request.getServiceItemIds()));
         transaction.create(request.getRequesterId());
         transaction.setPaymentStatus("Menunggu Pembayaran");
         transaction.setPenaltyFee(0L);
 
+        save(request.getRequesterId(),transaction);
         return transaction;
     }
 
@@ -42,12 +51,34 @@ public class TransactionService {
         return transaction;
     }
 
+    private void save(String modifierId, Transaction transaction){
+        try {
+            transaction.update(modifierId);
+            transactionRepository.save(transaction);
+        }
+        catch (DataIntegrityViolationException e){
+            System.out.println(e);
+        }
+        catch (Exception e){
+            System.out.println(e);
+            throw new RuntimeException();
+        }
+    }
+
+    public Integer getTotalPayment(Transaction transaction){
+        Integer totalAmount = 0;
+        for (com.indekos.model.Service service: transaction.getServiceItem()){
+            totalAmount += service.getPrice();
+        }
+        return totalAmount;
+    }
     public Long calculateFee(Transaction transaction){
         Long feeCount = 0L;
         for (Rent rent: transaction.getRentItem()) {
             feeCount += (long) (Utils.dayDiv(rent.getDueDate(), System.currentTimeMillis()) * 5000L);
         }
 
+        transactionRepository.save(transaction);
         return feeCount;
     }
 
