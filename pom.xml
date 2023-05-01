@@ -75,6 +75,12 @@
 			<version>3.0.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.midtrans</groupId>
+			<artifactId>java-library</artifactId>
+			<version>3.1.4</version>
+		</dependency>
+
 <!--		<dependency>-->
 <!--			<groupId>nl.martijndwars</groupId>-->
 <!--			<artifactId>web-push</artifactId>-->
