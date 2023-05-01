@@ -56,50 +56,50 @@ public class RoomController {
 	@PostMapping
 	public ResponseEntity<?> createRoom(@Valid @RequestBody RoomCreateRequest request, Errors errors) {
 		Validated.request(errors);
-		return GlobalAcceptions.data(roomService.create(request), "New Room Data");
+		return GlobalAcceptions.data(roomService.create(request), "Berhasil menambahkan data kamar");
 	}
 
 	@PostMapping("/{roomId}/details")
 	public ResponseEntity<?> addRoomDetail(@PathVariable String roomId, @Valid @RequestBody RoomDetailsCreateRequest requestBody, Errors errors){
 		Validated.request(errors);
-		return GlobalAcceptions.data(roomService.addRoomDetail(roomId, requestBody), "New Room Detail Data");
+		return GlobalAcceptions.data(roomService.addRoomDetail(roomId, requestBody), "Berhasil menambahkan detail kamar");
 	}
 	
 	@PostMapping("/{roomId}/prices")
 	public ResponseEntity<?> addRoomPrice(@PathVariable String roomId, @Valid @RequestBody RoomPriceCreateRequest requestBody, Errors errors){
 		Validated.request(errors);
-		return GlobalAcceptions.data(roomService.addRoomPrice(roomId, requestBody), "New Room Price Data");
+		return GlobalAcceptions.data(roomService.addRoomPrice(roomId, requestBody), "Berhasil menambahkan data harga kamar");
 	}
 	
 	@PutMapping("/{roomId}")
 	public ResponseEntity<?> updateRoom(@PathVariable String roomId, @RequestBody RoomCreateRequest request) {
-		return GlobalAcceptions.data(roomService.update(roomId, request), "Updated Room Data");
+		return GlobalAcceptions.data(roomService.update(roomId, request), "Berhasil memperbaharui data kamar");
 	}
 	
 	@PutMapping("/{roomId}/details") // edit = roomDetailId
 	public ResponseEntity<?> updateRoomDetail(@RequestParam Long edit, @PathVariable String roomId, @Valid @RequestBody RoomDetailsCreateRequest requestBody, Errors errors){
 		Validated.request(errors);
-		return GlobalAcceptions.data(roomService.editRoomDetail(edit, roomId, requestBody), "Updated Room Detail Data");
+		return GlobalAcceptions.data(roomService.editRoomDetail(edit, roomId, requestBody), "Berhasil memperbaharui detail kamar");
 	}
 	
 	@PutMapping("/{roomId}/prices") // edit = roomPriceDetailId
 	public ResponseEntity<?> updateRoomPrice(@RequestParam Long edit, @PathVariable String roomId, @Valid @RequestBody RoomPriceCreateRequest requestBody, Errors errors){
 		Validated.request(errors);
-		return GlobalAcceptions.data(roomService.editRoomPrice(edit, roomId, requestBody), "Updated Room Price Data");
+		return GlobalAcceptions.data(roomService.editRoomPrice(edit, roomId, requestBody), "Berhasil memperbaharui data harga kamar");
 	}
 	
 	@DeleteMapping("/{roomId}")
 	public ResponseEntity<?> deleteRoom(@PathVariable String roomId, @Valid @RequestBody AuditableRequest request) {
-		return GlobalAcceptions.data(roomService.delete(roomId, request.getRequesterId()), "Deleted Room Data");
+		return GlobalAcceptions.data(roomService.delete(roomId, request.getRequesterId()), "Berhasil menghapus data kamar");
 	}
 	
 	@DeleteMapping("/{roomId}/details") // delete = roomDetailId
 	public ResponseEntity<?> deleteRoomDetail(@RequestParam Long delete, @PathVariable String roomId, @Valid @RequestBody AuditableRequest request){
-		return GlobalAcceptions.data(roomService.removeRoomDetail(delete, request.getRequesterId(), roomId), "Deleted Room Detail Data");
+		return GlobalAcceptions.data(roomService.removeRoomDetail(delete, request.getRequesterId(), roomId), "Berhasil menghapus detail kamar");
 	}
 	
 	@DeleteMapping("/{roomId}/prices") // delete = roomPriceDetailId
 	public ResponseEntity<?> deleteRoomPrice(@RequestParam Long delete, @PathVariable String roomId, @Valid @RequestBody AuditableRequest request){
-		return GlobalAcceptions.data(roomService.removeRoomPrice(delete, request.getRequesterId(), roomId), "Deleted Room Price Data");
+		return GlobalAcceptions.data(roomService.removeRoomPrice(delete, request.getRequesterId(), roomId), "Berhasil menghapus data harga kamar");
 	}
 }

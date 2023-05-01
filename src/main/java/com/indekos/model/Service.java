@@ -22,4 +22,8 @@ public class Service extends AuditableEntity {
     private String variant;
     
 	private Integer price;
+
+	@Column(columnDefinition = "int default 1")
+	private Integer quantity;
+	private String units;
 }

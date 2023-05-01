@@ -23,9 +23,7 @@ public class Task extends AuditableEntity {
     private Long taskDate;
     
 	private String summary;
-    
 	private String notes;
-    
 	private Long finishDate;
     /**
      * Status state
@@ -41,4 +39,7 @@ public class Task extends AuditableEntity {
     
     @Column(columnDefinition = "int default 0")
     private Integer charge;
+    
+    @Column(columnDefinition = "int default 1")
+    private Integer requestedQuantity;
 }

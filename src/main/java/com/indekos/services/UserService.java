@@ -250,9 +250,10 @@ public class UserService {
     
     public ContactAblePerson addContactAblePerson(String userId, ContactAblePersonCreateRequest request){
     	User user = getById(userId);
+    	user.update(userId);
     	ContactAblePerson contactAblePerson = modelMapper.map(request, ContactAblePerson.class);
 		contactAblePerson.setUser(user);
-
+		save(userId, user);
     	try {
 			contactAblePersonRepository.save(contactAblePerson);
 		} catch (Exception e) {
@@ -270,6 +271,7 @@ public class UserService {
     	
     	final ContactAblePerson updated = contactAblePersonRepository.save(contactAblePerson);
     	User user = getById(userId);
+    	user.update(userId);
     	save(userId, user);
     	
     	return updated;
@@ -279,11 +281,13 @@ public class UserService {
     	ContactAblePerson contactAblePerson = contactAblePersonRepository.findById(contactAblePersonId)
     			.orElseThrow(() -> new InvalidRequestIdException("Invalid User Contactable Person ID"));
 
+    	contactAblePerson.setDeleted(true);
     	final ContactAblePerson deleted = contactAblePersonRepository.save(contactAblePerson);
     	User user = getById(userId);
+    	user.update(userId);
     	save(userId, user);
 
-		return contactAblePerson;
+		return deleted;
     }
     
     /* ==================================================== UTILS ==================================================== */
