@@ -1,9 +1,9 @@
 package com.indekos.services;
 
+import com.indekos.common.helper.SnapAPI;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.TransactionCreateRequest;
 import com.indekos.model.Rent;
-import com.indekos.model.Task;
 import com.indekos.model.Transaction;
 import com.indekos.repository.TransactionRepository;
 import com.indekos.utils.Utils;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -37,8 +36,11 @@ public class TransactionService {
 
         transaction.setServiceItem(serviceService.getManyById(request.getServiceItemIds()));
         transaction.create(request.getRequesterId());
-        transaction.setPaymentStatus("Menunggu Pembayaran");
         transaction.setPenaltyFee(0L);
+        save(request.getRequesterId(),transaction);
+
+        String transactionToken = SnapAPI.createTransaction(transaction.getId(), getTotalPayment(transaction));
+        transaction.setToken(transactionToken);
 
         save(request.getRequesterId(),transaction);
         return transaction;
@@ -46,7 +48,6 @@ public class TransactionService {
 
     public Transaction pay(String id){
         Transaction transaction = getByID(id);
-        transaction.setPaymentType("BCA Virtual Account");
 
         return transaction;
     }
