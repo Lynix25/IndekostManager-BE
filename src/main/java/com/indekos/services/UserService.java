@@ -29,6 +29,7 @@ import com.indekos.repository.UserDocumentRepository;
 import com.indekos.repository.UserRepository;
 import com.indekos.repository.UserSettingRepository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,7 +85,7 @@ public class UserService {
     }
     
     public Account changePassword(AccountChangePasswordRequest request) {
-    	User user = getById(request.getRequesterId());
+    	User user = getById(request.getRequesterId()).getUser();
     	Account account = accountService.changePassword(user, request);
         user.update(account.getId());
         save(request.getRequesterId(),user);
@@ -100,7 +101,7 @@ public class UserService {
     }
     
     public Account logout(String userId) {
-    	Account account = accountService.getByUser(getById(userId));
+    	Account account = accountService.getByUser(getById(userId).getUser());
         try {
         	account.setLogoutTime(System.currentTimeMillis());
         	accountService.save(account);
@@ -134,15 +135,15 @@ public class UserService {
     	return listUser;
     }
     
-    public User getById(String userId){
+    public UserResponse getById(String userId){
     	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
 
-    	return user;
+    	return getUserWithConvertedDocumentImage(user);
     }
 
     
-    public UserResponse register(UserRegisterRequest request) {
+    public UserResponse register(UserRegisterRequest request) throws IOException {
     	modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
         	mapper.map(src -> src.getRequesterId(), User::create);
         	mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
@@ -178,7 +179,7 @@ public class UserService {
     }
     
     public UserResponse update(String userId, UserRegisterRequest request) {
-    	User user = getById(userId);
+    	User user = getById(userId).getUser();
         modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
 //           mapper.map(src -> src.getRequesterId(), User::update);
@@ -202,7 +203,7 @@ public class UserService {
     }
     
     public User delete(String userId, AuditableRequest request) {
-    	User user = getById(userId);
+    	User user = getById(userId).getUser();
 		user.delete();
 
         save(request.getRequesterId(), user);
@@ -211,7 +212,7 @@ public class UserService {
     
     /* ================================================ USER DOCUMENT =============================================== */
     public DataIdDTO removeUserDocument(String userDocumentId, String userId) {
-    	User user = getById(userId);
+    	User user = getById(userId).getUser();
     	UserDocument userDocument = userDocumentRepository.findById(userDocumentId)
     		.orElseThrow(() -> new InvalidRequestIdException("Invalid User Document ID"));
     	
@@ -226,7 +227,7 @@ public class UserService {
     
     /* ================================================ USER SETTING ================================================ */
     public UserSetting getSetting(String userId) {
-		User user = getById(userId);
+		User user = getById(userId).getUser();
 		return userSettingRepository.findByUser(user);
 	}
     
@@ -249,7 +250,7 @@ public class UserService {
     }
     
     public ContactAblePerson addContactAblePerson(String userId, ContactAblePersonCreateRequest request){
-    	User user = getById(userId);
+    	User user = getById(userId).getUser();
     	user.update(userId);
     	ContactAblePerson contactAblePerson = modelMapper.map(request, ContactAblePerson.class);
 		contactAblePerson.setUser(user);
@@ -270,7 +271,7 @@ public class UserService {
     	modelMapper.map(request, contactAblePerson);
     	
     	final ContactAblePerson updated = contactAblePersonRepository.save(contactAblePerson);
-    	User user = getById(userId);
+    	User user = getById(userId).getUser();
     	user.update(userId);
     	save(userId, user);
     	
@@ -283,7 +284,7 @@ public class UserService {
 
     	contactAblePerson.setDeleted(true);
     	final ContactAblePerson deleted = contactAblePersonRepository.save(contactAblePerson);
-    	User user = getById(userId);
+    	User user = getById(userId).getUser();
     	user.update(userId);
     	save(userId, user);
 
@@ -331,7 +332,7 @@ public class UserService {
     	UserResponse response = new UserResponse();
     	Account account = accountService.getByUser(user);
     	response.setAccount(new AccountDTO(account.getId(), account.getUsername()));
-//    	user.setIdentityCardImage(Utils.decompressImage(user.getIdentityCardImage()));
+    	user.setIdentityCardImage(Utils.decompressImage(user.getIdentityCardImage()));
     	response.setUser(user);
     	return response;
     }
