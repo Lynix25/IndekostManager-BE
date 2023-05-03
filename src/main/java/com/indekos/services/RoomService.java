@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -49,9 +50,15 @@ public class RoomService {
 //		return null;
 //	}
 	
-	public List<Room> getAll() {
+	public List<RoomDTO> getAll() {
 		List<Room> rooms = roomRepository.findAllByOrderByNameAsc();
-		return rooms;
+		List<RoomDTO> results = new ArrayList<>();
+		
+		rooms.forEach(room -> {
+			results.add(getRoomDetail(room));
+		});
+		
+		return results;
 	}
 
 	public RoomDTO getById(String roomId){
@@ -199,7 +206,10 @@ public class RoomService {
 		roomDTO.setTotalTenants(tenants);
 		if(tenants > 0 && roomRepository.checkIfRoomIsShared(room.getId()) == 0) roomDTO.setStatus("Disewa pribadi");
 		else if(room.getQuota() - tenants == 0) roomDTO.setStatus("Penuh");
-		else roomDTO.setStatus("Tersedia");
+		else {
+			if(tenants == 0) roomDTO.setStatus("Kosong");
+			else roomDTO.setStatus("Tersedia");
+		}
 		
 		return roomDTO;
 	}

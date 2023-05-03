@@ -33,7 +33,7 @@ public class RoomController {
 	}
 
 	@GetMapping("/{roomId}")
-	public ResponseEntity<?> getRoom (@PathVariable String roomId){
+	public ResponseEntity<?> getRoom(@PathVariable String roomId){
 		RoomDTO room = roomService.getById(roomId);
 		return GlobalAcceptions.data(room, "Room Data");
 	}
