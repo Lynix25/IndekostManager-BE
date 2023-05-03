@@ -18,27 +18,27 @@ public class PaymentGatewayController {
 
     @PostMapping("payment")
     public ResponseEntity<?> paymentNotification(@RequestBody PaymentNotificationRequest requestBody){
-        System.out.println("===== PAYMENT NOTIFICATION =====");
+        System.out.println("===== PAYMENT NOTIFICATION START=====");
         System.out.println(requestBody.getStatus_message());
         System.out.println(requestBody.getTransaction_status());
-        System.out.println("===== PAYMENT NOTIFICATION =====");
+        System.out.println("===== PAYMENT NOTIFICATION END=====");
         return new ResponseEntity<>(requestBody, HttpStatus.OK);
     }
 
     @PostMapping("recurring")
     public void recurringNotification(@RequestBody PaymentNotificationRequest request){
-        System.out.println("===== PAYMENT RECURRING =====");
+        System.out.println("===== PAYMENT RECURRING START=====");
         System.out.println(request.getStatus_message());
         System.out.println(request.getTransaction_status());
-        System.out.println("===== PAYMENT RECURRING =====");
+        System.out.println("===== PAYMENT RECURRING END=====");
     }
 
     @PostMapping("pay-account")
     public void payAccountNotification(@RequestBody PaymentNotificationRequest request){
-        System.out.println("===== PAY ACCOUNT =====");
+        System.out.println("===== PAY ACCOUNT START=====");
         System.out.println(request.getStatus_message());
         System.out.println(request.getTransaction_status());
-        System.out.println("===== PAY ACCOUNT =====");
+        System.out.println("===== PAY ACCOUNT END=====");
     }
 
 }

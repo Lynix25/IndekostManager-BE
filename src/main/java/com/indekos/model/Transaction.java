@@ -20,8 +20,7 @@ public class Transaction extends AuditableEntity {
 	private static final long serialVersionUID = 1L;
 	
 	private Long penaltyFee;
-    private String paymentType;
-    private String paymentStatus;
+    private String token;
 
     @OneToMany(targetEntity = Service.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "transaction_id", referencedColumnName = "id")

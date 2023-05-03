@@ -1,5 +1,6 @@
 package com.indekos.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.indekos.common.helper.SnapAPI;
 import com.indekos.dto.request.TransactionCreateRequest;
 import com.indekos.dto.response.CheckTransactionResponse;
@@ -8,6 +9,8 @@ import com.indekos.model.Service;
 import com.indekos.model.Transaction;
 import com.indekos.services.RentService;
 import com.indekos.services.ServiceService;
+import org.json.JSONObject;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +52,15 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody TransactionCreateRequest request){
         Transaction transaction = transactionService.create(request);
-        String transactionToken = SnapAPI.createTransaction(transaction.getId(), transactionService.getTotalPayment(transaction));
-        return new ResponseEntity<>(transactionToken,HttpStatus.OK);
+
+        return new ResponseEntity<>(transaction.getToken(),HttpStatus.OK);
+    }
+
+    @Autowired
+    ModelMapper modelMapper;
+    @GetMapping("check/{orderId}")
+    public ResponseEntity<?> check(@PathVariable String orderId) throws JsonProcessingException {
+        JSONObject res = SnapAPI.checkTransaction(orderId);
+        return new ResponseEntity<>(res.toString(), HttpStatus.OK);
     }
 }
