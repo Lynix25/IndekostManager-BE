@@ -60,6 +60,10 @@ public class RoomService {
 		
 		return results;
 	}
+	
+	public Room getByName(String roomName) {
+		return roomRepository.findByName(roomName);
+	}
 
 	public RoomDTO getById(String roomId){
 		Room targetRoom = roomRepository.findById(roomId)
