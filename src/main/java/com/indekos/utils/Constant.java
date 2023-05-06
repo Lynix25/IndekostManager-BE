@@ -35,7 +35,6 @@ public class Constant {
 	// Task
 	public static String REJECTED = "Ditolak";
 	public static String SUBMITTED = "Menunggu Konfirmasi";
-    public static String ACCEPTED = "Diterima";
-    public static String ON_PROCESS = "Dalam Pengerjaan";
+    public static String ACCEPTED = "Dalam Pengerjaan";
     public static String COMPLETED = "Selesai";
 }
