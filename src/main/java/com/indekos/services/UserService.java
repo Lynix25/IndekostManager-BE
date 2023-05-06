@@ -6,6 +6,8 @@ import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.AccountDTO;
 import com.indekos.dto.DataIdDTO;
+import com.indekos.dto.SimpleUserDTO;
+import com.indekos.dto.UserSettingsDTO;
 import com.indekos.dto.request.*;
 import com.indekos.model.Account;
 import com.indekos.model.ContactAblePerson;
@@ -149,6 +151,24 @@ public class UserService {
     	return getUserWithConvertedDocumentImage(user);
     }
 
+    public SimpleUserDTO getUserInfoById(String userId) {
+    	
+    	User user = userRepository.findById(userId)
+    			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
+    	
+    	SimpleUserDTO response = new SimpleUserDTO();
+    	response.setUserName(user.getName());
+    	response.setRoomId(user.getRoom().getId());
+    	response.setRoomName(user.getRoom().getName());
+    	
+    	UserSetting targetSetting = user.getSetting();
+    	UserSettingsDTO userSetting = new UserSettingsDTO();
+    	userSetting.setShareRoom(targetSetting.getShareRoom());
+    	userSetting.setEnableNotification(targetSetting.getEnableNotification());
+    	response.setUserSetting(userSetting);
+    	
+    	return response;
+    }
     
     public UserResponse register(UserRegisterRequest request) throws IOException {
     	modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
