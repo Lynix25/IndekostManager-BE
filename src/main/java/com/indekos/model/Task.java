@@ -1,5 +1,6 @@
 package com.indekos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.indekos.common.base.entity.AuditableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -29,10 +32,9 @@ public class Task extends AuditableEntity {
      * Status state
      *
      * 1. REJECTED
-     * 2. SUBMITEED
-     * 3. ACCEPTED
-     * 4. ON PROCESS
-     * 5. COMPLETED
+     * 2. SUBMITTED
+     * 3. ON PROCESS
+     * 4. COMPLETED
      */
     @Column(nullable = false)
     private String status;
@@ -40,6 +42,16 @@ public class Task extends AuditableEntity {
     @Column(columnDefinition = "int default 0")
     private Integer charge;
     
-    @Column(columnDefinition = "int default 1")
+    @Column(columnDefinition = "int default 0")
+    private Integer additionalCharge;
+    
+    @Column(columnDefinition = "int default 0")
     private Integer requestedQuantity;
+    
+    private Long dueDate;
+    
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="user_id", referencedColumnName ="id")
+    private User user;
 }
