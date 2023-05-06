@@ -21,5 +21,16 @@ public class Service extends AuditableEntity {
 	@Column(nullable = false)
     private String variant;
     
+	@Column(columnDefinition = "int default 0")
 	private Integer price;
+
+	@Column(columnDefinition = "int default 0")
+	private Integer quantity;
+	private String units;
+	
+	@Column(columnDefinition = "int default 0")
+	private Integer dueDate;
+	
+	@Column(columnDefinition = "int default 0")
+	private Integer penalty;
 }

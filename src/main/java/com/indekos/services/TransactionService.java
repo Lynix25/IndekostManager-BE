@@ -73,6 +73,7 @@ public class TransactionService {
         }
         return totalAmount;
     }
+    
     public Long calculateFee(Transaction transaction){
         Long feeCount = 0L;
         for (Rent rent: transaction.getRentItem()) {

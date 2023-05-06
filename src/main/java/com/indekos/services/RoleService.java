@@ -47,4 +47,8 @@ public class RoleService {
 		
 		return targetMasterRole;
 	}
+	
+	public MasterRole getByName(String roleName) {
+		return roleRepository.findByName(roleName);
+	}
 }

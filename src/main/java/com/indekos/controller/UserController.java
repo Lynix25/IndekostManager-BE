@@ -19,6 +19,8 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 import javax.validation.Valid;
 
 @RestController
@@ -75,13 +77,13 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable String userId){
-        User user = userService.getById(userId);
+        User user = userService.getById(userId).getUser();
         UserDTO userDTO = new UserDTO(user, user.getRoom());
     	return GlobalAcceptions.data(userDTO, "User Data");
     }
     
     @PostMapping
-    public ResponseEntity<?> registerUser(@Valid @RequestParam MultipartFile identityCardImage, @Valid @ModelAttribute UserRegisterRequest request, Errors errors) throws FileSizeLimitExceededException {
+    public ResponseEntity<?> registerUser(@Valid @RequestParam MultipartFile identityCardImage, @Valid @ModelAttribute UserRegisterRequest request, Errors errors) throws IOException {
     	Validated.request(errors);
     	if(identityCardImage == null) throw new InsertDataErrorException("Mohon unggah foto KTP Anda");
     	request.setIdentityCardImage(identityCardImage);

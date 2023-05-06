@@ -43,7 +43,8 @@ public class AnnouncementService {
 	}
 	
 	public Announcement create(AnnouncementRequest request) {
-		if(announcementRepository.findByTitle(request.getTitle()) != null) throw new DataAlreadyExistException();
+		if(announcementRepository.findByTitle(request.getTitle()) != null) 
+			throw new DataAlreadyExistException("Sudah ada pengumuman dengan judul ini. Mohon ganti judul!");
 		else {
 			Announcement newData = new Announcement();
 			newData.setTitle(request.getTitle());
@@ -62,7 +63,8 @@ public class AnnouncementService {
 		Announcement announcement = announcementRepository.findById(announcementId)
 				.orElseThrow(() -> new InvalidRequestIdException("Invalid Announcement ID"));
 	
-		if(announcementRepository.findByTitleAndIdNot(request.getTitle(), announcementId) != null) throw new DataAlreadyExistException();
+		if(announcementRepository.findByTitleAndIdNot(request.getTitle(), announcementId) != null) 
+			throw new DataAlreadyExistException("Sudah ada pengumuman dengan judul ini. Mohon ganti judul!");
 		else {
 			modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
 	        modelMapper.typeMap(AnnouncementRequest.class, Announcement.class).addMappings(mapper -> {

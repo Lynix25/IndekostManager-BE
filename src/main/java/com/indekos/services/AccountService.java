@@ -40,6 +40,9 @@ public class AccountService {
     
     public Account getByUsername(String username){
     	Account account = accountRepository.findByUsername(username);
+    	if(account == null) 
+    		throw new InvalidUserCredentialException("User tidak terdaftar");
+    	
     	return account;
     }
     
