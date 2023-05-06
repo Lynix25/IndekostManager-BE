@@ -7,6 +7,7 @@ import com.indekos.model.Service;
 import com.indekos.repository.MasterServiceRepository;
 import com.indekos.repository.ServiceRepository;
 
+import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -43,8 +44,11 @@ public class ServiceService {
     	// Other Service
     	String insertKeyAuditData = "id, created_by, created_date, last_modified_by, last_modified_date, ";
     	String insertValueAuditData = "'system', UNIX_TIMESTAMP(), 'system', UNIX_TIMESTAMP(), ";
-    	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant, price) VALUES ('e2e315f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 4), 'Lainnya', 0)");
-    	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant, price) VALUES ('e2e335f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 4), 'Pindah Kamar', 0)");
+    	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant) VALUES ('e2e295f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 2), 'Lainnya')");
+    	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant) VALUES ('e2e295f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 2), 'Lainnya')");
+    	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant) VALUES ('e2e305f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 3), 'Lainnya')");
+    	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant) VALUES ('e2e315f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 4), 'Lainnya')");
+    	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant) VALUES ('e2e335f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 4), 'Pindah Kamar')");
     }
     
     public List<MasterService> getAllServiceCategory() {
@@ -84,9 +88,11 @@ public class ServiceService {
         serviceRepository.save(service);
         return service;
     }
+    
     public Service update(String id, ServiceCreateRequest requestBody){
+    	modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+    	
         Service service = getByID(id);
-
         modelMapper.map(requestBody, service);
         service.update(requestBody.getRequesterId());
         serviceRepository.save(service);

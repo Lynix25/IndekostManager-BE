@@ -9,4 +9,6 @@ public class ServiceCreateRequest extends AuditableRequest {
     private Integer price;
     private Integer quantity;
     private String units;
+    private Integer dueDate;
+    private Integer penalty;
 }
