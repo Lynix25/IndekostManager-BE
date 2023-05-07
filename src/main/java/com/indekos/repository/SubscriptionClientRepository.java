@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface SubscriptionClientRepository extends JpaRepository<SubscriptionClient, String> {
-    Optional<SubscriptionClient> findByUser(User user);
+    SubscriptionClient findByUser(User user);
 
-    Optional<SubscriptionClient> deleteByUser(User user);
 }

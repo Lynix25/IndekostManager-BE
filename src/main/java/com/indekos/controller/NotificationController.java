@@ -40,14 +40,20 @@ public class NotificationController {
 
     @PostMapping("subscribe")
     public ResponseEntity<?> subscribe(@RequestBody SubscriptionClientRequest request) {
-        System.out.println(request);
-        subscriptionClientService.register(request, userService.getById(request.getRequesterId()));
+        User user = userService.getById(request.getRequesterId());
+        user.getSetting().setEnableNotification(true);
+        userService.save(request.getRequesterId(),user);
+
+        subscriptionClientService.register(request, user);
         return GlobalAcceptions.emptyData("Berhasil Mengaktifkan Notifikasi");
     }
 
-    @PostMapping("unsubscribe/{userId}")
+    @DeleteMapping("unsubscribe/{userId}")
     public ResponseEntity<?> unsubscribe(@PathVariable String userId) {
         User user = userService.getById(userId);
+        user.getSetting().setEnableNotification(false);
+        userService.save(userId,user);
+
         subscriptionClientService.deleteByUser(user);
         return GlobalAcceptions.emptyData("Berhasil Mematikan Notifikasi");
     }

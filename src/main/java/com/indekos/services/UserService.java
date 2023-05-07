@@ -271,9 +271,6 @@ public class UserService {
 		modelMapper.map(request, userSetting);
 
     	final UserSetting updated = userSettingRepository.save(userSetting);
-		if (updated.getEnableNotification()){
-
-		}
     	
     	return updated;
     }
@@ -329,7 +326,7 @@ public class UserService {
     }
     
     /* ==================================================== UTILS ==================================================== */
-    private User save(String modifierId, User user){
+    public User save(String modifierId, User user){
         try {
 			user.update(modifierId);
             return userRepository.save(user);

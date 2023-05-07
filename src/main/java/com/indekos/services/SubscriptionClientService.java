@@ -1,8 +1,10 @@
 package com.indekos.services;
 
+import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.request.SubscriptionClientRequest;
 import com.indekos.model.SubscriptionClient;
 import com.indekos.model.User;
+import com.indekos.model.UserSetting;
 import com.indekos.repository.SubscriptionClientRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +26,6 @@ public class SubscriptionClientService {
         save(client.getRequesterId(), subscriptionClient);
     }
 
-    public boolean remove(String id){
-        try {
-            SubscriptionClient subscriptionClient = subscriptionClientRepository.findById(id).get();
-            subscriptionClientRepository.delete(subscriptionClient);
-        }catch (Exception e){
-            System.out.println(e);
-            System.out.println("User Not Login With Remember Me");
-            return false;
-        }
-        return true;
-    }
-
     public boolean deleteByUser(User user){
         try {
             SubscriptionClient subscriptionClient = getByUser(user);
@@ -50,7 +40,11 @@ public class SubscriptionClientService {
     }
 
     public SubscriptionClient getByUser(User user){
-        return  subscriptionClientRepository.findByUser(user).get();
+        SubscriptionClient subscriptionClient = subscriptionClientRepository.findByUser(user);
+        if(subscriptionClient == null)
+            throw new InvalidRequestIdException("This user doesn't have subscription.");
+
+        return subscriptionClient;
     }
 
     private SubscriptionClient save(String modifierId, SubscriptionClient client){
