@@ -135,7 +135,6 @@ public class RoomDetailService {
         RoomDetail newRoomDetail = new RoomDetail();
         newRoomDetail.setName(request.getName());
         newRoomDetail.setDescription(request.getDescription());
-        newRoomDetail.setEnable(request.isEnable());
         newRoomDetail.setMasterRoomDetailCategory(masterRoomDetailCategoryRepository.findByName(request.getCategory()));
         newRoomDetail.setRoom(room);
         return roomDetailRepository.save(newRoomDetail);
@@ -148,7 +147,6 @@ public class RoomDetailService {
         
         roomDetail.setName(request.getName());
         roomDetail.setDescription(request.getDescription());
-        roomDetail.setEnable(request.isEnable());
         roomDetail.setMasterRoomDetailCategory(masterRoomDetailCategoryRepository.findByName(request.getCategory()));
         return roomDetailRepository.save(roomDetail);
     }
@@ -161,6 +159,13 @@ public class RoomDetailService {
     	RoomDetail deleted = roomDetail;
     	roomDetailRepository.deleteById(roomDetailId);
     	return deleted;
+    }
+    
+    public void removeAllDetailByRoom(Room room) {
+    	List<RoomDetail> details = roomDetailRepository.findByRoom(room);
+    	details.forEach(detail -> {
+    		roomDetailRepository.delete(detail);
+    	});
     }
     
     /* ============================== ROOM PRICE DETAIL ============================== */
@@ -194,5 +199,12 @@ public class RoomDetailService {
     	RoomPriceDetail deleted = roomPriceDetail;
     	roomPriceDetailRepository.deleteById(roomPriceDetailId);
     	return deleted;
+    }
+    
+    public void removeAllPriceByRoom(Room room) {
+    	List<RoomPriceDetail> prices = roomPriceDetailRepository.findByRoom(room);
+    	prices.forEach(price -> {
+    		roomPriceDetailRepository.delete(price);
+    	});
     }
 }
