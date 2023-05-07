@@ -65,6 +65,9 @@ public class UserService {
 	@Autowired
 	RememberMeTokenService rememberMeTokenService;
 
+	@Autowired
+	SubscriptionClientService subscriptionClientService;
+
     /* ================================================ USER ACCOUNT ================================================ */
     public Account login(AccountLoginRequest request) {
     	Account account = request.getToken() != null ? rememberMeTokenService.getById(request.getToken()).getAccount() : accountService.getByUsername(request.getUsername());
@@ -107,8 +110,7 @@ public class UserService {
     
     public Account logout(String userId) {
     	
-    	User user = userRepository.findById(userId)
-    			.orElseThrow(() -> new InvalidRequestIdException("Invalid User ID"));
+    	User user = getById(userId);
     	
     	Account account = accountService.getByUser(user);
         try {
@@ -116,7 +118,6 @@ public class UserService {
         	accountService.save(account);
 
 			rememberMeTokenService.deleteByAccount(account);
-
         	return account;
 		} catch (Exception e) {
 			System.out.println(e);
@@ -144,11 +145,11 @@ public class UserService {
     	return listUser;
     }
     
-    public UserResponse getById(String userId){
-    	User user = userRepository.findById(userId)
+    public User getById(String id){
+    	User user = userRepository.findById(id)
     			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
 
-    	return getUserWithConvertedDocumentImage(user);
+    	return user;
     }
 
     public SimpleUserDTO getUserInfoById(String userId) {
@@ -270,8 +271,9 @@ public class UserService {
 		modelMapper.map(request, userSetting);
 
     	final UserSetting updated = userSettingRepository.save(userSetting);
-//    	User user = getById(userId);
-//    	save(userId,user);
+		if (updated.getEnableNotification()){
+
+		}
     	
     	return updated;
     }

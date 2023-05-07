@@ -77,7 +77,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable String userId){
-        User user = userService.getById(userId).getUser();
+        User user = userService.getById(userId);
         UserDTO userDTO = new UserDTO(user, user.getRoom());
     	return GlobalAcceptions.data(userDTO, "User Data");
     }

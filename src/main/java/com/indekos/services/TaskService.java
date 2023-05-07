@@ -135,7 +135,7 @@ public class TaskService {
         Task task = modelMapper.map(request, Task.class);
         task.setStatus(Constant.SUBMITTED);
         
-        User user = userService.getById(request.getRequesterId()).getUser();
+        User user = userService.getById(request.getRequesterId());
         task.setUser(user);
         return save(request.getRequesterId(), task);
     }    
