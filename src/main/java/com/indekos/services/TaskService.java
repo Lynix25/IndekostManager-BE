@@ -56,7 +56,7 @@ public class TaskService {
 //    }
     
     public List<TaskDTO> getAll(String requestor) {
-    	List<Task> tasks = taskRepository.findActiveTaskByRequestor(requestor);
+    	List<Task> tasks = taskRepository.findAll();
     	List<TaskDTO> taskResponse = new ArrayList<>();
     	tasks.forEach(task -> {
     		taskResponse.add(getById(task.getId()));
@@ -83,7 +83,7 @@ public class TaskService {
     			requestor.setRoomName(simpleTask.getUser().getRoomName());
     			taskDetail.setRequestor(requestor);
     			
-    			com.indekos.model.Service service = serviceService.getByID(simpleTask.getTask().getServiceId());
+    			com.indekos.model.Service service = simpleTask.getTask().getService();
     			taskDetail.setService(service);
     			
     			taskResponse.add(taskDetail);
