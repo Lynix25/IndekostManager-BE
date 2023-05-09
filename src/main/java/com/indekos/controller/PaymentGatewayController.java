@@ -31,7 +31,6 @@ public class PaymentGatewayController {
         System.out.println("===== PAYMENT NOTIFICATION START=====");
         System.out.println(requestBody.getStatus_message());
         System.out.println(requestBody.getTransaction_status());
-        System.out.println("===== PAYMENT NOTIFICATION END=====");
 
         Notification notification = notificationService.createFromMidtrans(requestBody);
         switch (requestBody.getTransaction_status()){
@@ -48,6 +47,7 @@ public class PaymentGatewayController {
         }
         notificationService.notif(subscriptionClientService.getByUser(notification.getUser()),notification);
         notificationService.save(notification);
+        System.out.println("===== PAYMENT NOTIFICATION END=====");
         return new ResponseEntity<>(requestBody, HttpStatus.OK);
     }
 
