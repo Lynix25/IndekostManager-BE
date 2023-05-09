@@ -4,6 +4,7 @@ import com.indekos.common.helper.SnapAPI;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.TransactionCreateRequest;
 import com.indekos.model.Rent;
+import com.indekos.model.Task;
 import com.indekos.model.Transaction;
 import com.indekos.repository.TransactionRepository;
 import com.indekos.utils.Utils;
@@ -23,6 +24,10 @@ public class TransactionService {
 
     @Autowired
     ServiceService serviceService;
+
+    @Autowired
+    TaskService taskService;
+
     public Transaction getByID(String id){
         try {
             return transactionRepository.findById(id).get();
@@ -31,14 +36,13 @@ public class TransactionService {
         }
     }
 
-    public Transaction create(TransactionCreateRequest request){
+    public Transaction  create(TransactionCreateRequest request){
         Transaction transaction = new Transaction();
 
-        transaction.setServiceItem(serviceService.getManyById(request.getServiceItemIds()));
+        transaction.setTaskItems(taskService.getManyById(request.getTaskItemIds()));
         transaction.create(request.getRequesterId());
         transaction.setPenaltyFee(0L);
         save(request.getRequesterId(),transaction);
-
         String transactionToken = SnapAPI.createTransaction(transaction.getId(), getTotalPayment(transaction));
         transaction.setToken(transactionToken);
 
@@ -68,15 +72,15 @@ public class TransactionService {
 
     public Integer getTotalPayment(Transaction transaction){
         Integer totalAmount = 0;
-        for (com.indekos.model.Service service: transaction.getServiceItem()){
-            totalAmount += service.getPrice();
+        for (Task task: transaction.getTaskItems()){
+            totalAmount += task.getCharge();
         }
         return totalAmount;
     }
     
     public Long calculateFee(Transaction transaction){
         Long feeCount = 0L;
-        for (Rent rent: transaction.getRentItem()) {
+        for (Rent rent: transaction.getRentItems()) {
             feeCount += (long) (Utils.dayDiv(rent.getDueDate(), System.currentTimeMillis()) * 5000L);
         }
 
@@ -86,11 +90,11 @@ public class TransactionService {
 
     public Long calculateUnpaid(Transaction transaction){
         Long unpaidTotal = 0L;
-        for (Rent rent: transaction.getRentItem()) {
+        for (Rent rent: transaction.getRentItems()) {
             unpaidTotal += rent.getPrice();
         }
-        for (com.indekos.model.Service service: transaction.getServiceItem()) {
-            unpaidTotal += service.getPrice();
+        for (Task task: transaction.getTaskItems()) {
+            unpaidTotal += task.getCharge();
         }
 
         return unpaidTotal;

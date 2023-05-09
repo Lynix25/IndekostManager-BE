@@ -4,7 +4,6 @@ import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.request.SubscriptionClientRequest;
 import com.indekos.model.SubscriptionClient;
 import com.indekos.model.User;
-import com.indekos.model.UserSetting;
 import com.indekos.repository.SubscriptionClientRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +42,13 @@ public class SubscriptionClientService {
         SubscriptionClient subscriptionClient = subscriptionClientRepository.findByUser(user);
         if(subscriptionClient == null)
             throw new InvalidRequestIdException("This user doesn't have subscription.");
+
+        return subscriptionClient;
+    }
+
+    public SubscriptionClient getById(String id){
+        SubscriptionClient subscriptionClient = subscriptionClientRepository.findById(id)
+                .orElseThrow(() -> new InvalidRequestIdException("SubscriptionClient ID tidak valid"));
 
         return subscriptionClient;
     }

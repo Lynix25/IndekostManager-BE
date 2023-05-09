@@ -69,7 +69,7 @@ public class TaskService {
     	List<Task> tasks = taskRepository.findActiveTaskByRequestor(userId);
     	List<TaskDetailDTO> taskResponse = new ArrayList<>();
     	tasks.forEach(task -> {
-    		
+
     		if(task.getCharge() + task.getAdditionalCharge() > 0) {
     			
     			TaskDetailDTO taskDetail = new TaskDetailDTO();
@@ -138,5 +138,22 @@ public class TaskService {
         User user = userService.getById(request.getRequesterId());
         task.setUser(user);
         return save(request.getRequesterId(), task);
-    }    
+    }
+
+    public List<Task> getManyById(List<String> ids){
+        List<Task> tasks = new ArrayList<>();
+
+        for (String id: ids) {
+            tasks.add(getById2(id));
+        }
+
+        return tasks;
+    }
+
+    public Task getById2(String id){
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new InvalidRequestIdException("Task ID tidak valid"));
+
+        return task;
+    }
 }

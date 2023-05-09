@@ -37,10 +37,10 @@ public class Task extends AuditableEntity {
     @Column(nullable = false)
     private String status;
     
-    @Column(columnDefinition = "int default 0")
+    @Column(nullable = false, columnDefinition = "int default 0")
     private Integer charge;
     
-    @Column(columnDefinition = "int default 0")
+    @Column(nullable = false, columnDefinition = "int default 0")
     private Integer additionalCharge;
     
     @Column(columnDefinition = "int default 0")
@@ -52,4 +52,9 @@ public class Task extends AuditableEntity {
     @ManyToOne
     @JoinColumn(name="user_id", referencedColumnName ="id")
     private User user;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
+    private Transaction transaction;
 }

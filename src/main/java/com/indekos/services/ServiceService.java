@@ -67,7 +67,7 @@ public class ServiceService {
         try {
             return serviceRepository.findById(id).get();
         }catch (NoSuchElementException e){
-            throw new InvalidUserCredentialException("Invalid ID");
+            throw new InvalidUserCredentialException("Invalid Service ID");
         }
     }
 

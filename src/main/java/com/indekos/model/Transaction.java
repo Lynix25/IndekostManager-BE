@@ -22,11 +22,10 @@ public class Transaction extends AuditableEntity {
 	private Long penaltyFee;
     private String token;
 
-    @OneToMany(targetEntity = Service.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
-    private List<Service> serviceItem;
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL)
+    private List<Task> taskItems;
 
     @OneToMany(targetEntity = Rent.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "transaction_id", referencedColumnName = "id")
-    private List<Rent> rentItem;
+    private List<Rent> rentItems;
 }
