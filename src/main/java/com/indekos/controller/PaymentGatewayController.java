@@ -2,6 +2,7 @@ package com.indekos.controller;
 
 import com.indekos.dto.request.PaymentNotificationRequest;
 import com.indekos.dto.response.NotificationResponse;
+import com.indekos.model.Notification;
 import com.indekos.services.NotificationService;
 import com.indekos.services.ServiceService;
 import com.indekos.services.SubscriptionClientService;
@@ -32,19 +33,21 @@ public class PaymentGatewayController {
         System.out.println(requestBody.getTransaction_status());
         System.out.println("===== PAYMENT NOTIFICATION END=====");
 
-        NotificationResponse notificationResponse;
+        Notification notification = notificationService.createFromMidtrans(requestBody);
         switch (requestBody.getTransaction_status()){
             case "capture" :
-            case "settlement" : notificationResponse = new NotificationResponse("Pembayaranmu sudah terverifikasi", "","Pembayaranmu sudah kami terima, mohon tunggu konfirmasi selanjutnya.");
+            case "settlement" : notification.setTitle("Pembayaranmu sudah terverifikasi");
+                                notification.setBody("Pembayaranmu sudah kami terima, mohon tunggu konfirmasi selanjutnya.");
             break;
 
-            case "pending" : notificationResponse = new NotificationResponse("Segera Selesaikan Pembayaranmu", "","Segera selesaikan pembayaranmu.");
+            case "pending" : notification.setTitle("Segera Selesaikan Pembayaranmu");
+                            notification.setBody("Segera selesaikan pembayaranmu.");
             break;
 
-            default: notificationResponse = new NotificationResponse("Transaksi anda dalam status " + requestBody.getTransaction_status(), "", "");
+            default: notification.setTitle("Transaksi anda dalam status " + requestBody.getTransaction_status());
         }
-
-        notificationService.notif(subscriptionClientService.getById("4a534fb8-f32d-4cdf-ba5e-3fd72d74dcb9"),notificationResponse);
+        notificationService.notif(subscriptionClientService.getByUser(notification.getUser()),notification);
+        notificationService.save(notification);
         return new ResponseEntity<>(requestBody, HttpStatus.OK);
     }
 

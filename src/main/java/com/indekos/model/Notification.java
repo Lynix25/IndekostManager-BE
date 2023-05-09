@@ -18,7 +18,8 @@ import javax.persistence.ManyToOne;
 public class Notification extends AuditableEntity {
     private String category;
     private String title;
-    private String description;
+    private String body;
+    public String redirect;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
