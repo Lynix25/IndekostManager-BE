@@ -38,6 +38,12 @@ public class NotificationController {
         return GlobalAcceptions.data("BK6EnS65Dluc5V0n8FnMm0_cXzENJEqUPqTfNZZcyxP4GQrnotBjUe7GuKnb7k39zabI7KM6_vmo0iLeXPa2jbw","Public Access Key");
     }
 
+    @GetMapping("{userId}")
+    public ResponseEntity<?> getAll(@PathVariable String userId){
+        User user = userService.getById(userId);
+        return GlobalAcceptions.listData(notificationService.getAllByUser(user), "Notifikasi");
+    }
+
     @PostMapping("subscribe")
     public ResponseEntity<?> subscribe(@RequestBody SubscriptionClientRequest request) {
         User user = userService.getById(request.getRequesterId());
@@ -48,6 +54,14 @@ public class NotificationController {
         return GlobalAcceptions.emptyData("Berhasil Mengaktifkan Notifikasi");
     }
 
+    @PostMapping("notify")
+    public ResponseEntity<?> notify(@RequestBody NotificationCrateRequest request){
+        User user = userService.getById(request.getTargetedUserId());
+        SubscriptionClient subscriptionClient = subscriptionClientService.getByUser(user);
+        notificationService.notif(subscriptionClient, new Notification(request.getCategory(), request.getTitle(), request.getMessage(), request.getRedirect(), user));
+        return GlobalAcceptions.data(subscriptionClient,"Memberikan notifikasi ke user");
+    }
+
     @DeleteMapping("unsubscribe/{userId}")
     public ResponseEntity<?> unsubscribe(@PathVariable String userId) {
         User user = userService.getById(userId);
@@ -56,14 +70,6 @@ public class NotificationController {
 
         subscriptionClientService.deleteByUser(user);
         return GlobalAcceptions.emptyData("Berhasil Mematikan Notifikasi");
-    }
-
-    @PostMapping("notify")
-    public ResponseEntity<?> notify(@RequestBody NotificationCrateRequest request){
-        User user = userService.getById(request.getTargetedUserId());
-        SubscriptionClient subscriptionClient = subscriptionClientService.getByUser(user);
-        notificationService.notif(subscriptionClient, new Notification(request.getCategory(), request.getTitle(), request.getMessage(), request.getRedirect(), user));
-        return GlobalAcceptions.data(subscriptionClient,"Memberikan notifikasi ke user");
     }
 
 //    @PostMapping("notify-all")

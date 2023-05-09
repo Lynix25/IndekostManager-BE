@@ -15,16 +15,17 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.security.GeneralSecurityException;
 import java.security.Security;
+import java.util.List;
 
 @Service
 public class NotificationService {
     @Autowired
     private ObjectMapper objectMapper;
-
     @Autowired
     private NotificationRepository notificationRepository;
     @Autowired
     private TransactionService transactionService;
+
     private static PushService pushService;
     @PostConstruct
     private void init() throws GeneralSecurityException {
@@ -45,8 +46,8 @@ public class NotificationService {
             System.out.println(e);
         }
     }
-    public void registerUser(){
-
+    public List<Notification> getAllByUser(User user){
+        return notificationRepository.findAllByUser(user);
     }
 
     public Notification createFromMidtrans(PaymentNotificationRequest request){
