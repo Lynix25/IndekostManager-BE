@@ -10,4 +10,6 @@ public class NotificationCrateRequest {
 
     private String title;
     private String redirect;
+
+    private String category;
 }

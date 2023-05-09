@@ -1,15 +1,13 @@
 package com.indekos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.indekos.common.base.entity.AuditableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
@@ -22,10 +20,16 @@ public class Transaction extends AuditableEntity {
 	private Long penaltyFee;
     private String token;
 
+    private String paymentId;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="user_id", referencedColumnName = "id")
+    private User user;
+
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL)
     private List<Task> taskItems;
 
-    @OneToMany(targetEntity = Rent.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
+    @OneToMany(mappedBy = "transaction" ,cascade = CascadeType.ALL)
     private List<Rent> rentItems;
 }

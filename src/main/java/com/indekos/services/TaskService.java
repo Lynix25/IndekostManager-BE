@@ -7,11 +7,14 @@ import com.indekos.dto.TaskDTO;
 import com.indekos.dto.TaskDetailDTO;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.dto.request.TaskUpdateRequest;
+import com.indekos.dto.request.UserRegisterRequest;
 import com.indekos.model.Task;
+import com.indekos.model.Transaction;
 import com.indekos.model.User;
 import com.indekos.repository.TaskRepository;
 import com.indekos.utils.Constant;
 
+import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -114,15 +117,21 @@ public class TaskService {
 		return null;
     }
 
+    public Task save2(Task task){
+        try{
+            return taskRepository.save(task);
+        }catch (Exception e){
+            System.out.println(e);
+            throw new RuntimeException();
+        }
+    }
     public TaskDTO update(String id,TaskUpdateRequest request){
         Task task = getById(id).getTask();
-        task.setStatus(request.getStatus());
-        
-        if(request.getNotes() != null)
-        	task.setNotes(request.getNotes());
-        
-        if(request.getAdditionalCharge() != null)
-        	task.setCharge(request.getAdditionalCharge());
+
+        modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+        modelMapper.typeMap(TaskUpdateRequest.class, Task.class).addMappings(mapper -> {
+            mapper.map(src -> src.getRequesterId(), Task::update);
+        });
 
         return save(request.getRequesterId(), task);
     }
@@ -134,6 +143,9 @@ public class TaskService {
 
         Task task = modelMapper.map(request, Task.class);
         task.setStatus(Constant.SUBMITTED);
+
+        com.indekos.model.Service service = serviceService.getByID(request.getServiceId());
+        task.setService(service);
         
         User user = userService.getById(request.getRequesterId());
         task.setUser(user);
@@ -144,7 +156,8 @@ public class TaskService {
         List<Task> tasks = new ArrayList<>();
 
         for (String id: ids) {
-            tasks.add(getById2(id));
+            Task task = getById2(id);
+            tasks.add(task);
         }
 
         return tasks;
