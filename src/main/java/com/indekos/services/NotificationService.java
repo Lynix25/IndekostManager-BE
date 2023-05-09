@@ -39,7 +39,7 @@ public class NotificationService {
                     client.getPublicKey(),
                     client.getAuth(),
                     objectMapper.writeValueAsBytes(message));
-
+            System.out.println("Push Notif ");
             pushService.send(notification);
         }catch (Exception e){
             System.out.println(e);
