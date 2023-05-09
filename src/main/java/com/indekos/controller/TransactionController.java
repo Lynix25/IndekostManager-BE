@@ -5,6 +5,7 @@ import com.indekos.common.helper.SnapAPI;
 import com.indekos.dto.TaskDetailDTO;
 import com.indekos.dto.request.TransactionCreateRequest;
 import com.indekos.dto.response.CheckTransactionResponse;
+import com.indekos.dto.response.TransactionCreateResponse;
 import com.indekos.model.Rent;
 import com.indekos.model.Transaction;
 import com.indekos.services.RentService;
@@ -64,12 +65,18 @@ public class TransactionController {
     public ResponseEntity<?> create(@RequestBody TransactionCreateRequest request){
         Transaction transaction = transactionService.create(request);
 
-        return new ResponseEntity<>(transaction.getToken(),HttpStatus.OK);
+        return new ResponseEntity<>(transaction,HttpStatus.OK);
     }
 
     @GetMapping("check/{orderId}")
     public ResponseEntity<?> check(@PathVariable String orderId) throws JsonProcessingException {
         JSONObject res = SnapAPI.checkTransaction(orderId);
         return new ResponseEntity<>(res.toString(), HttpStatus.OK);
+    }
+
+    @PutMapping("token/{id}")
+    public ResponseEntity<?> saveToken(@PathVariable String id, @RequestParam String token){
+        transactionService.saveToken(id,token);
+        return new ResponseEntity<>("Succes to save token", HttpStatus.OK);
     }
 }

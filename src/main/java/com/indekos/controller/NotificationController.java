@@ -62,7 +62,9 @@ public class NotificationController {
     public ResponseEntity<?> notify(@RequestBody NotificationCrateRequest request){
         User user = userService.getById(request.getTargetedUserId());
         SubscriptionClient subscriptionClient = subscriptionClientService.getByUser(user);
-        notificationService.notif(subscriptionClient, new Notification());
+
+        notificationService.notif(subscriptionClient, new Notification(request.getCategory(), request.getTitle(), request.getMessage(), request.getRedirect(), user));
+
         return GlobalAcceptions.data(subscriptionClient,"Memberikan notifikasi ke user");
     }
 

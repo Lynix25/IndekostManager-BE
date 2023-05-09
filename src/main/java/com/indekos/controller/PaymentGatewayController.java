@@ -42,6 +42,7 @@ public class PaymentGatewayController {
             case "pending" : notification.setTitle("Segera Selesaikan Pembayaranmu");
                 notification.setBody("Segera selesaikan pembayaranmu.");
                 break;
+
             default: notification.setTitle("Transaksi anda dalam status " + requestBody.getTransaction_status());
         }
         notificationService.notif(subscriptionClientService.getByUser(notification.getUser()),notification);
