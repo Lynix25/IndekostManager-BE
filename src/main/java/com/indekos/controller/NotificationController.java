@@ -3,6 +3,7 @@ package com.indekos.controller;
 import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.dto.request.NotificationCrateRequest;
 import com.indekos.model.Account;
+import com.indekos.model.Notification;
 import com.indekos.model.SubscriptionClient;
 import com.indekos.model.User;
 import com.indekos.services.NotificationService;
@@ -10,7 +11,6 @@ import com.indekos.dto.response.NotificationResponse;
 import com.indekos.dto.request.SubscriptionClientRequest;
 import com.indekos.services.SubscriptionClientService;
 import com.indekos.services.UserService;
-import nl.martijndwars.webpush.Notification;
 import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +62,7 @@ public class NotificationController {
     public ResponseEntity<?> notify(@RequestBody NotificationCrateRequest request){
         User user = userService.getById(request.getTargetedUserId());
         SubscriptionClient subscriptionClient = subscriptionClientService.getByUser(user);
-        notificationService.notif(subscriptionClient, new NotificationResponse(request.getTitle(), request.getRedirect(), request.getMessage()));
+        notificationService.notif(subscriptionClient, new Notification());
         return GlobalAcceptions.data(subscriptionClient,"Memberikan notifikasi ke user");
     }
 
