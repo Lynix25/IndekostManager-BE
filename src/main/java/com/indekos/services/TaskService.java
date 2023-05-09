@@ -146,7 +146,7 @@ public class TaskService {
 
         com.indekos.model.Service service = serviceService.getByID(request.getServiceId());
         task.setService(service);
-        
+        System.out.println(task.getStatus());
         User user = userService.getById(request.getRequesterId());
         task.setUser(user);
         return save(request.getRequesterId(), task);
