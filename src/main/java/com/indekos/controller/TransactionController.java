@@ -46,14 +46,15 @@ public class TransactionController {
     public ResponseEntity<?> getUnpaidTransaction(@PathVariable String userId){
         List<TaskDetailDTO> tasks = taskService.getAllCharged(userId);
         List<Rent> rents = rentService.getAllUnpaid(userId);
-        Long maxDueDate = -1L;
+        Long maxDueDate = Long.MAX_VALUE;
         Long unpaidTotal = 0L;
         for (Rent rent: rents) {
             unpaidTotal += rent.getPrice();
-            maxDueDate =  Math.max(maxDueDate, rent.getDueDate());
+            maxDueDate =  Math.min(maxDueDate, rent.getDueDate());
         }
         for (TaskDetailDTO task: tasks) {
-            unpaidTotal += (task.getTask().getCharge() + task.getTask().getAdditionalCharge());
+            unpaidTotal += (task.getTask().getCharge());
+            maxDueDate =  Math.min(maxDueDate, task.getTask().getDueDate());
         }
 
         CheckTransactionResponse checkTransactionResponse = new CheckTransactionResponse(tasks,rents,unpaidTotal,maxDueDate);

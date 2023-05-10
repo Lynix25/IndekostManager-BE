@@ -41,9 +41,6 @@ public class Task extends AuditableEntity {
     private Integer charge;
     
     @Column(nullable = false, columnDefinition = "int default 0")
-    private Integer additionalCharge = 0;
-    
-    @Column(nullable = false, columnDefinition = "int default 0")
     private Integer requestedQuantity = 0;
     
     private Long dueDate;

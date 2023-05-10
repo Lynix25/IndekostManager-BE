@@ -58,8 +58,12 @@ public class TaskService {
 //        return taskRepository.findAllByRequestor(requestor);
 //    }
     
-    public List<TaskDTO> getAll(String requestor) {
-    	List<Task> tasks = taskRepository.findAll();
+    public List<TaskDTO> getAll(String requestor, String type) {
+    	
+    	List<Task> tasks;
+    	if(type.equalsIgnoreCase("ToDo")) tasks = taskRepository.findAllOrderByTarget(requestor);
+    	else tasks = taskRepository.findActiveTaskByRequestor(requestor);
+    	
     	List<TaskDTO> taskResponse = new ArrayList<>();
     	tasks.forEach(task -> {
     		taskResponse.add(getById(task.getId()));
@@ -73,7 +77,7 @@ public class TaskService {
     	List<TaskDetailDTO> taskResponse = new ArrayList<>();
     	tasks.forEach(task -> {
 
-    		if(task.getCharge() + task.getAdditionalCharge() > 0) {
+    		if(task.getCharge() > 0) {
     			
     			TaskDetailDTO taskDetail = new TaskDetailDTO();
     			
