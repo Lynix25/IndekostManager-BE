@@ -7,11 +7,14 @@ import com.indekos.dto.TaskDTO;
 import com.indekos.dto.TaskDetailDTO;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.dto.request.TaskUpdateRequest;
+import com.indekos.dto.request.UserRegisterRequest;
 import com.indekos.model.Task;
+import com.indekos.model.Transaction;
 import com.indekos.model.User;
 import com.indekos.repository.TaskRepository;
 import com.indekos.utils.Constant;
 
+import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -56,7 +59,7 @@ public class TaskService {
 //    }
     
     public List<TaskDTO> getAll(String requestor) {
-    	List<Task> tasks = taskRepository.findActiveTaskByRequestor(requestor);
+    	List<Task> tasks = taskRepository.findAll();
     	List<TaskDTO> taskResponse = new ArrayList<>();
     	tasks.forEach(task -> {
     		taskResponse.add(getById(task.getId()));
@@ -69,7 +72,7 @@ public class TaskService {
     	List<Task> tasks = taskRepository.findActiveTaskByRequestor(userId);
     	List<TaskDetailDTO> taskResponse = new ArrayList<>();
     	tasks.forEach(task -> {
-    		
+
     		if(task.getCharge() + task.getAdditionalCharge() > 0) {
     			
     			TaskDetailDTO taskDetail = new TaskDetailDTO();
@@ -83,7 +86,7 @@ public class TaskService {
     			requestor.setRoomName(simpleTask.getUser().getRoomName());
     			taskDetail.setRequestor(requestor);
     			
-    			com.indekos.model.Service service = serviceService.getByID(simpleTask.getTask().getServiceId());
+    			com.indekos.model.Service service = simpleTask.getTask().getService();
     			taskDetail.setService(service);
     			
     			taskResponse.add(taskDetail);
@@ -114,15 +117,21 @@ public class TaskService {
 		return null;
     }
 
+    public Task save2(Task task){
+        try{
+            return taskRepository.save(task);
+        }catch (Exception e){
+            System.out.println(e);
+            throw new RuntimeException();
+        }
+    }
     public TaskDTO update(String id,TaskUpdateRequest request){
         Task task = getById(id).getTask();
-        task.setStatus(request.getStatus());
-        
-        if(request.getNotes() != null)
-        	task.setNotes(request.getNotes());
-        
-        if(request.getAdditionalCharge() != null)
-        	task.setCharge(request.getAdditionalCharge());
+
+        modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+        modelMapper.typeMap(TaskUpdateRequest.class, Task.class).addMappings(mapper -> {
+            mapper.map(src -> src.getRequesterId(), Task::update);
+        });
 
         return save(request.getRequesterId(), task);
     }
@@ -134,9 +143,30 @@ public class TaskService {
 
         Task task = modelMapper.map(request, Task.class);
         task.setStatus(Constant.SUBMITTED);
+
+        com.indekos.model.Service service = serviceService.getByID(request.getServiceId());
+        task.setService(service);
         
         User user = userService.getById(request.getRequesterId()).getUser();
         task.setUser(user);
         return save(request.getRequesterId(), task);
-    }    
+    }
+
+    public List<Task> getManyById(List<String> ids){
+        List<Task> tasks = new ArrayList<>();
+
+        for (String id: ids) {
+            Task task = getById2(id);
+            tasks.add(task);
+        }
+
+        return tasks;
+    }
+
+    public Task getById2(String id){
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new InvalidRequestIdException("Task ID tidak valid"));
+
+        return task;
+    }
 }

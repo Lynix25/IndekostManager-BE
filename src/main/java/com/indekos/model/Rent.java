@@ -1,5 +1,6 @@
 package com.indekos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.indekos.common.base.entity.AuditableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +21,8 @@ public class Rent extends AuditableEntity {
     private Integer status;
     private String roomId;
 
-//    @ManyToOne(targetEntity = Transaction.class, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
-//    private Transaction transaction;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
+    private Transaction transaction;
 }

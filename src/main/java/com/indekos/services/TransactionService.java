@@ -4,7 +4,9 @@ import com.indekos.common.helper.SnapAPI;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.TransactionCreateRequest;
 import com.indekos.model.Rent;
+import com.indekos.model.Task;
 import com.indekos.model.Transaction;
+import com.indekos.model.User;
 import com.indekos.repository.TransactionRepository;
 import com.indekos.utils.Utils;
 import org.modelmapper.ModelMapper;
@@ -23,23 +25,36 @@ public class TransactionService {
 
     @Autowired
     ServiceService serviceService;
+
+    @Autowired
+    TaskService taskService;
+
+    @Autowired
+    RentService rentService;
+
+    @Autowired
+    UserService userService;
+
     public Transaction getByID(String id){
         try {
             return transactionRepository.findById(id).get();
         }catch (NoSuchElementException e){
-            throw new InvalidUserCredentialException("Invalid ID");
+            throw new InvalidUserCredentialException("Invalid Transaction ID : " + id);
         }
     }
 
     public Transaction create(TransactionCreateRequest request){
+        User user = userService.getById(request.getRequesterId());
+
         Transaction transaction = new Transaction();
 
-        transaction.setServiceItem(serviceService.getManyById(request.getServiceItemIds()));
+        transaction.setTaskItems(taskService.getManyById(request.getTaskItemIds()));
+        if(request.getRentItemIds() != null)transaction.setRentItems(rentService.getManyById(request.getRentItemIds()));
         transaction.create(request.getRequesterId());
         transaction.setPenaltyFee(0L);
-        save(request.getRequesterId(),transaction);
-
-        String transactionToken = SnapAPI.createTransaction(transaction.getId(), getTotalPayment(transaction));
+        transaction.setUser(user);
+        transaction.setPaymentId(Utils.UUID4());
+        String transactionToken = SnapAPI.createTransaction(transaction.getPaymentId(), getTotalPayment(transaction));
         transaction.setToken(transactionToken);
 
         save(request.getRequesterId(),transaction);
@@ -52,10 +67,10 @@ public class TransactionService {
         return transaction;
     }
 
-    private void save(String modifierId, Transaction transaction){
+    private Transaction save(String modifierId, Transaction transaction){
         try {
             transaction.update(modifierId);
-            transactionRepository.save(transaction);
+            return transactionRepository.save(transaction);
         }
         catch (DataIntegrityViolationException e){
             System.out.println(e);
@@ -64,19 +79,20 @@ public class TransactionService {
             System.out.println(e);
             throw new RuntimeException();
         }
+        return null;
     }
 
     public Integer getTotalPayment(Transaction transaction){
         Integer totalAmount = 0;
-        for (com.indekos.model.Service service: transaction.getServiceItem()){
-            totalAmount += service.getPrice();
+        for (Task task: transaction.getTaskItems()){
+            totalAmount += task.getCharge();
         }
         return totalAmount;
     }
     
     public Long calculateFee(Transaction transaction){
         Long feeCount = 0L;
-        for (Rent rent: transaction.getRentItem()) {
+        for (Rent rent: transaction.getRentItems()) {
             feeCount += (long) (Utils.dayDiv(rent.getDueDate(), System.currentTimeMillis()) * 5000L);
         }
 
@@ -86,11 +102,11 @@ public class TransactionService {
 
     public Long calculateUnpaid(Transaction transaction){
         Long unpaidTotal = 0L;
-        for (Rent rent: transaction.getRentItem()) {
+        for (Rent rent: transaction.getRentItems()) {
             unpaidTotal += rent.getPrice();
         }
-        for (com.indekos.model.Service service: transaction.getServiceItem()) {
-            unpaidTotal += service.getPrice();
+        for (Task task: transaction.getTaskItems()) {
+            unpaidTotal += task.getCharge();
         }
 
         return unpaidTotal;

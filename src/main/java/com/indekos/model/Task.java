@@ -7,10 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -18,9 +15,10 @@ import javax.persistence.ManyToOne;
 @AllArgsConstructor @NoArgsConstructor
 public class Task extends AuditableEntity {
 	private static final long serialVersionUID = 1L;
-	
-	@Column(nullable = false)
-	private String serviceId;
+
+    @ManyToOne
+    @JoinColumn(name="service_id", referencedColumnName = "id")
+    private Service service;
 
 	@Column(nullable = false)
     private Long taskDate;
@@ -39,14 +37,14 @@ public class Task extends AuditableEntity {
     @Column(nullable = false)
     private String status;
     
-    @Column(columnDefinition = "int default 0")
+    @Column(nullable = false, columnDefinition = "int default 0")
     private Integer charge;
     
-    @Column(columnDefinition = "int default 0")
-    private Integer additionalCharge;
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer additionalCharge = 0;
     
-    @Column(columnDefinition = "int default 0")
-    private Integer requestedQuantity;
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer requestedQuantity = 0;
     
     private Long dueDate;
     
@@ -54,4 +52,9 @@ public class Task extends AuditableEntity {
     @ManyToOne
     @JoinColumn(name="user_id", referencedColumnName ="id")
     private User user;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
+    private Transaction transaction;
 }

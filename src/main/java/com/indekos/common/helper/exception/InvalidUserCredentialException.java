@@ -13,9 +13,12 @@ public class InvalidUserCredentialException extends RuntimeException{
     private static final long serialVersionUID = 1L;
 	private final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
     private List<String> errors;
+
+    private String message;
     
     public InvalidUserCredentialException(String message){
         super(message);
+        this.message = message;
     }
     public InvalidUserCredentialException(String message, List<String> errors){
         super(message);
