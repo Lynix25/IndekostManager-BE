@@ -1,14 +1,14 @@
 package com.indekos.common.helper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.indekos.dto.response.MidtransCheckTransactionResponse;
 import com.indekos.services.TransactionService;
 import com.midtrans.ConfigBuilder;
 import com.midtrans.ConfigFactory;
 import com.midtrans.Midtrans;
 import com.midtrans.httpclient.error.MidtransError;
-import com.midtrans.proxy.ProxyConfig;
 import com.midtrans.service.MidtransCoreApi;
 import com.midtrans.service.MidtransSnapApi;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
@@ -75,12 +75,14 @@ public class SnapAPI {
         }
     }
 
-    public static JSONObject checkTransaction(String orderId){
+    public static MidtransCheckTransactionResponse checkTransaction(String orderId) throws JsonProcessingException {
+        MidtransCheckTransactionResponse response;
         try{
-            return getInstanceCore().checkTransaction(orderId);
-        }catch (Exception e){
-            System.out.println(e);
-            throw new RuntimeException("Midtrans Check API ERROR");
+            response = new MidtransCheckTransactionResponse(getInstanceCore().checkTransaction(orderId));
+        }catch (MidtransError e){
+            response = new MidtransCheckTransactionResponse(e.getResponseBody());
+            System.out.println("Midtrans Check API ERROR");
         }
+        return response;
     }
 }

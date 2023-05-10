@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -43,13 +44,28 @@ public class TransactionService {
         }
     }
 
+    public List<Transaction> getAllByUser(User user){
+        List<Transaction> transactions = transactionRepository.findAllByUser(user);
+        return transactions;
+    }
+
     public Transaction create(TransactionCreateRequest request){
         User user = userService.getById(request.getRequesterId());
 
         Transaction transaction = new Transaction();
 
-        transaction.setTaskItems(taskService.getManyById(request.getTaskItemIds()));
-        if(request.getRentItemIds() != null)transaction.setRentItems(rentService.getManyById(request.getRentItemIds()));
+        if(request.getTaskItemIds() != null){
+            transaction.setTaskItems(taskService.getManyById(request.getTaskItemIds()));
+            for (Task task : transaction.getTaskItems()){
+                task.setTransaction(transaction);
+            }
+        }
+        if(request.getRentItemIds() != null) {
+            transaction.setRentItems(rentService.getManyById(request.getRentItemIds()));
+            for (Rent rent : transaction.getRentItems()){
+                rent.setTransaction(transaction);
+            }
+        }
         transaction.create(request.getRequesterId());
         transaction.setPenaltyFee(0L);
         transaction.setUser(user);
@@ -86,6 +102,10 @@ public class TransactionService {
         Integer totalAmount = 0;
         for (Task task: transaction.getTaskItems()){
             totalAmount += task.getCharge();
+        }
+
+        for (Rent rent: transaction.getRentItems()){
+            totalAmount += rent.getPrice();
         }
         return totalAmount;
     }

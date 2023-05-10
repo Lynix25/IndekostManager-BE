@@ -19,7 +19,15 @@ public class Rent extends AuditableEntity {
     private String month;
     private Long dueDate;
     private Integer status;
-    private String roomId;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="room_id", referencedColumnName ="id")
+    private Room room;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="user_id", referencedColumnName = "id")
+    private User user;
 
     @JsonIgnore
     @ManyToOne

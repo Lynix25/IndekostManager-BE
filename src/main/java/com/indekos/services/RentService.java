@@ -3,11 +3,10 @@ package com.indekos.services;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.SimpleUserDTO;
 import com.indekos.dto.TaskDTO;
-import com.indekos.model.Rent;
-import com.indekos.model.Task;
-import com.indekos.model.Transaction;
+import com.indekos.model.*;
 import com.indekos.repository.RentRepository;
 
+import com.indekos.repository.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -21,14 +20,30 @@ public class RentService {
     @Autowired
     RentRepository rentRepository;
 
+    @Autowired
+    RoomService roomService;
+
+    @Autowired
+    UserService userService;
+
+
     public List<Rent> getAllUnpaid(String userId){
-        return rentRepository.findUnpaidById(userId);
+        return rentRepository.findAllByUser(userId);
     }
 
-//    public Rent create(){
-//        save(rent);
-//        return rent;
-//    }
+    public void generateAllRent(){
+        List<Room> rooms = roomService.getAll2();
+
+        for(Room room : rooms){
+            List<User> users = userService.getAllByRoom(room);
+            for(User user : users){
+                Rent rent = new Rent(1000000,"Jan", System.currentTimeMillis() + 432000000, 0, room, user,null);
+                rent.create("System");
+                save(rent);
+            }
+        }
+
+    }
 
     public Rent getById(String id){
         try {

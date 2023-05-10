@@ -144,6 +144,11 @@ public class UserService {
     	});
     	return listUser;
     }
+
+	public List<User> getAllByRoom(Room room){
+		List<User> users = userRepository.findAllByRoom(room);
+		return users;
+	}
     
     public User getById(String id){
     	User user = userRepository.findById(id)

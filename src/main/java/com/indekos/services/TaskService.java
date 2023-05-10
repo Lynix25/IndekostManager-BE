@@ -131,12 +131,17 @@ public class TaskService {
         modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(TaskUpdateRequest.class, Task.class).addMappings(mapper -> {
             mapper.map(src -> src.getRequesterId(), Task::update);
+            mapper.map(TaskUpdateRequest::getStatus, Task::setStatus);
         });
 
+        modelMapper.map(TaskUpdateRequest.class, task);
+        task.setStatus(request.getStatus());
+        task.setCharge(task.getRequestedQuantity() * task.getService().getPrice());
         return save(request.getRequesterId(), task);
     }
 
     public TaskDTO register(TaskCreateRequest request){
+        modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(TaskCreateRequest.class, Task.class).addMappings(mapper -> {
             mapper.map(TaskCreateRequest::getRequesterId, Task::create);
         });
@@ -165,7 +170,7 @@ public class TaskService {
 
     public Task getById2(String id){
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new InvalidRequestIdException("Task ID tidak valid"));
+                .orElseThrow(() -> new InvalidRequestIdException("Task ID tidak valid : " + id));
 
         return task;
     }
