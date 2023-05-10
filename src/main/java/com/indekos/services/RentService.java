@@ -26,18 +26,21 @@ public class RentService {
     @Autowired
     UserService userService;
 
+    @Autowired
+    BoardingHouseService boardingHouseService;
 
     public List<Rent> getAllUnpaid(String userId){
         return rentRepository.findAllByUser(userId);
     }
 
     public void generateAllRent(){
+        MainBoardingHouse mainBoardingHouse = boardingHouseService.getBoardingHouseData();
         List<Room> rooms = roomService.getAll2();
 
         for(Room room : rooms){
             List<User> users = userService.getAllByRoom(room);
             for(User user : users){
-                Rent rent = new Rent(1000000,"Jan", System.currentTimeMillis() + 432000000, 0, room, user,null);
+                Rent rent = new Rent(roomService.getPriceDetailsByRoom(room.getId()).get(users.size()-1).getPrice(),"Jan", System.currentTimeMillis() + (86400000 * mainBoardingHouse.getToleranceOverduePaymentInDays()), 0, room, user,null);
                 rent.create("System");
                 save(rent);
             }
