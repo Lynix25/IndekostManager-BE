@@ -75,6 +75,10 @@ public class User extends AuditableEntity {
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
 	private Account account;
 
+	@JsonIgnore
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private List<Notification> notifications;
+
 	public void delete(){
 		this.isDeleted = true;
 		this.inActiveSince = System.currentTimeMillis();

@@ -65,6 +65,9 @@ public class UserService {
 	@Autowired
 	RememberMeTokenService rememberMeTokenService;
 
+	@Autowired
+	SubscriptionClientService subscriptionClientService;
+
     /* ================================================ USER ACCOUNT ================================================ */
     public Account login(AccountLoginRequest request) {
     	Account account = request.getToken() != null ? rememberMeTokenService.getById(request.getToken()).getAccount() : accountService.getByUsername(request.getUsername());
@@ -116,7 +119,6 @@ public class UserService {
         	accountService.save(account);
 
 			rememberMeTokenService.deleteByAccount(account);
-
         	return account;
 		} catch (Exception e) {
 			System.out.println(e);
@@ -270,8 +272,9 @@ public class UserService {
 		modelMapper.map(request, userSetting);
 
     	final UserSetting updated = userSettingRepository.save(userSetting);
-//    	User user = getById(userId);
-//    	save(userId,user);
+		if (updated.getEnableNotification()){
+
+		}
     	
     	return updated;
     }
