@@ -20,9 +20,14 @@ public interface TaskRepository extends JpaRepository<Task, String> {
 	List<Task> findWaitingConfirmationTaskByRequestor(@Param("requestor") String requestor);
 	
 	@Query(value = "SELECT * FROM task WHERE created_by LIKE %:requestor% AND "
-					+ "transaction_id IS NULL "
+					+ "(status LIKE 'Menunggu Konfirmasi' OR status LIKE 'Diterima' OR status LIKE 'Dalam Pengerjaan') "
 					+ "ORDER BY created_date DESC", nativeQuery = true)
 	List<Task> findActiveTaskByRequestor(@Param("requestor") String requestor);
+	
+	@Query(value = "SELECT * FROM task WHERE created_by LIKE %:requestor% AND "
+			+ "transaction_id IS NULL AND (charge > 0 AND charge IS NOT NULL)"
+			+ "ORDER BY created_date DESC", nativeQuery = true)
+	List<Task> findUnpaidTaskByRequestor(@Param("requestor") String requestor);
 	
 	@Query(value = "SELECT * FROM task WHERE created_by LIKE %:requestor% AND status LIKE 'Menunggu Konfirmasi' "
 			+ "ORDER BY created_date DESC", nativeQuery = true)

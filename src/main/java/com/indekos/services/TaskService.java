@@ -69,7 +69,7 @@ public class TaskService {
     }
     
     public List<TaskDetailDTO> getAllCharged(String userId) {
-    	List<Task> tasks = taskRepository.findActiveTaskByRequestor(userId);
+    	List<Task> tasks = taskRepository.findUnpaidTaskByRequestor(userId);
     	List<TaskDetailDTO> taskResponse = new ArrayList<>();
     	tasks.forEach(task -> {
 
