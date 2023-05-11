@@ -128,6 +128,7 @@ public class UserService {
     public List<UserResponse> getAll() {
     	List<UserResponse> listResponse =  new ArrayList<>();
     	List<User> users = userRepository.findAllActiveUserOrderByName();
+    	System.err.println(users.size());
     	users.forEach(user -> {
     		listResponse.add(getUserWithConvertedDocumentImage(user));
     	});
@@ -242,12 +243,12 @@ public class UserService {
         return getUserWithConvertedDocumentImage(updatedUser);
     }
     
-    public User delete(String userId, AuditableRequest request) {
+    public User delete(String userId, String requester) {
     	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new InvalidRequestIdException("Invalid User ID"));;
 		user.delete();
 
-		User deletedUser = save(request.getRequesterId(), user);
+		User deletedUser = save(requester, user);
 		return deletedUser;
     }
     

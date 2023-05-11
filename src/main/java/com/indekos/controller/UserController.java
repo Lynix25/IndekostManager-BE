@@ -99,8 +99,8 @@ public class UserController {
     }
     
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable String userId, @Valid @RequestBody AuditableRequest request) {
-        return GlobalAcceptions.data(userService.delete(userId, request), "Berhasil menghapus data user");
+    public ResponseEntity<?> deleteUser(@PathVariable String userId, @RequestParam String requester) {
+        return GlobalAcceptions.data(userService.delete(userId, requester), "Berhasil menghapus data user");
     }
     
     /* ================================================ USER DOCUMENT =============================================== */
