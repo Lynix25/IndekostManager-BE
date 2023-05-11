@@ -44,7 +44,7 @@ public class ServiceService {
     	// Other Service
     	String insertKeyAuditData = "id, created_by, created_date, last_modified_by, last_modified_date, ";
     	String insertValueAuditData = "'system', UNIX_TIMESTAMP(), 'system', UNIX_TIMESTAMP(), ";
-    	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant, quantity, units) VALUES ('e2e295f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 1), 'Lainnya', 1, 'buah')");
+    	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant, quantity, units, price) VALUES ('e2e285f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 1), 'Lainnya', 1, 'buah', 0)");
     	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant) VALUES ('e2e295f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 2), 'Lainnya')");
     	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant) VALUES ('e2e305f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 3), 'Lainnya')");
     	jdbcTemplate.update("INSERT IGNORE INTO service (" + insertKeyAuditData + "service_name, variant) VALUES ('e2e315f3-e3e4-11ed-a584-00155ddd50f3', " + insertValueAuditData + "(SELECT name from master_service WHERE id = 4), 'Lainnya')");
@@ -96,5 +96,11 @@ public class ServiceService {
         service.update(requestBody.getRequesterId());
         serviceRepository.save(service);
         return service;
+    }
+    
+    public boolean delete(String serviceId) {
+    	Service service = serviceRepository.findById(serviceId).get();
+    	serviceRepository.delete(service);
+    	return true;
     }
 }

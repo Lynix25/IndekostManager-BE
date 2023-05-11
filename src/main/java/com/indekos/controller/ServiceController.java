@@ -53,4 +53,9 @@ public class ServiceController {
     	Validated.request(errors);
     	return GlobalAcceptions.data(serviceService.update(id, requestBody), "Berhasil memperbaharui layanan");
     }
+    
+    @DeleteMapping(value = "/{id}")
+    private ResponseEntity<?> deleteService(@PathVariable String id){
+    	return GlobalAcceptions.data(serviceService.delete(id), "Berhasil menghapus kategori layanan");
+    }
 }

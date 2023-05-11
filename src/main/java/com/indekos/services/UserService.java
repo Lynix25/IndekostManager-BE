@@ -190,12 +190,12 @@ public class UserService {
 		} else {
 			Room room = roomService.getByName(request.getRoom());
 			if(!isRoomAvailable(room.getId()))
-				throw new InsertDataErrorException("Kamar penuh");
+				throw new InsertDataErrorException("Kamar yang dipilih penuh");
 			else {
 				if(room.getAllotment().equals(Constant.PUTRA) && request.getGender().equals(Constant.PEREMPUAN))
-					throw new InsertDataErrorException("Kamar khusus putra");
+					throw new InsertDataErrorException("Kamar yang dipilih khusus putra");
 				else if(room.getAllotment().equals(Constant.PUTRI) && request.getGender().equals(Constant.LAKI_LAKI))
-					throw new InsertDataErrorException("Kamar khusus putri");
+					throw new InsertDataErrorException("Kamar yang dipilih khusus putri");
 				else user.setRoom(room);
 			}
 		} 
@@ -221,11 +221,22 @@ public class UserService {
         if(request.getRole() != null)
         	user.setRole(roleService.getByName(request.getRole()));
         
-        if(request.getRoom() != null)
-        	user.setRoom(roomService.getByName(request.getRoom()));
-        else {
-        	if(!(user.getRole().getName()).equalsIgnoreCase("Tenant")) user.setRoom(null);
-        }
+        if (request.getRoom() == null || ((request.getRoom()).trim()).equals("")) {
+    		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
+    			throw new InsertDataErrorException("User room id can't be empty");
+    		else user.setRoom(null);
+		} else {
+			Room room = roomService.getByName(request.getRoom());
+			if(!isRoomAvailable(room.getId()))
+				throw new InsertDataErrorException("Kamar yang dipilih penuh");
+			else {
+				if(room.getAllotment().equals(Constant.PUTRA) && request.getGender().equals(Constant.PEREMPUAN))
+					throw new InsertDataErrorException("Kamar yang dipilih khusus putra");
+				else if(room.getAllotment().equals(Constant.PUTRI) && request.getGender().equals(Constant.LAKI_LAKI))
+					throw new InsertDataErrorException("Kamar yang dipilih khusus putri");
+				else user.setRoom(room);
+			}
+		}
         
         User updatedUser = save(request.getRequesterId(), user);
         return getUserWithConvertedDocumentImage(updatedUser);

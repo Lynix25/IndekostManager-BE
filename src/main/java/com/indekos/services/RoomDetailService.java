@@ -59,8 +59,8 @@ public class RoomDetailService {
     /* ============================== ROOM DETAIL ============================== */
     void initializeDefaultRoomFacility(Room room) {
     	
-    	RoomDetail facility1 = new RoomDetail("Luas Ruangan", getRoomDetailCategoryByName(Constant.KAMAR_TIDUR), room);
-    	roomDetailRepository.save(facility1);
+//    	RoomDetail facility1 = new RoomDetail("Luas Ruangan", getRoomDetailCategoryByName(Constant.KAMAR_TIDUR), room);
+//    	roomDetailRepository.save(facility1);
     	
     	RoomDetail facility2 = new RoomDetail("Listrik", getRoomDetailCategoryByName(Constant.KAMAR_TIDUR), room);
     	roomDetailRepository.save(facility2);
