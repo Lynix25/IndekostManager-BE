@@ -15,6 +15,7 @@ public class InitializeDataService {
 
     @PostConstruct
 	public void initializeData() {
+        System.out.println("=========== Start Insert Data ===========");
         /* ============================== MASTER ROLE ============================== */
         String columnList = "(`id`, `created_by`, `created_date`, `last_modified_by`, `last_modified_date`, `description`, `name`)";
         String insertPrefix = "INSERT IGNORE INTO ";
@@ -283,7 +284,7 @@ public class InitializeDataService {
         for (String query: data) {
             jdbcTemplate.update(insertPrefix + table + columnList + "VALUES " + query);
         }
-
+        System.out.println("=========== Stop Insert Data ===========");
     }
 
     void insertToDb(String tableName){
