@@ -100,12 +100,12 @@ public class InitializeDataService {
         data.add("('42a6f04c-de94-11ed-9bfd-00155dee1635', NULL, NULL, 'hashmona223', 'mona0831', '5b4a96b4-df5e-11ed-9bfd-00155dee1635')");
         data.add("('66e1a3e6-de94-11ed-9bfd-00155dee1635', NULL, NULL, 'hashfaruzan444', 'faruzan012', '6a1d90b6-df5e-11ed-9bfd-00155dee1635')");
         data.add("('8eae98d4-de94-11ed-9bfd-00155dee1635', NULL, NULL, 'hashxinyan1567', 'xi_nyann', '790f5290-df5e-11ed-9bfd-00155dee1635')");
-        data.add("('98c69559-de89-11ed-9bfd-00155dee1635', NULL, NULL, 'hashferguso625', 'ferguso625', '69b50d6d-de0a-11ed-9bfd-00155dee1635')");
+        data.add("('98c69559-de89-11ed-9bfd-00155dee1635', NULL, NULL, 'hashowner', 'owner', '69b50d6d-de0a-11ed-9bfd-00155dee1635')");
         data.add("('ad58f69c-de94-11ed-9bfd-00155dee1635', NULL, NULL, 'hashayaka098', 'ayaka_k', '87f02066-df5e-11ed-9bfd-00155dee1635')");
         data.add("('d1f052aa-de94-11ed-9bfd-00155dee1635', NULL, NULL, 'hashkaedehara01', 'kazu_ha', '96d9cc2c-df5e-11ed-9bfd-00155dee1635')");
         data.add("('f3a4b4d4-de8e-11ed-9bfd-00155dee1635', 1683647793698, 1683647801221, 'hashadmin', 'admin', '222e1fdd-de8c-11ed-9bfd-00155dee1635')");
         data.add("('f5d9e22c-de94-11ed-9bfd-00155dee1635', NULL, NULL, 'hashxiao456', 'xiao1234', 'a5b84d22-df5e-11ed-9bfd-00155dee1635')");
-        data.add("('f85619a0-de8e-11ed-9bfd-00155dee1635', 1683647812363, NULL, 'hashtenant', 'gusti403', '272ecb84-de8c-11ed-9bfd-00155dee1635')");
+        data.add("('f85619a0-de8e-11ed-9bfd-00155dee1635', 1683647812363, NULL, 'hashtenant', 'tenant', '272ecb84-de8c-11ed-9bfd-00155dee1635')");
         
         for (String query: data) {
             jdbcTemplate.update(insertPrefix + table + columnList + "VALUES " + query);
