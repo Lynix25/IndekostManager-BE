@@ -14,15 +14,28 @@ public class InitializeDataService {
     private JdbcTemplate jdbcTemplate;
 
     @PostConstruct
-	void initializeData() {
+	public void initializeData() {
         /* ============================== MASTER ROLE ============================== */
-        String columnList = "(`id`, `created_by`, `created_date`, `last_modified_by`, `last_modified_date`, `description`, `name`) ";
+        String columnList = "(`id`, `created_by`, `created_date`, `last_modified_by`, `last_modified_date`, `description`, `name`)";
         String insertPrefix = "INSERT IGNORE INTO ";
         String table = "master_role ";
         List<String> data = new ArrayList<>();
         data.add("('db77ed94-c91c-11ed-821e-00059a3c7a00', 'system', 1679536129, 'system', 1679536129, 'Pemilik Indekos', 'Owner')");
         data.add("('db781d83-c91c-11ed-821e-00059a3c7a00', 'system', 1679536129, 'system', 1679536129, 'Pengurus/ Penjaga Indekos', 'Admin')");
         data.add("('db7843f1-c91c-11ed-821e-00059a3c7a00', 'system', 1679536129, 'system', 1679536129, 'Penyewa Indekos', 'Tenant')");
+
+        for (String query: data) {
+            jdbcTemplate.update(insertPrefix + table + columnList + "VALUES " + query);
+        }
+
+        /* ============================== MASTER SERVICE ============================== */
+        columnList = "(`id`, `name`)";
+        table = "master_service ";
+        data = new ArrayList<>();
+        data.add("(1, 'Kamar Tidur')");
+        data.add("(2, 'Pembersihan Kamar')");
+        data.add("(3, 'Perbaikan Fasilitas')");
+        data.add("(4, 'Layanan Lainnya')");
 
         for (String query: data) {
             jdbcTemplate.update(insertPrefix + table + columnList + "VALUES " + query);
@@ -189,6 +202,20 @@ public class InitializeDataService {
             jdbcTemplate.update(insertPrefix + table + columnList + "VALUES " + query);
         }
 
+        /* ============================== MASTER ROOM DETAIL CATEGORY ============================== */
+        columnList = "(`id`, `name`)";
+        table = "master_room_detail_category ";
+        data = new ArrayList<>();
+        data.add("(1, 'Kamar Tidur')");
+        data.add("(2, 'Kamar Mandi')");
+        data.add("(3, 'Furniture')");
+        data.add("(4, 'Alat Elektronik')");
+        data.add("(5, 'Fasilitas Kamar Lainnya')");
+
+        for (String query: data) {
+            jdbcTemplate.update(insertPrefix + table + columnList + "VALUES " + query);
+        }
+
         /* ============================== ROOM PRICE DETAIL ============================== */
         columnList = "(`id`, `capacity`, `price`, `room_id`)";
         table = "room_price_detail ";
@@ -211,12 +238,12 @@ public class InitializeDataService {
         data = new ArrayList<>();
         data.add("('2e1ba50e-18bf-4982-a519-79ae958a5103', 'admin', 1680095957304, 'admin', 1680095957304, 0, 0, 0, 0, 'Pembersihan Kamar', NULL, 'Layanan Kamar')");
         data.add("('5876fa23-5e91-4be7-bf76-7245c48d631e', '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477559405, '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477559405, 0, 0, 0, 0, 'Perbaikan Fasilitas', NULL, 'AC')");
-        data.add("('5cedcfc0-8456-431c-8368-c8f9e0ea0a82', 'admin', 1680095909837, 'admin', 1680095909837, 0, 0, 3000, 0, 'Laundry', NULL, 'Baju')");
-        data.add("('729ed33e-3f40-43b9-be26-57cd914ab1f0', 'admin', 1680095920709, 'admin', 1680095920709, 0, 0, 15000, 0, 'Laundry', NULL, 'Selimut')");
-        data.add("('93b3df97-3154-4a29-ab00-70cb157a8541', '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477495888, '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477495888, 0, 0, 250000, 0, 'Laundry', NULL, 'Kasur')");
-        data.add("('a958bb45-8f06-4f3c-a13a-0672c6a347a3', '16c0cd7a-7be7-4027-80b5-8029ef064d29', 1682485250121, '16c0cd7a-7be7-4027-80b5-8029ef064d29', 1682485250121, 0, 0, 0, 0, 'Perbaikan Fasilitas', NULL, 'Penghangat air')");
-        data.add("('b3a95d99-8890-4a8e-bbf2-942e16bcc71c', 'admin', 1680095931135, 'admin', 1680095931135, 0, 0, 30000, 0, 'Laundry', NULL, 'Sepatu')");
-        data.add("('d3ea6c21-beba-41c7-8439-b547a43e579b', '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477647169, '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477647169, 0, 0, 0, 0, 'Perbaikan Fasilitas', NULL, 'Exhaust')");
+        data.add("('5cedcfc0-8456-431c-8368-c8f9e0ea0a82', 'admin', 1680095909837, 'admin', 1680095909837, 0, 0, 3000, 0, 'Laundry', 'buah', 'Baju')");
+        data.add("('729ed33e-3f40-43b9-be26-57cd914ab1f0', 'admin', 1680095920709, 'admin', 1680095920709, 0, 0, 15000, 0, 'Laundry', 'buah', 'Selimut')");
+        data.add("('93b3df97-3154-4a29-ab00-70cb157a8541', '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477495888, '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477495888, 0, 0, 250000, 0, 'Laundry', 'item', 'Kasur')");
+        data.add("('a958bb45-8f06-4f3c-a13a-0672c6a347a3', '16c0cd7a-7be7-4027-80b5-8029ef064d29', 1682485250121, '16c0cd7a-7be7-4027-80b5-8029ef064d29', 1682485250121, 0, 0, 0, 0, 'Perbaikan Fasilitas', 'item', 'Penghangat air')");
+        data.add("('b3a95d99-8890-4a8e-bbf2-942e16bcc71c', 'admin', 1680095931135, 'admin', 1680095931135, 0, 0, 30000, 0, 'Laundry', 'pasang', 'Sepatu')");
+        data.add("('d3ea6c21-beba-41c7-8439-b547a43e579b', '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477647169, '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477647169, 0, 0, 0, 0, 'Perbaikan Fasilitas', 'item', 'Exhaust')");
         data.add("('e2e293f1-e3e4-11ed-a584-00155ddd50f3', 'system', 1683648586, 'system', 1683648586, 0, 0, 0, 0, 'Pembersihan Kamar', NULL, 'Lainnya')");
         data.add("('e2e295f3-e3e4-11ed-a584-00155ddd50f3', 'system', 1683646619, 'system', 1683646619, 0, 0, 0, 0, 'Pembersihan Kamar', NULL, 'Lainnya')");
         data.add("('e2e305f3-e3e4-11ed-a584-00155ddd50f3', 'system', 1683646619, 'system', 1683646619, 0, 0, 0, 0, 'Perbaikan Fasilitas', NULL, 'Lainnya')");
