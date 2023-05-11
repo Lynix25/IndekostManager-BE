@@ -62,7 +62,6 @@ public class AccountService {
            mapper.map(src -> {return user;}, Account::setUser);
         });
         Account account = modelMapper.map(user, Account.class);
-        save(account);
         return account;
     }
 
