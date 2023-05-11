@@ -8,9 +8,7 @@ import com.indekos.dto.TaskDetailDTO;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.dto.request.TaskUpdateRequest;
 import com.indekos.dto.request.UserRegisterRequest;
-import com.indekos.model.Task;
-import com.indekos.model.Transaction;
-import com.indekos.model.User;
+import com.indekos.model.*;
 import com.indekos.repository.TaskRepository;
 import com.indekos.utils.Constant;
 
@@ -38,6 +36,12 @@ public class TaskService {
     
     @Autowired
     UserService userService;
+
+    @Autowired
+    NotificationService notificationService;
+
+    @Autowired
+    RoleService roleService;
 
     public TaskDTO getById(String id){
         try {
@@ -158,6 +162,15 @@ public class TaskService {
         
         User user = userService.getById(request.getRequesterId()).getUser();
         task.setUser(user);
+
+        List<User> users = userService.getAllByRole(roleService.getByName("Admin"));
+
+        for(User u : users){
+            Notification notification = new Notification("Task Baru","Task baru telah di requset","Tenant ......", "./task.html", u);
+            notification.create("System");
+            notificationService.save(notification);
+            notificationService.notif(notification);
+        };
         return save(request.getRequesterId(), task);
     }
 

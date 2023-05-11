@@ -1,6 +1,7 @@
 package com.indekos.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.dto.request.PaymentNotificationRequest;
 import com.indekos.model.Notification;
 import com.indekos.model.SubscriptionClient;
@@ -16,6 +17,7 @@ import javax.annotation.PostConstruct;
 import java.security.GeneralSecurityException;
 import java.security.Security;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class NotificationService {
@@ -24,7 +26,7 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
     @Autowired
-    private TransactionService transactionService;
+    private SubscriptionClientService subscriptionClientService;
 
     private static PushService pushService;
     @PostConstruct
@@ -33,7 +35,8 @@ public class NotificationService {
         pushService = new PushService(System.getenv("VAPID_PUBLIC_KEY"),System.getenv("VAPID_PRIVATE_KEY"));
     }
 
-    public void notif(SubscriptionClient client, Notification message){
+    public void notif(Notification message){
+        SubscriptionClient client = subscriptionClientService.getByUser(getByUser(message.getUser()).getUser());
         try {
             nl.martijndwars.webpush.Notification notification = new nl.martijndwars.webpush.Notification(
                     client.getEndPoint(),
@@ -50,8 +53,15 @@ public class NotificationService {
         return notificationRepository.findAllByUser(user);
     }
 
-    public Notification createFromMidtrans(PaymentNotificationRequest request){
-        User user = transactionService.getByID(request.getTransaction_id()).getUser();
+    public Notification getByUser(User user){
+        try{
+            return notificationRepository.findByUser(user).get();
+        }catch (NoSuchElementException e){
+            throw new InvalidRequestException("Invalid Notification");
+        }
+    }
+
+    public Notification createFromMidtrans(PaymentNotificationRequest request, User user){
         Notification notification = new Notification("Category", "Title", "Body", "/home.html", user);
         notification.create("Midtrans");
         return notification;

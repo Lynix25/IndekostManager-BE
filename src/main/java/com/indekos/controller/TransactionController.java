@@ -64,7 +64,7 @@ public class TransactionController {
         }
         for (TaskDetailDTO task: tasks) {
             unpaidTotal += (task.getTask().getCharge());
-            maxDueDate =  Math.max(maxDueDate, task.getTask().getDueDate());
+//            maxDueDate =  Math.max(maxDueDate, task.getTask().getDueDate());
         }
 
         CheckTransactionResponse checkTransactionResponse = new CheckTransactionResponse(tasks,rents,unpaidTotal,maxDueDate);

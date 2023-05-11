@@ -9,9 +9,7 @@ import com.indekos.dto.DataIdDTO;
 import com.indekos.dto.SimpleUserDTO;
 import com.indekos.dto.UserSettingsDTO;
 import com.indekos.dto.request.*;
-import com.indekos.model.Account;
-import com.indekos.model.ContactAblePerson;
-import com.indekos.model.Room;
+import com.indekos.model.*;
 import com.indekos.utils.Constant;
 import com.indekos.utils.Utils;
 
@@ -23,9 +21,6 @@ import org.springframework.stereotype.Service;
 
 import com.indekos.dto.request.UserRegisterRequest;
 import com.indekos.dto.response.UserResponse;
-import com.indekos.model.User;
-import com.indekos.model.UserDocument;
-import com.indekos.model.UserSetting;
 import com.indekos.repository.ContactAblePersonRepository;
 import com.indekos.repository.UserDocumentRepository;
 import com.indekos.repository.UserRepository;
@@ -147,6 +142,11 @@ public class UserService {
 
 	public List<User> getAllByRoom(Room room){
 		List<User> users = userRepository.findAllByRoom(room);
+		return users;
+	}
+
+	public List<User> getAllByRole(MasterRole role){
+		List<User> users = userRepository.findAllByRole(role);
 		return users;
 	}
     

@@ -22,4 +22,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findByRole(MasterRole role);
 
 	List<User> findAllByRoom(Room room);
+
+	List<User> findAllByRole(MasterRole role);
 }
