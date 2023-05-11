@@ -22,7 +22,7 @@ public class Service extends AuditableEntity {
     private String variant;
     
 	@Column(columnDefinition = "int default 0")
-	private Integer price;
+	private Integer price = 0;
 
 	@Column(columnDefinition = "int default 0")
 	private Integer quantity;

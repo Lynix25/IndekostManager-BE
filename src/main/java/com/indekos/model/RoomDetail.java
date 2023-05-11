@@ -30,9 +30,6 @@ public class RoomDetail {
 	
 	private String description;
 	
-	@Column(nullable = false, columnDefinition = "boolean default true")
-	private boolean enable;
-	
 	@ManyToOne
 	@JoinColumn(name = "detail_category_id", referencedColumnName = "id")
     private MasterRoomDetailCategory masterRoomDetailCategory;
@@ -47,6 +44,5 @@ public class RoomDetail {
 		this.name = name;
 		this.masterRoomDetailCategory = masterRoomDetailCategory;
 		this.room = room;
-		this.enable = true;
 	}
 }

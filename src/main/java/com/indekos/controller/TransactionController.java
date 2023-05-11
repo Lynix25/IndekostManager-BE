@@ -46,7 +46,7 @@ public class TransactionController {
 
     @GetMapping("{userId}")
     public ResponseEntity<?> getAllTransaction(@PathVariable String userId){
-        User user = userService.getById(userId);
+        User user = userService.getById(userId).getUser();
         List<Transaction> transactions = transactionService.getAllByUser(user);
 
         return GlobalAcceptions.listData(transactions, "All Transaction");
@@ -63,7 +63,8 @@ public class TransactionController {
             maxDueDate =  Math.max(maxDueDate, rent.getDueDate());
         }
         for (TaskDetailDTO task: tasks) {
-            unpaidTotal += (task.getTask().getCharge() + task.getTask().getAdditionalCharge());
+            unpaidTotal += (task.getTask().getCharge());
+            maxDueDate =  Math.max(maxDueDate, task.getTask().getDueDate());
         }
 
         CheckTransactionResponse checkTransactionResponse = new CheckTransactionResponse(tasks,rents,unpaidTotal,maxDueDate);

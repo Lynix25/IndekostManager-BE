@@ -7,6 +7,7 @@ import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.request.RoomCreateRequest;
 import com.indekos.dto.request.RoomDetailsCreateRequest;
 import com.indekos.dto.request.RoomPriceCreateRequest;
+import com.indekos.dto.request.RoomUpdateRequest;
 import com.indekos.dto.response.AvailableRoomResponse;
 import com.indekos.dto.response.RoomDTO;
 import com.indekos.model.MasterRoomDetailCategory;
@@ -14,6 +15,7 @@ import com.indekos.model.Room;
 import com.indekos.model.RoomDetail;
 import com.indekos.model.RoomPriceDetail;
 import com.indekos.repository.RoomRepository;
+import com.indekos.utils.Constant;
 
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
@@ -105,6 +107,14 @@ public class RoomService {
 				targetRoom.setDeleted(false);
 				modelMapper.map(request, targetRoom);
 				save(targetRoom);
+				
+				RoomPriceCreateRequest priceAdded = new RoomPriceCreateRequest();
+				priceAdded.setRequesterId(null);
+				priceAdded.setPrice(request.getPrice());
+				priceAdded.setCapacity(1);
+				
+				roomDetailService.addRoomPrice(targetRoom, priceAdded);
+				roomDetailService.initializeDefaultRoomFacility(targetRoom);
 				return getRoomDetail(targetRoom);
 			} else throw new DataAlreadyExistException();
 		}
@@ -114,16 +124,23 @@ public class RoomService {
 			});
 			Room room = modelMapper.map(request, Room.class);
 			save(room);
+			
+			RoomPriceCreateRequest priceAdded = new RoomPriceCreateRequest();
+			priceAdded.setRequesterId(null);
+			priceAdded.setPrice(request.getPrice());
+			priceAdded.setCapacity(1);
+			
+			roomDetailService.addRoomPrice(room, priceAdded);
 			roomDetailService.initializeDefaultRoomFacility(room);
 			return getRoomDetail(room);
 		}
 	}
 
-	public RoomDTO update(String roomId, RoomCreateRequest request) {
+	public RoomDTO update(String roomId, RoomUpdateRequest request) {
 		Room room = getById(roomId).getRoom();
 		modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-		modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
-			mapper.map(RoomCreateRequest::getRequesterId, Room::update);
+		modelMapper.typeMap(RoomUpdateRequest.class, Room.class).addMappings(mapper -> {
+			mapper.map(RoomUpdateRequest::getRequesterId, Room::update);
 		});
 
 		if(roomRepository.findByNameAndIdNot(request.getName(), roomId) != null) throw new DataAlreadyExistException();
@@ -173,10 +190,12 @@ public class RoomService {
 		Room data = getById(roomId).getRoom();
 		if(roomRepository.countCurrentTenantsOfRoom(roomId) == 0) {
 			data.setDeleted(true);
+			roomDetailService.removeAllDetailByRoom(data);
+			roomDetailService.removeAllPriceByRoom(data);
 			data.update(requesterIdUser);
 			roomRepository.save(data);
 			return getRoomDetail(data);
-		} else throw new InternalServerErrorException("This room is still rented by the tenant!");
+		} else throw new InternalServerErrorException("Masih ada penyewa di kamar ini!");
 	}
 	
 	public RoomDetail removeRoomDetail(Long roomDetailId, String requesterIdUser, String roomId) {
@@ -200,7 +219,7 @@ public class RoomService {
 			roomRepository.save(room);
 		} catch (DataIntegrityViolationException e){
 			System.out.println(e);
-			throw new InvalidRequestException("Duplicate Data");
+			throw new InvalidRequestException("Sudah ada kamar dengan nama tersebut");
 		} catch (Exception e){
 			System.out.println(e);
 		}
@@ -212,11 +231,15 @@ public class RoomService {
 		
 		roomDTO.setRoom(room);
 		roomDTO.setTotalTenants(tenants);
-		if(tenants > 0 && roomRepository.checkIfRoomIsShared(room.getId()) == 0) roomDTO.setStatus("Disewa pribadi");
-		else if(room.getQuota() - tenants == 0) roomDTO.setStatus("Penuh");
-		else {
-			if(tenants == 0) roomDTO.setStatus("Kosong");
-			else roomDTO.setStatus("Tersedia");
+		if(roomDTO.getRoom().getAllotment().equalsIgnoreCase(Constant.PASUTRI) && tenants > 0) {			
+			roomDTO.setStatus("Disewa Pasutri");
+		} else {			
+			if(tenants > 0 && roomRepository.checkIfRoomIsShared(room.getId()) == 0) roomDTO.setStatus("Disewa Pribadi");
+			else if(room.getQuota() - tenants == 0) roomDTO.setStatus("Penuh");
+			else {
+				if(tenants == 0) roomDTO.setStatus("Kosong");
+				else roomDTO.setStatus("Tersedia");
+			}
 		}
 		
 		return roomDTO;

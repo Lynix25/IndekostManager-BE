@@ -65,9 +65,6 @@ public class UserService {
 	@Autowired
 	RememberMeTokenService rememberMeTokenService;
 
-	@Autowired
-	SubscriptionClientService subscriptionClientService;
-
     /* ================================================ USER ACCOUNT ================================================ */
     public Account login(AccountLoginRequest request) {
     	Account account = request.getToken() != null ? rememberMeTokenService.getById(request.getToken()).getAccount() : accountService.getByUsername(request.getUsername());
@@ -110,7 +107,8 @@ public class UserService {
     
     public Account logout(String userId) {
     	
-    	User user = getById(userId);
+    	User user = userRepository.findById(userId)
+    			.orElseThrow(() -> new InvalidRequestIdException("Invalid User ID"));
     	
     	Account account = accountService.getByUser(user);
         try {
@@ -118,6 +116,7 @@ public class UserService {
         	accountService.save(account);
 
 			rememberMeTokenService.deleteByAccount(account);
+
         	return account;
 		} catch (Exception e) {
 			System.out.println(e);
@@ -129,6 +128,7 @@ public class UserService {
     public List<UserResponse> getAll() {
     	List<UserResponse> listResponse =  new ArrayList<>();
     	List<User> users = userRepository.findAllActiveUserOrderByName();
+    	System.err.println(users.size());
     	users.forEach(user -> {
     		listResponse.add(getUserWithConvertedDocumentImage(user));
     	});
@@ -150,11 +150,11 @@ public class UserService {
 		return users;
 	}
     
-    public User getById(String id){
-    	User user = userRepository.findById(id)
+    public UserResponse getById(String userId){
+    	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
 
-    	return user;
+    	return getUserWithConvertedDocumentImage(user);
     }
 
     public SimpleUserDTO getUserInfoById(String userId) {
@@ -196,12 +196,12 @@ public class UserService {
 		} else {
 			Room room = roomService.getByName(request.getRoom());
 			if(!isRoomAvailable(room.getId()))
-				throw new InsertDataErrorException("Kamar penuh");
+				throw new InsertDataErrorException("Kamar yang dipilih penuh");
 			else {
 				if(room.getAllotment().equals(Constant.PUTRA) && request.getGender().equals(Constant.PEREMPUAN))
-					throw new InsertDataErrorException("Kamar khusus putra");
+					throw new InsertDataErrorException("Kamar yang dipilih khusus putra");
 				else if(room.getAllotment().equals(Constant.PUTRI) && request.getGender().equals(Constant.LAKI_LAKI))
-					throw new InsertDataErrorException("Kamar khusus putri");
+					throw new InsertDataErrorException("Kamar yang dipilih khusus putri");
 				else user.setRoom(room);
 			}
 		} 
@@ -227,22 +227,33 @@ public class UserService {
         if(request.getRole() != null)
         	user.setRole(roleService.getByName(request.getRole()));
         
-        if(request.getRoom() != null)
-        	user.setRoom(roomService.getByName(request.getRoom()));
-        else {
-        	if(!(user.getRole().getName()).equalsIgnoreCase("Tenant")) user.setRoom(null);
-        }
+        if (request.getRoom() == null || ((request.getRoom()).trim()).equals("")) {
+    		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
+    			throw new InsertDataErrorException("User room id can't be empty");
+    		else user.setRoom(null);
+		} else {
+			Room room = roomService.getByName(request.getRoom());
+			if(!isRoomAvailable(room.getId()))
+				throw new InsertDataErrorException("Kamar yang dipilih penuh");
+			else {
+				if(room.getAllotment().equals(Constant.PUTRA) && request.getGender().equals(Constant.PEREMPUAN))
+					throw new InsertDataErrorException("Kamar yang dipilih khusus putra");
+				else if(room.getAllotment().equals(Constant.PUTRI) && request.getGender().equals(Constant.LAKI_LAKI))
+					throw new InsertDataErrorException("Kamar yang dipilih khusus putri");
+				else user.setRoom(room);
+			}
+		}
         
         User updatedUser = save(request.getRequesterId(), user);
         return getUserWithConvertedDocumentImage(updatedUser);
     }
     
-    public User delete(String userId, AuditableRequest request) {
+    public User delete(String userId, String requester) {
     	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new InvalidRequestIdException("Invalid User ID"));;
 		user.delete();
 
-		User deletedUser = save(request.getRequesterId(), user);
+		User deletedUser = save(requester, user);
 		return deletedUser;
     }
     

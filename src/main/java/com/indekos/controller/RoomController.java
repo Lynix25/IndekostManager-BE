@@ -5,6 +5,7 @@ import com.indekos.dto.request.AuditableRequest;
 import com.indekos.dto.request.RoomCreateRequest;
 import com.indekos.dto.request.RoomDetailsCreateRequest;
 import com.indekos.dto.request.RoomPriceCreateRequest;
+import com.indekos.dto.request.RoomUpdateRequest;
 import com.indekos.dto.response.RoomDTO;
 import com.indekos.services.RoomService;
 import com.indekos.utils.Validated;
@@ -72,14 +73,14 @@ public class RoomController {
 	}
 	
 	@PutMapping("/{roomId}")
-	public ResponseEntity<?> updateRoom(@PathVariable String roomId, @RequestBody RoomCreateRequest request) {
+	public ResponseEntity<?> updateRoom(@PathVariable String roomId, @RequestBody RoomUpdateRequest request) {
 		return GlobalAcceptions.data(roomService.update(roomId, request), "Berhasil memperbaharui data kamar");
 	}
 	
 	@PutMapping("/{roomId}/details") // edit = roomDetailId
 	public ResponseEntity<?> updateRoomDetail(@RequestParam Long edit, @PathVariable String roomId, @Valid @RequestBody RoomDetailsCreateRequest requestBody, Errors errors){
 		Validated.request(errors);
-		return GlobalAcceptions.data(roomService.editRoomDetail(edit, roomId, requestBody), "Berhasil memperbaharui detail kamar");
+		return GlobalAcceptions.data(roomService.editRoomDetail(edit, roomId, requestBody), "Berhasil memperbaharui kategori/ spesifikasi");
 	}
 	
 	@PutMapping("/{roomId}/prices") // edit = roomPriceDetailId
@@ -88,18 +89,18 @@ public class RoomController {
 		return GlobalAcceptions.data(roomService.editRoomPrice(edit, roomId, requestBody), "Berhasil memperbaharui data harga kamar");
 	}
 	
-	@DeleteMapping("/{roomId}")
-	public ResponseEntity<?> deleteRoom(@PathVariable String roomId, @Valid @RequestBody AuditableRequest request) {
-		return GlobalAcceptions.data(roomService.delete(roomId, request.getRequesterId()), "Berhasil menghapus data kamar");
+	@DeleteMapping("/{roomId}")	// requester = requesterId
+	public ResponseEntity<?> deleteRoom(@PathVariable String roomId,  @RequestParam String requester) {
+		return GlobalAcceptions.data(roomService.delete(roomId, requester), "Berhasil menghapus data kamar");
 	}
 	
-	@DeleteMapping("/{roomId}/details") // delete = roomDetailId
-	public ResponseEntity<?> deleteRoomDetail(@RequestParam Long delete, @PathVariable String roomId, @Valid @RequestBody AuditableRequest request){
-		return GlobalAcceptions.data(roomService.removeRoomDetail(delete, request.getRequesterId(), roomId), "Berhasil menghapus detail kamar");
+	@DeleteMapping("/{roomId}/details") // delete = roomDetailId, requester = requesterId
+	public ResponseEntity<?> deleteRoomDetail(@RequestParam Long delete, @RequestParam String requester, @PathVariable String roomId){
+		return GlobalAcceptions.data(roomService.removeRoomDetail(delete, requester, roomId), "Berhasil menghapus kategori/ spesifikasi");
 	}
 	
-	@DeleteMapping("/{roomId}/prices") // delete = roomPriceDetailId
-	public ResponseEntity<?> deleteRoomPrice(@RequestParam Long delete, @PathVariable String roomId, @Valid @RequestBody AuditableRequest request){
-		return GlobalAcceptions.data(roomService.removeRoomPrice(delete, request.getRequesterId(), roomId), "Berhasil menghapus data harga kamar");
+	@DeleteMapping("/{roomId}/prices") // delete = roomPriceDetailId, requester = requesterId
+	public ResponseEntity<?> deleteRoomPrice(@RequestParam Long delete, @RequestParam String requester, @PathVariable String roomId){
+		return GlobalAcceptions.data(roomService.removeRoomPrice(delete, requester, roomId), "Berhasil menghapus data harga kamar");
 	}
 }

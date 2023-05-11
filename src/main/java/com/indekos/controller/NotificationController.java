@@ -40,13 +40,13 @@ public class NotificationController {
 
     @GetMapping("{userId}")
     public ResponseEntity<?> getAll(@PathVariable String userId){
-        User user = userService.getById(userId);
+        User user = userService.getById(userId).getUser();
         return GlobalAcceptions.listData(notificationService.getAllByUser(user), "Notifikasi");
     }
 
     @PostMapping("subscribe")
     public ResponseEntity<?> subscribe(@RequestBody SubscriptionClientRequest request) {
-        User user = userService.getById(request.getRequesterId());
+        User user = userService.getById(request.getRequesterId()).getUser();
         user.getSetting().setEnableNotification(true);
         userService.save(request.getRequesterId(),user);
 
@@ -56,7 +56,7 @@ public class NotificationController {
 
     @PostMapping("notify")
     public ResponseEntity<?> notify(@RequestBody NotificationCrateRequest request){
-        User user = userService.getById(request.getTargetedUserId());
+        User user = userService.getById(request.getTargetedUserId()).getUser();
         SubscriptionClient subscriptionClient = subscriptionClientService.getByUser(user);
         notificationService.notif(subscriptionClient, new Notification(request.getCategory(), request.getTitle(), request.getMessage(), request.getRedirect(), user));
         return GlobalAcceptions.data(subscriptionClient,"Memberikan notifikasi ke user");
@@ -64,7 +64,7 @@ public class NotificationController {
 
     @DeleteMapping("unsubscribe/{userId}")
     public ResponseEntity<?> unsubscribe(@PathVariable String userId) {
-        User user = userService.getById(userId);
+        User user = userService.getById(userId).getUser();
         user.getSetting().setEnableNotification(false);
         userService.save(userId,user);
 

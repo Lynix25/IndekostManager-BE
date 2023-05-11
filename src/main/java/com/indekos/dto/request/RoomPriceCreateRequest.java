@@ -1,8 +1,10 @@
 package com.indekos.dto.request;
 
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@Getter
+@EqualsAndHashCode(callSuper = false)
+@Data
 public class RoomPriceCreateRequest extends AuditableRequest {
     private Integer capacity;
     private Integer price;

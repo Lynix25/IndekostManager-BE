@@ -59,7 +59,7 @@ public class TransactionService {
     }
 
     public Transaction create(TransactionCreateRequest request){
-        User user = userService.getById(request.getRequesterId());
+        User user = userService.getById(request.getRequesterId()).getUser();
 
         Transaction transaction = new Transaction();
 
