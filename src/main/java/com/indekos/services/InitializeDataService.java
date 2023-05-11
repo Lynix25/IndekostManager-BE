@@ -238,11 +238,11 @@ public class InitializeDataService {
         data = new ArrayList<>();
         data.add("('2e1ba50e-18bf-4982-a519-79ae958a5103', 'admin', 1680095957304, 'admin', 1680095957304, 0, 0, 0, 0, 'Pembersihan Kamar', NULL, 'Layanan Kamar')");
         data.add("('5876fa23-5e91-4be7-bf76-7245c48d631e', '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477559405, '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477559405, 0, 0, 0, 0, 'Perbaikan Fasilitas', NULL, 'AC')");
-        data.add("('5cedcfc0-8456-431c-8368-c8f9e0ea0a82', 'admin', 1680095909837, 'admin', 1680095909837, 0, 0, 3000, 0, 'Laundry', 'buah', 'Baju')");
-        data.add("('729ed33e-3f40-43b9-be26-57cd914ab1f0', 'admin', 1680095920709, 'admin', 1680095920709, 0, 0, 15000, 0, 'Laundry', 'buah', 'Selimut')");
-        data.add("('93b3df97-3154-4a29-ab00-70cb157a8541', '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477495888, '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477495888, 0, 0, 250000, 0, 'Laundry', 'item', 'Kasur')");
+        data.add("('5cedcfc0-8456-431c-8368-c8f9e0ea0a82', 'admin', 1680095909837, 'admin', 1680095909837, 0, 1, 3000, 0, 'Laundry', 'buah', 'Baju')");
+        data.add("('729ed33e-3f40-43b9-be26-57cd914ab1f0', 'admin', 1680095920709, 'admin', 1680095920709, 0, 2, 15000, 0, 'Laundry', 'buah', 'Selimut')");
+        data.add("('93b3df97-3154-4a29-ab00-70cb157a8541', '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477495888, '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477495888, 5, 0, 250000, 0, 'Laundry', 'item', 'Kasur')");
         data.add("('a958bb45-8f06-4f3c-a13a-0672c6a347a3', '16c0cd7a-7be7-4027-80b5-8029ef064d29', 1682485250121, '16c0cd7a-7be7-4027-80b5-8029ef064d29', 1682485250121, 0, 0, 0, 0, 'Perbaikan Fasilitas', 'item', 'Penghangat air')");
-        data.add("('b3a95d99-8890-4a8e-bbf2-942e16bcc71c', 'admin', 1680095931135, 'admin', 1680095931135, 0, 0, 30000, 0, 'Laundry', 'pasang', 'Sepatu')");
+        data.add("('b3a95d99-8890-4a8e-bbf2-942e16bcc71c', 'admin', 1680095931135, 'admin', 1680095931135, 3, 0, 30000, 0, 'Laundry', 'pasang', 'Sepatu')");
         data.add("('d3ea6c21-beba-41c7-8439-b547a43e579b', '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477647169, '813cad20-4f19-4ce9-a325-f7e00999118c', 1682477647169, 0, 0, 0, 0, 'Perbaikan Fasilitas', 'item', 'Exhaust')");
         data.add("('e2e293f1-e3e4-11ed-a584-00155ddd50f3', 'system', 1683648586, 'system', 1683648586, 0, 0, 0, 0, 'Pembersihan Kamar', NULL, 'Lainnya')");
         data.add("('e2e295f3-e3e4-11ed-a584-00155ddd50f3', 'system', 1683646619, 'system', 1683646619, 0, 0, 0, 0, 'Pembersihan Kamar', NULL, 'Lainnya')");

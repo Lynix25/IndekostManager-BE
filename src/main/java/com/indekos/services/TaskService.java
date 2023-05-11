@@ -171,6 +171,8 @@ public class TaskService {
             notificationService.save(notification);
             notificationService.notif(notification);
         };
+
+//        task.setDueDate(System.currentTimeMillis() + (86400000 * service.getDueDate()));
         return save(request.getRequesterId(), task);
     }
 

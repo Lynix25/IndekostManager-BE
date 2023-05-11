@@ -37,4 +37,6 @@ public class Constant {
 	public static String SUBMITTED = "Menunggu Konfirmasi";
     public static String ACCEPTED = "Dalam Pengerjaan";
     public static String COMPLETED = "Selesai";
+
+	public static Long DAYS_IN_MILLIS = 86400000L;
 }

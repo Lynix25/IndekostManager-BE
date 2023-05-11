@@ -13,6 +13,7 @@ import com.indekos.model.Transaction;
 import com.indekos.model.User;
 import com.indekos.services.*;
 
+import com.indekos.utils.Constant;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ public class TransactionController {
         }
         for (TaskDetailDTO task: tasks) {
             unpaidTotal += (task.getTask().getCharge());
-//            maxDueDate =  Math.max(maxDueDate, task.getTask().getDueDate());
+            maxDueDate =  Math.max(maxDueDate, task.getTask().getCreatedDate() + task.getService().getDueDate() * Constant.DAYS_IN_MILLIS);
         }
 
         CheckTransactionResponse checkTransactionResponse = new CheckTransactionResponse(tasks,rents,unpaidTotal,maxDueDate);

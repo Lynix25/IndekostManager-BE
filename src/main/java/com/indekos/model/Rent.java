@@ -17,7 +17,7 @@ public class Rent extends AuditableEntity {
 	private static final long serialVersionUID = 1L;
     private Integer price;
     private String month;
-    private Long dueDate;
+    private Long dueDate; //In Millis
     private Integer status;
     @JsonIgnore
     @ManyToOne
