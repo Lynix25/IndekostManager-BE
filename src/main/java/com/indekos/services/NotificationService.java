@@ -36,8 +36,8 @@ public class NotificationService {
     }
 
     public void notif(Notification message){
-        SubscriptionClient client = subscriptionClientService.getByUser(getByUser(message.getUser()).getUser());
         try {
+            SubscriptionClient client = subscriptionClientService.getByUser(getByUser(message.getUser()).getUser());
             nl.martijndwars.webpush.Notification notification = new nl.martijndwars.webpush.Notification(
                     client.getEndPoint(),
                     client.getPublicKey(),
