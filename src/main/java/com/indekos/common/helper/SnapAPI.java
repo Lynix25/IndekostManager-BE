@@ -75,7 +75,7 @@ public class SnapAPI {
         }
     }
 
-    public static MidtransCheckTransactionResponse checkTransaction(String orderId) throws JsonProcessingException {
+    public static MidtransCheckTransactionResponse checkTransaction(String orderId){
         MidtransCheckTransactionResponse response;
         try{
             response = new MidtransCheckTransactionResponse(getInstanceCore().checkTransaction(orderId));

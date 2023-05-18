@@ -2,6 +2,7 @@ package com.indekos.services;
 
 import com.indekos.common.helper.SnapAPI;
 import com.indekos.common.helper.exception.InvalidRequestException;
+import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.request.TransactionCreateRequest;
 import com.indekos.model.Rent;
@@ -41,7 +42,7 @@ public class TransactionService {
         try {
             return transactionRepository.findById(id).get();
         }catch (NoSuchElementException e){
-            throw new InvalidUserCredentialException("Invalid Transaction ID : " + id);
+            throw new InvalidRequestIdException("Invalid Transaction ID : " + id);
         }
     }
 

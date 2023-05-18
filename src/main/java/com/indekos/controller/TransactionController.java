@@ -83,7 +83,6 @@ public class TransactionController {
     @GetMapping("check/{transactionId}")
     public ResponseEntity<?> check(@PathVariable String transactionId) throws JsonProcessingException {
         MidtransCheckTransactionResponse res = SnapAPI.checkTransaction(transactionId);
-        res.setTransaction(transactionService.getByID(transactionId));
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }
