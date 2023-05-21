@@ -3,18 +3,16 @@ package com.indekos.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.common.helper.SnapAPI;
-import com.indekos.dto.TaskDetailDTO;
 import com.indekos.dto.request.TransactionCreateRequest;
 import com.indekos.dto.response.CheckTransactionResponse;
 import com.indekos.dto.response.MidtransCheckTransactionResponse;
-import com.indekos.dto.response.TransactionCreateResponse;
 import com.indekos.model.Rent;
+import com.indekos.model.Task;
 import com.indekos.model.Transaction;
 import com.indekos.model.User;
 import com.indekos.services.*;
 
 import com.indekos.utils.Constant;
-import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -55,7 +53,7 @@ public class TransactionController {
 
     @GetMapping("/unpaid/{userId}")
     public ResponseEntity<?> getUnpaidTransaction(@PathVariable String userId){
-        List<TaskDetailDTO> tasks = taskService.getAllCharged(userId);
+        List<Task> tasks = taskService.getAllCharged(userId);
         List<Rent> rents = rentService.getAllUnpaid(userId);
         Long maxDueDate = -1L;
         Long unpaidTotal = 0L;
@@ -63,9 +61,9 @@ public class TransactionController {
             unpaidTotal += rent.getPrice();
             maxDueDate =  Math.max(maxDueDate, rent.getDueDate());
         }
-        for (TaskDetailDTO task: tasks) {
-            unpaidTotal += (task.getTask().getCharge());
-            maxDueDate =  Math.max(maxDueDate, task.getTask().getCreatedDate() + task.getService().getDueDate() * Constant.DAYS_IN_MILLIS);
+        for (Task task: tasks) {
+            unpaidTotal += (task.getCharge());
+            maxDueDate =  Math.max(maxDueDate, task.getCreatedDate() + task.getService().getDueDate() * Constant.DAYS_IN_MILLIS);
         }
 
         CheckTransactionResponse checkTransactionResponse = new CheckTransactionResponse(tasks,rents,unpaidTotal,maxDueDate);

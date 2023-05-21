@@ -1,13 +1,10 @@
 package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidRequestIdException;
-import com.indekos.dto.RequestorDTO;
 import com.indekos.dto.SimpleUserDTO;
 import com.indekos.dto.TaskDTO;
-import com.indekos.dto.TaskDetailDTO;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.dto.request.TaskUpdateRequest;
-import com.indekos.dto.request.UserRegisterRequest;
 import com.indekos.model.*;
 import com.indekos.repository.TaskRepository;
 import com.indekos.utils.Constant;
@@ -76,32 +73,9 @@ public class TaskService {
         return taskResponse;
     }
     
-    public List<TaskDetailDTO> getAllCharged(String userId) {
+    public List<Task> getAllCharged(String userId) {
     	List<Task> tasks = taskRepository.findUnpaidTaskByRequestor(userId);
-    	List<TaskDetailDTO> taskResponse = new ArrayList<>();
-    	tasks.forEach(task -> {
-
-    		if(task.getCharge() > 0) {
-    			
-    			TaskDetailDTO taskDetail = new TaskDetailDTO();
-    			
-    			TaskDTO simpleTask = getById(task.getId());
-    			taskDetail.setTask(simpleTask.getTask());
-    			
-    			RequestorDTO requestor = new RequestorDTO();
-    			requestor.setName(simpleTask.getUser().getUserName());
-    			requestor.setRoomId(simpleTask.getUser().getRoomId());
-    			requestor.setRoomName(simpleTask.getUser().getRoomName());
-    			taskDetail.setRequestor(requestor);
-    			
-    			com.indekos.model.Service service = simpleTask.getTask().getService();
-    			taskDetail.setService(service);
-    			
-    			taskResponse.add(taskDetail);
-    		}
-    	});
-    	
-        return taskResponse;
+        return tasks;
     }
 
     private TaskDTO save(String modifierId, Task task){
