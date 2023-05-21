@@ -4,7 +4,6 @@ import com.indekos.common.helper.exception.InsertDataErrorException;
 import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
-import com.indekos.dto.DataIdDTO;
 import com.indekos.dto.SimpleUserDTO;
 import com.indekos.dto.request.*;
 import com.indekos.dto.response.UserResponse;
@@ -245,19 +244,16 @@ public class UserService {
     }
     
     /* ================================================ USER DOCUMENT =============================================== */
-    public DataIdDTO removeUserDocument(String userDocumentId, String userId) {
+    public UserDocument removeUserDocument(String userDocumentId, String userId) {
     	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new InvalidRequestIdException("Invalid User ID"));
     	UserDocument userDocument = userDocumentRepository.findById(userDocumentId)
     		.orElseThrow(() -> new InvalidRequestIdException("Invalid User Document ID"));
     	
-    	DataIdDTO deleted = new DataIdDTO();
-    	deleted.setId(userDocument.getId());
-    	
     	userDocumentRepository.deleteById(userDocument.getId());
     	save(userId, user);
     	
-        return deleted;
+        return userDocument;
     }
     
     /* ================================================ USER SETTING ================================================ */
