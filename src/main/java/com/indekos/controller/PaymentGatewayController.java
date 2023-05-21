@@ -38,7 +38,7 @@ public class PaymentGatewayController {
         System.out.println(requestBody.getTransaction_status());
         System.out.println("===== PAYMENT NOTIFICATION END=====");
 
-        User user = transactionService.getByID(requestBody.getTransaction_id()).getUser();
+        User user = transactionService.getByPaymentId(requestBody.getOrder_id()).getUser();
         Notification notification = notificationService.createFromMidtrans(requestBody, user);
         notification.create("System");
         switch (requestBody.getTransaction_status()){

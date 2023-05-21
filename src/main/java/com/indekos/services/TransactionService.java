@@ -26,11 +26,9 @@ import java.util.NoSuchElementException;
 public class TransactionService {
     @Autowired
     ModelMapper modelMapper;
-    @Autowired
-    TransactionRepository transactionRepository;
 
     @Autowired
-    ServiceService serviceService;
+    TransactionRepository transactionRepository;
 
     @Autowired
     TaskService taskService;
@@ -58,7 +56,7 @@ public class TransactionService {
         try {
         return transactionRepository.findByPaymentId(paymentId).get();
         }catch (NoSuchElementException e){
-            throw new InvalidRequestException("Invalid Payment ID : " + paymentId);
+            throw new InvalidRequestIdException("Invalid Payment ID : " + paymentId);
         }
     }
 

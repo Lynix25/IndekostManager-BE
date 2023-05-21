@@ -38,7 +38,10 @@ public class MidtransCheckTransactionResponse {
             status = responseBody.get("transaction_status").toString();
 
             String paymentType = responseBody.get("payment_type").toString();
-            if(paymentType.equals("bank_transfer")){
+            if(paymentType.equals("bank_transfer") && responseBody.has("permata_va_number")){
+                type = "PERMATA Virtual Account (" + responseBody.get("permata_va_number") + ")";
+            }
+            else if(paymentType.equals("bank_transfer")){
                 JSONObject jsonObj = new JSONObject(responseBody.getJSONArray("va_numbers").get(0).toString());
                 type = jsonObj.get("bank").toString().toUpperCase() +" Virtual Account ("+jsonObj.get("va_number").toString()+")";
             }
@@ -52,4 +55,6 @@ public class MidtransCheckTransactionResponse {
             System.out.println(e);
         }
     }
+
+    
 }
