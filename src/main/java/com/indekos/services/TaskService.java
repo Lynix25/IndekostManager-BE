@@ -123,7 +123,7 @@ public class TaskService {
         List<User> users = userService.getAllByRole(roleService.getByName("Admin"));
 
         for(User u : users){
-            Notification notification = new Notification("Task Baru","Task baru telah di requset","Tenant ......", "./task.html", u);
+            Notification notification = new Notification("Task Baru","Task baru telah di request","Tenant ......", "./task.html", u);
             notification.create("System");
             notificationService.save(notification);
             notificationService.notif(notification);
