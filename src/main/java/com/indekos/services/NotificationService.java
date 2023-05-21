@@ -37,7 +37,8 @@ public class NotificationService {
 
     public void notif(Notification message){
         try {
-            SubscriptionClient client = subscriptionClientService.getByUser(getByUser(message.getUser()).getUser());
+            System.out.println("Start Send Notify");
+            SubscriptionClient client = subscriptionClientService.getByUser(message.getUser());
             nl.martijndwars.webpush.Notification notification = new nl.martijndwars.webpush.Notification(
                     client.getEndPoint(),
                     client.getPublicKey(),
@@ -45,7 +46,9 @@ public class NotificationService {
                     objectMapper.writeValueAsBytes(message));
 
             pushService.send(notification);
+            System.out.println("Finish Send Notify");
         }catch (Exception e){
+            System.out.println("Cancel Send Notify");
             System.out.println(e);
         }
     }
