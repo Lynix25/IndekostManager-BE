@@ -6,7 +6,6 @@ import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
 import com.indekos.dto.DataIdDTO;
 import com.indekos.dto.SimpleUserDTO;
-import com.indekos.dto.UserSettingsDTO;
 import com.indekos.dto.request.*;
 import com.indekos.dto.response.UserResponse;
 import com.indekos.model.*;
@@ -161,12 +160,7 @@ public class UserService {
     	response.setUserName(user.getName());
     	response.setRoomId(user.getRoom().getId());
     	response.setRoomName(user.getRoom().getName());
-    	
-    	UserSetting targetSetting = user.getSetting();
-    	UserSettingsDTO userSetting = new UserSettingsDTO();
-    	userSetting.setShareRoom(targetSetting.getShareRoom());
-    	userSetting.setEnableNotification(targetSetting.getEnableNotification());
-    	response.setUserSetting(userSetting);
+    	response.setUserSetting(user.getSetting());
     	
     	return response;
     }
