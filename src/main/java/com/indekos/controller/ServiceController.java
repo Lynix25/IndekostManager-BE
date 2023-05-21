@@ -2,7 +2,6 @@ package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.dto.request.ServiceCreateRequest;
-import com.indekos.dto.MasterServiceDTO;
 import com.indekos.model.Service;
 import com.indekos.services.ServiceService;
 import com.indekos.utils.Validated;
@@ -37,9 +36,8 @@ public class ServiceController {
 	@GetMapping("/{id}")
     private ResponseEntity<?> getService(@PathVariable String id){
         Service service = serviceService.getByID(id);
-        MasterServiceDTO masterServiceDTO = modelMapper.map(service, MasterServiceDTO.class);
 
-        return ResponseEntity.ok().body(masterServiceDTO);
+        return ResponseEntity.ok().body(service);
     }
 	
     @PostMapping
