@@ -5,8 +5,10 @@ import org.springframework.stereotype.Repository;
 
 import com.indekos.model.MasterRole;
 
+import java.util.Optional;
+
 @Repository
 public interface RoleRepository extends JpaRepository<MasterRole, String> {
 	
-	MasterRole findByName(String roleName);
+	Optional<MasterRole> findByName(String roleName);
 }

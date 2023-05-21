@@ -149,7 +149,7 @@ public class UserService {
     	return getUserWithConvertedDocumentImage(user);
     }
     
-    public UserResponse register(UserRegisterRequest request) throws IOException {
+    public UserResponse register(UserRegisterRequest request){
     	modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
         	mapper.map(src -> src.getRequesterId(), User::create);
         	mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
