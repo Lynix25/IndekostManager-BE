@@ -4,27 +4,22 @@ import com.indekos.common.helper.exception.InsertDataErrorException;
 import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
-import com.indekos.dto.AccountDTO;
 import com.indekos.dto.DataIdDTO;
 import com.indekos.dto.SimpleUserDTO;
 import com.indekos.dto.UserSettingsDTO;
 import com.indekos.dto.request.*;
+import com.indekos.dto.response.UserResponse;
 import com.indekos.model.*;
-import com.indekos.utils.Constant;
+import com.indekos.repository.ContactAblePersonRepository;
+import com.indekos.repository.UserDocumentRepository;
+import com.indekos.repository.UserRepository;
+import com.indekos.repository.UserSettingRepository;
 import com.indekos.utils.Utils;
-
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
-import com.indekos.dto.request.UserRegisterRequest;
-import com.indekos.dto.response.UserResponse;
-import com.indekos.repository.ContactAblePersonRepository;
-import com.indekos.repository.UserDocumentRepository;
-import com.indekos.repository.UserRepository;
-import com.indekos.repository.UserSettingRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -379,8 +374,7 @@ public class UserService {
     
     private UserResponse getUserWithConvertedDocumentImage(User user) { 
     	UserResponse response = new UserResponse();
-    	Account account = user.getAccount();
-    	response.setAccount(new AccountDTO(account.getId(), account.getUsername()));
+    	response.setAccount(user.getAccount());
     	user.setIdentityCardImage(Utils.decompressImage(user.getIdentityCardImage()));
     	response.setUser(user);
     	return response;
