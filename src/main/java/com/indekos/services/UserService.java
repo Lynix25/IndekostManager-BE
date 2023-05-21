@@ -4,7 +4,6 @@ import com.indekos.common.helper.exception.InsertDataErrorException;
 import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
-import com.indekos.dto.SimpleUserDTO;
 import com.indekos.dto.request.*;
 import com.indekos.dto.response.UserResponse;
 import com.indekos.model.*;
@@ -148,20 +147,6 @@ public class UserService {
     			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
 
     	return getUserWithConvertedDocumentImage(user);
-    }
-
-    public SimpleUserDTO getUserInfoById(String userId) {
-    	
-    	User user = userRepository.findById(userId)
-    			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
-    	
-    	SimpleUserDTO response = new SimpleUserDTO();
-    	response.setUserName(user.getName());
-    	response.setRoomId(user.getRoom().getId());
-    	response.setRoomName(user.getRoom().getName());
-    	response.setUserSetting(user.getSetting());
-    	
-    	return response;
     }
     
     public UserResponse register(UserRegisterRequest request) throws IOException {

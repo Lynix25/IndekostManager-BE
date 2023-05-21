@@ -1,7 +1,6 @@
 package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidRequestIdException;
-import com.indekos.dto.SimpleUserDTO;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.dto.request.TaskUpdateRequest;
 import com.indekos.model.*;
