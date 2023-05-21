@@ -1,12 +1,14 @@
 package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidRequestIdException;
+import com.indekos.dto.TaskDTO;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.dto.request.TaskUpdateRequest;
-import com.indekos.model.*;
+import com.indekos.model.Notification;
+import com.indekos.model.Task;
+import com.indekos.model.User;
 import com.indekos.repository.TaskRepository;
 import com.indekos.utils.Constant;
-
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,30 +43,23 @@ public class TaskService {
     public Task getById(String id){
         try {
         	Task task = taskRepository.findById(id).get();
-//        	SimpleUserDTO user = userService.getUserInfoById(task.getCreatedBy());
-//
-//        	TaskDTO response = new TaskDTO();
-//        	response.setTask(task);
-//        	response.setUser(user);
-        	
             return task;
         }catch (NoSuchElementException e){
             throw new InvalidRequestIdException("Invalid Task ID");
         }
     }
     
-    public List<Task> getAll(String requestor, String type) {
-    	
+    public List<TaskDTO> getAll(String requestor, String type) {
     	List<Task> tasks;
     	if(type.equalsIgnoreCase("ToDo")) tasks = taskRepository.findAllOrderByTarget(requestor);
     	else tasks = taskRepository.findActiveTaskByRequestor(requestor);
-    	
-//    	List<TaskDTO> taskResponse = new ArrayList<>();
-//    	tasks.forEach(task -> {
-//    		taskResponse.add(getById(task.getId()));
-//    	});
-    	
-        return tasks;
+
+    	List<TaskDTO> taskDTOS = new ArrayList<>();
+        for (Task task: tasks){
+            TaskDTO taskDTO = new TaskDTO(task, task.getUser().getRoom());
+            taskDTOS.add(taskDTO);
+        }
+        return taskDTOS;
     }
     
     public List<Task> getAllCharged(String userId) {
