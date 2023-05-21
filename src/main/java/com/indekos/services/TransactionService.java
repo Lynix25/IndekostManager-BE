@@ -1,10 +1,13 @@
 package com.indekos.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.indekos.common.helper.SnapAPI;
 import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
-import com.indekos.common.helper.exception.InvalidUserCredentialException;
+import com.indekos.dto.TransactionDetailsDTO;
 import com.indekos.dto.request.TransactionCreateRequest;
+import com.indekos.dto.response.MidtransCheckTransactionResponse;
 import com.indekos.model.Rent;
 import com.indekos.model.Task;
 import com.indekos.model.Transaction;
@@ -91,6 +94,18 @@ public class TransactionService {
         Transaction transaction = getByID(id);
 
         return transaction;
+    }
+
+    public TransactionDetailsDTO getPaymentDetails(Transaction transaction){
+        MidtransCheckTransactionResponse checkTransactionResponse = SnapAPI.checkTransaction(transaction.getPaymentId());
+        modelMapper.typeMap(Transaction.class, TransactionDetailsDTO.class).addMappings(mapper -> {
+            mapper.map(src -> checkTransactionResponse, TransactionDetailsDTO::setPayment);
+            mapper.map(Transaction::getTotalItem, TransactionDetailsDTO::setTotalItem);
+            mapper.map(Transaction::getTotalPrice, TransactionDetailsDTO::setTotalPrice);
+        });
+        TransactionDetailsDTO transactionDetailsDTO = modelMapper.map(transaction, TransactionDetailsDTO.class);
+
+        return transactionDetailsDTO;
     }
 
     private Transaction save(String modifierId, Transaction transaction){

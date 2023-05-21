@@ -53,10 +53,6 @@ public class TaskService {
             throw new InvalidRequestIdException("Invalid Task ID");
         }
     }
-
-//    public List<Task> getAll(String requestor) {
-//        return taskRepository.findAllByRequestor(requestor);
-//    }
     
     public List<Task> getAll(String requestor, String type) {
     	
