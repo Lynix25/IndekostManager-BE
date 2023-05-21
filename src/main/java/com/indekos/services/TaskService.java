@@ -2,7 +2,6 @@ package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.SimpleUserDTO;
-import com.indekos.dto.TaskDTO;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.dto.request.TaskUpdateRequest;
 import com.indekos.model.*;
@@ -40,16 +39,16 @@ public class TaskService {
     @Autowired
     RoleService roleService;
 
-    public TaskDTO getById(String id){
+    public Task getById(String id){
         try {
         	Task task = taskRepository.findById(id).get();
-        	SimpleUserDTO user = userService.getUserInfoById(task.getCreatedBy());
+//        	SimpleUserDTO user = userService.getUserInfoById(task.getCreatedBy());
+//
+//        	TaskDTO response = new TaskDTO();
+//        	response.setTask(task);
+//        	response.setUser(user);
         	
-        	TaskDTO response = new TaskDTO();
-        	response.setTask(task);
-        	response.setUser(user);
-        	
-            return response;
+            return task;
         }catch (NoSuchElementException e){
             throw new InvalidRequestIdException("Invalid Task ID");
         }
@@ -59,18 +58,18 @@ public class TaskService {
 //        return taskRepository.findAllByRequestor(requestor);
 //    }
     
-    public List<TaskDTO> getAll(String requestor, String type) {
+    public List<Task> getAll(String requestor, String type) {
     	
     	List<Task> tasks;
     	if(type.equalsIgnoreCase("ToDo")) tasks = taskRepository.findAllOrderByTarget(requestor);
     	else tasks = taskRepository.findActiveTaskByRequestor(requestor);
     	
-    	List<TaskDTO> taskResponse = new ArrayList<>();
-    	tasks.forEach(task -> {
-    		taskResponse.add(getById(task.getId()));
-    	});
+//    	List<TaskDTO> taskResponse = new ArrayList<>();
+//    	tasks.forEach(task -> {
+//    		taskResponse.add(getById(task.getId()));
+//    	});
     	
-        return taskResponse;
+        return tasks;
     }
     
     public List<Task> getAllCharged(String userId) {
@@ -78,16 +77,10 @@ public class TaskService {
         return tasks;
     }
 
-    private TaskDTO save(String modifierId, Task task){
+    private Task save(String modifierId, Task task){
         try {
             task.update(modifierId);
-
-            SimpleUserDTO user = userService.getUserInfoById(task.getCreatedBy());
-            TaskDTO response = new TaskDTO();
-            response.setTask(taskRepository.save(task));            
-            response.setUser(user);
-            
-            return response;
+            return taskRepository.save(task);
         }
         catch (DataIntegrityViolationException e){
             System.out.println(e);
@@ -107,8 +100,8 @@ public class TaskService {
             throw new RuntimeException();
         }
     }
-    public TaskDTO update(String id,TaskUpdateRequest request){
-        Task task = getById(id).getTask();
+    public Task update(String id,TaskUpdateRequest request){
+        Task task = getById(id);
 
         modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(TaskUpdateRequest.class, Task.class).addMappings(mapper -> {
@@ -122,7 +115,7 @@ public class TaskService {
         return save(request.getRequesterId(), task);
     }
 
-    public TaskDTO register(TaskCreateRequest request){
+    public Task register(TaskCreateRequest request){
         modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(TaskCreateRequest.class, Task.class).addMappings(mapper -> {
             mapper.map(TaskCreateRequest::getRequesterId, Task::create);

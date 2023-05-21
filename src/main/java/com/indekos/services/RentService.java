@@ -1,12 +1,9 @@
 package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidRequestIdException;
-import com.indekos.dto.SimpleUserDTO;
-import com.indekos.dto.TaskDTO;
 import com.indekos.model.*;
 import com.indekos.repository.RentRepository;
 
-import com.indekos.repository.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
