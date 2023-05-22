@@ -1,19 +1,14 @@
 package com.indekos.services;
 
 import com.indekos.common.helper.exception.InvalidRequestIdException;
-import com.indekos.dto.RequestorDTO;
-import com.indekos.dto.SimpleUserDTO;
 import com.indekos.dto.TaskDTO;
-import com.indekos.dto.TaskDetailDTO;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.dto.request.TaskUpdateRequest;
-import com.indekos.dto.request.UserRegisterRequest;
+import com.indekos.model.Notification;
 import com.indekos.model.Task;
-import com.indekos.model.Transaction;
 import com.indekos.model.User;
 import com.indekos.repository.TaskRepository;
 import com.indekos.utils.Constant;
-
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,77 +34,43 @@ public class TaskService {
     @Autowired
     UserService userService;
 
-    public TaskDTO getById(String id){
+    @Autowired
+    NotificationService notificationService;
+
+    @Autowired
+    RoleService roleService;
+
+    public Task getById(String id){
         try {
         	Task task = taskRepository.findById(id).get();
-        	SimpleUserDTO user = userService.getUserInfoById(task.getCreatedBy());
-        	
-        	TaskDTO response = new TaskDTO();
-        	response.setTask(task);
-        	response.setUser(user);
-        	
-            return response;
+            return task;
         }catch (NoSuchElementException e){
             throw new InvalidRequestIdException("Invalid Task ID");
         }
     }
-
-//    public List<Task> getAll(String requestor) {
-//        return taskRepository.findAllByRequestor(requestor);
-//    }
     
     public List<TaskDTO> getAll(String requestor, String type) {
-    	
     	List<Task> tasks;
     	if(type.equalsIgnoreCase("ToDo")) tasks = taskRepository.findAllOrderByTarget(requestor);
     	else tasks = taskRepository.findActiveTaskByRequestor(requestor);
-    	
-    	List<TaskDTO> taskResponse = new ArrayList<>();
-    	tasks.forEach(task -> {
-    		taskResponse.add(getById(task.getId()));
-    	});
-    	
-        return taskResponse;
+
+    	List<TaskDTO> taskDTOS = new ArrayList<>();
+        for (Task task: tasks){
+            TaskDTO taskDTO = new TaskDTO(task, task.getUser().getRoom());
+            taskDTOS.add(taskDTO);
+        }
+        return taskDTOS;
     }
     
-    public List<TaskDetailDTO> getAllCharged(String userId) {
+    public List<Task> getAllCharged(String userId) {
     	List<Task> tasks = taskRepository.findUnpaidTaskByRequestor(userId);
-    	List<TaskDetailDTO> taskResponse = new ArrayList<>();
-    	tasks.forEach(task -> {
-
-    		if(task.getCharge() > 0) {
-    			
-    			TaskDetailDTO taskDetail = new TaskDetailDTO();
-    			
-    			TaskDTO simpleTask = getById(task.getId());
-    			taskDetail.setTask(simpleTask.getTask());
-    			
-    			RequestorDTO requestor = new RequestorDTO();
-    			requestor.setName(simpleTask.getUser().getUserName());
-    			requestor.setRoomId(simpleTask.getUser().getRoomId());
-    			requestor.setRoomName(simpleTask.getUser().getRoomName());
-    			taskDetail.setRequestor(requestor);
-    			
-    			com.indekos.model.Service service = simpleTask.getTask().getService();
-    			taskDetail.setService(service);
-    			
-    			taskResponse.add(taskDetail);
-    		}
-    	});
-    	
-        return taskResponse;
+        return tasks;
     }
 
-    private TaskDTO save(String modifierId, Task task){
+    private Task save(String modifierId, Task task){
         try {
             task.update(modifierId);
-
-            SimpleUserDTO user = userService.getUserInfoById(task.getCreatedBy());
-            TaskDTO response = new TaskDTO();
-            response.setTask(taskRepository.save(task));            
-            response.setUser(user);
-            
-            return response;
+            return taskRepository.save(task);
         }
         catch (DataIntegrityViolationException e){
             System.out.println(e);
@@ -129,18 +90,23 @@ public class TaskService {
             throw new RuntimeException();
         }
     }
-    public TaskDTO update(String id,TaskUpdateRequest request){
-        Task task = getById(id).getTask();
+    public Task update(String id,TaskUpdateRequest request){
+        Task task = getById(id);
 
         modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(TaskUpdateRequest.class, Task.class).addMappings(mapper -> {
             mapper.map(src -> src.getRequesterId(), Task::update);
+            mapper.map(TaskUpdateRequest::getStatus, Task::setStatus);
         });
 
+        modelMapper.map(TaskUpdateRequest.class, task);
+        task.setStatus(request.getStatus());
+        task.setCharge(task.getRequestedQuantity() * task.getService().getPrice());
         return save(request.getRequesterId(), task);
     }
 
-    public TaskDTO register(TaskCreateRequest request){
+    public Task register(TaskCreateRequest request){
+        modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(TaskCreateRequest.class, Task.class).addMappings(mapper -> {
             mapper.map(TaskCreateRequest::getRequesterId, Task::create);
         });
@@ -153,6 +119,17 @@ public class TaskService {
         
         User user = userService.getById(request.getRequesterId()).getUser();
         task.setUser(user);
+
+        List<User> users = userService.getAllByRole(roleService.getByName("Admin"));
+
+        for(User u : users){
+            Notification notification = new Notification("Task Baru","Task baru telah di request","Tenant ......", "./task.html", u);
+            notification.create("System");
+            notificationService.save(notification);
+            notificationService.notif(notification);
+        };
+
+//        task.setDueDate(System.currentTimeMillis() + (86400000 * service.getDueDate()));
         return save(request.getRequesterId(), task);
     }
 
@@ -169,7 +146,7 @@ public class TaskService {
 
     public Task getById2(String id){
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new InvalidRequestIdException("Task ID tidak valid"));
+                .orElseThrow(() -> new InvalidRequestIdException("Task ID tidak valid : " + id));
 
         return task;
     }

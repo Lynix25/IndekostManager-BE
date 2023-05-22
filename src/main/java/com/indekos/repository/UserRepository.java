@@ -1,5 +1,6 @@
 package com.indekos.repository;
 
+import com.indekos.model.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +20,8 @@ public interface UserRepository extends JpaRepository<User, String> {
 	@Query(value = "SELECT * FROM user WHERE is_deleted IS FALSE AND room_id LIKE :room_id", nativeQuery = true)
 	List<User> findAllByRoomId(@Param("room_id") String roomId);
     List<User> findByRole(MasterRole role);
+
+	List<User> findAllByRoom(Room room);
+
+	List<User> findAllByRole(MasterRole role);
 }

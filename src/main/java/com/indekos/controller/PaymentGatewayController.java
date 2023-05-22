@@ -3,9 +3,11 @@ package com.indekos.controller;
 import com.indekos.dto.request.PaymentNotificationRequest;
 import com.indekos.dto.response.NotificationResponse;
 import com.indekos.model.Notification;
+import com.indekos.model.User;
 import com.indekos.services.NotificationService;
 import com.indekos.services.ServiceService;
 import com.indekos.services.SubscriptionClientService;
+import com.indekos.services.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,9 @@ public class PaymentGatewayController {
     @Autowired
     private SubscriptionClientService subscriptionClientService;
 
+    @Autowired
+    private TransactionService transactionService;
+
     @PostMapping("payment")
     public ResponseEntity<?> paymentNotification(@RequestBody PaymentNotificationRequest requestBody){
         System.out.println("===== PAYMENT NOTIFICATION START=====");
@@ -33,7 +38,9 @@ public class PaymentGatewayController {
         System.out.println(requestBody.getTransaction_status());
         System.out.println("===== PAYMENT NOTIFICATION END=====");
 
-        Notification notification = notificationService.createFromMidtrans(requestBody);
+        User user = transactionService.getByPaymentId(requestBody.getOrder_id()).getUser();
+        Notification notification = notificationService.createFromMidtrans(requestBody, user);
+        notification.create("System");
         switch (requestBody.getTransaction_status()){
             case "capture" :
             case "settlement" : notification.setTitle("Pembayaranmu sudah terverifikasi");
@@ -46,8 +53,8 @@ public class PaymentGatewayController {
 
             default: notification.setTitle("Transaksi anda dalam status " + requestBody.getTransaction_status());
         }
-        notificationService.notif(subscriptionClientService.getByUser(notification.getUser()),notification);
         notificationService.save(notification);
+        notificationService.notif(notification);
         return new ResponseEntity<>(requestBody, HttpStatus.OK);
     }
 

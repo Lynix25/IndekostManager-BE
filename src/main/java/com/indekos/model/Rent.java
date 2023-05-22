@@ -17,9 +17,17 @@ public class Rent extends AuditableEntity {
 	private static final long serialVersionUID = 1L;
     private Integer price;
     private String month;
-    private Long dueDate;
+    private Long dueDate; //In Millis
     private Integer status;
-    private String roomId;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="room_id", referencedColumnName ="id")
+    private Room room;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="user_id", referencedColumnName = "id")
+    private User user;
 
     @JsonIgnore
     @ManyToOne

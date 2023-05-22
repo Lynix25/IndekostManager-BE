@@ -1,8 +1,11 @@
 package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
+import com.indekos.dto.TaskDTO;
+import com.indekos.dto.UserDTO;
 import com.indekos.dto.request.TaskCreateRequest;
 import com.indekos.dto.request.TaskUpdateRequest;
+import com.indekos.model.Task;
 import com.indekos.services.TaskService;
 import com.indekos.utils.Validated;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +29,10 @@ public class TaskController {
     
     @GetMapping("/{id}")
     private ResponseEntity<?> getTask(@PathVariable String id){
-    	return GlobalAcceptions.data(taskService.getById(id), "Task Data");
+        Task task = taskService.getById(id);
+
+        TaskDTO taskDTO = new TaskDTO(task, task.getUser().getRoom());
+    	return GlobalAcceptions.data(taskDTO, "Task Data");
     }
     
     @PostMapping

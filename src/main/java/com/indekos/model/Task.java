@@ -44,8 +44,7 @@ public class Task extends AuditableEntity {
     private Integer requestedQuantity = 0;
     
     private Long dueDate;
-    
-    @JsonIgnore
+
     @ManyToOne
     @JoinColumn(name="user_id", referencedColumnName ="id")
     private User user;

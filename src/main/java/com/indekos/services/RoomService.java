@@ -62,6 +62,10 @@ public class RoomService {
 		
 		return results;
 	}
+
+	public List<Room> getAll2(){
+		return roomRepository.findAllByOrderByNameAsc();
+	}
 	
 	public Room getByName(String roomName) {
 		return roomRepository.findByName(roomName);

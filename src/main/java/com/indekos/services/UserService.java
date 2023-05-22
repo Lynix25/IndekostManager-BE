@@ -4,32 +4,19 @@ import com.indekos.common.helper.exception.InsertDataErrorException;
 import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.InvalidUserCredentialException;
-import com.indekos.dto.AccountDTO;
-import com.indekos.dto.DataIdDTO;
-import com.indekos.dto.SimpleUserDTO;
-import com.indekos.dto.UserSettingsDTO;
 import com.indekos.dto.request.*;
-import com.indekos.model.Account;
-import com.indekos.model.ContactAblePerson;
-import com.indekos.model.Room;
-import com.indekos.utils.Constant;
+import com.indekos.dto.response.UserResponse;
+import com.indekos.model.*;
+import com.indekos.repository.ContactAblePersonRepository;
+import com.indekos.repository.UserDocumentRepository;
+import com.indekos.repository.UserRepository;
+import com.indekos.repository.UserSettingRepository;
 import com.indekos.utils.Utils;
-
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
-import com.indekos.dto.request.UserRegisterRequest;
-import com.indekos.dto.response.UserResponse;
-import com.indekos.model.User;
-import com.indekos.model.UserDocument;
-import com.indekos.model.UserSetting;
-import com.indekos.repository.ContactAblePersonRepository;
-import com.indekos.repository.UserDocumentRepository;
-import com.indekos.repository.UserRepository;
-import com.indekos.repository.UserSettingRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -144,6 +131,16 @@ public class UserService {
     	});
     	return listUser;
     }
+
+	public List<User> getAllByRoom(Room room){
+		List<User> users = userRepository.findAllByRoom(room);
+		return users;
+	}
+
+	public List<User> getAllByRole(MasterRole role){
+		List<User> users = userRepository.findAllByRole(role);
+		return users;
+	}
     
     public UserResponse getById(String userId){
     	User user = userRepository.findById(userId)
@@ -151,27 +148,8 @@ public class UserService {
 
     	return getUserWithConvertedDocumentImage(user);
     }
-
-    public SimpleUserDTO getUserInfoById(String userId) {
-    	
-    	User user = userRepository.findById(userId)
-    			.orElseThrow(() -> new InvalidRequestIdException("User ID tidak valid"));
-    	
-    	SimpleUserDTO response = new SimpleUserDTO();
-    	response.setUserName(user.getName());
-    	response.setRoomId(user.getRoom().getId());
-    	response.setRoomName(user.getRoom().getName());
-    	
-    	UserSetting targetSetting = user.getSetting();
-    	UserSettingsDTO userSetting = new UserSettingsDTO();
-    	userSetting.setShareRoom(targetSetting.getShareRoom());
-    	userSetting.setEnableNotification(targetSetting.getEnableNotification());
-    	response.setUserSetting(userSetting);
-    	
-    	return response;
-    }
     
-    public UserResponse register(UserRegisterRequest request) throws IOException {
+    public UserResponse register(UserRegisterRequest request){
     	modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
         	mapper.map(src -> src.getRequesterId(), User::create);
         	mapper.map(src -> System.currentTimeMillis(), User::setJoinedOn);
@@ -183,33 +161,31 @@ public class UserService {
         user.setIdentityCardImage(Utils.compressImage(request.getIdentityCardImage()));
         user.setSetting(new UserSetting(user));
         user.setRole(roleService.getByName(request.getRole()));
-        
-        if (request.getRoom() == null || ((request.getRoom()).trim()).equals("")) {
-    		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
-    			throw new InsertDataErrorException("User room id can't be empty");
-    		else user.setRoom(null);
-		} else {
-			Room room = roomService.getByName(request.getRoom());
-			if(!isRoomAvailable(room.getId()))
-				throw new InsertDataErrorException("Kamar yang dipilih penuh");
-			else {
-				if(room.getAllotment().equals(Constant.PUTRA) && request.getGender().equals(Constant.PEREMPUAN))
-					throw new InsertDataErrorException("Kamar yang dipilih khusus putra");
-				else if(room.getAllotment().equals(Constant.PUTRI) && request.getGender().equals(Constant.LAKI_LAKI))
-					throw new InsertDataErrorException("Kamar yang dipilih khusus putri");
-				else user.setRoom(room);
-			}
-		} 
+        user.setAccount(accountService.register(user));
+//        if (request.getRoom() == null || ((request.getRoom()).trim()).equals("")) {
+//    		if((user.getRole().getName()).equalsIgnoreCase("Tenant"))
+//    			throw new InsertDataErrorException("User room id can't be empty");
+//    		else user.setRoom(null);
+//		} else {
+//			Room room = roomService.getByName(request.getRoom());
+//			if(!isRoomAvailable(room.getId()))
+//				throw new InsertDataErrorException("Kamar yang dipilih penuh");
+//			else {
+//				if(room.getAllotment().equals(Constant.PUTRA) && request.getGender().equals(Constant.PEREMPUAN))
+//					throw new InsertDataErrorException("Kamar yang dipilih khusus putra");
+//				else if(room.getAllotment().equals(Constant.PUTRI) && request.getGender().equals(Constant.LAKI_LAKI))
+//					throw new InsertDataErrorException("Kamar yang dipilih khusus putri");
+//				else user.setRoom(room);
+//			}
+//		}
         
         User newUser = save(request.getRequesterId(),user);
-        accountService.register(newUser);
         return getUserWithConvertedDocumentImage(newUser);
     }
     
     public UserResponse update(String userId, UserRegisterRequest request) {
-    	User user = userRepository.findById(userId)
-    			.orElseThrow(() -> new InvalidRequestIdException("Invalid User ID"));
-    	
+    	User user = getById(userId).getUser();
+
         modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
         modelMapper.typeMap(UserRegisterRequest.class, User.class).addMappings(mapper -> {
            mapper.map(src -> src.getRequesterId(), User::update);
@@ -222,22 +198,22 @@ public class UserService {
         if(request.getRole() != null)
         	user.setRole(roleService.getByName(request.getRole()));
         
-        if (request.getRoom() == null || ((request.getRoom()).trim()).equals("")) {
-    		if((user.getRole().getName()).equalsIgnoreCase("Tenant")) 
-    			throw new InsertDataErrorException("User room id can't be empty");
-    		else user.setRoom(null);
-		} else {
-			Room room = roomService.getByName(request.getRoom());
-			if(!isRoomAvailable(room.getId()))
-				throw new InsertDataErrorException("Kamar yang dipilih penuh");
-			else {
-				if(room.getAllotment().equals(Constant.PUTRA) && request.getGender().equals(Constant.PEREMPUAN))
-					throw new InsertDataErrorException("Kamar yang dipilih khusus putra");
-				else if(room.getAllotment().equals(Constant.PUTRI) && request.getGender().equals(Constant.LAKI_LAKI))
-					throw new InsertDataErrorException("Kamar yang dipilih khusus putri");
-				else user.setRoom(room);
-			}
-		}
+//        if (request.getRoom() == null || ((request.getRoom()).trim()).equals("")) {
+//    		if((user.getRole().getName()).equalsIgnoreCase("Tenant"))
+//    			throw new InsertDataErrorException("User room id can't be empty");
+//    		else user.setRoom(null);
+//		} else {
+//			Room room = roomService.getByName(request.getRoom());
+//			if(!isRoomAvailable(room.getId()))
+//				throw new InsertDataErrorException("Kamar yang dipilih penuh");
+//			else {
+//				if(room.getAllotment().equals(Constant.PUTRA) && request.getGender().equals(Constant.PEREMPUAN))
+//					throw new InsertDataErrorException("Kamar yang dipilih khusus putra");
+//				else if(room.getAllotment().equals(Constant.PUTRI) && request.getGender().equals(Constant.LAKI_LAKI))
+//					throw new InsertDataErrorException("Kamar yang dipilih khusus putri");
+//				else user.setRoom(room);
+//			}
+//		}
         
         User updatedUser = save(request.getRequesterId(), user);
         return getUserWithConvertedDocumentImage(updatedUser);
@@ -253,19 +229,16 @@ public class UserService {
     }
     
     /* ================================================ USER DOCUMENT =============================================== */
-    public DataIdDTO removeUserDocument(String userDocumentId, String userId) {
+    public UserDocument removeUserDocument(String userDocumentId, String userId) {
     	User user = userRepository.findById(userId)
     			.orElseThrow(() -> new InvalidRequestIdException("Invalid User ID"));
     	UserDocument userDocument = userDocumentRepository.findById(userDocumentId)
     		.orElseThrow(() -> new InvalidRequestIdException("Invalid User Document ID"));
     	
-    	DataIdDTO deleted = new DataIdDTO();
-    	deleted.setId(userDocument.getId());
-    	
     	userDocumentRepository.deleteById(userDocument.getId());
     	save(userId, user);
     	
-        return deleted;
+        return userDocument;
     }
     
     /* ================================================ USER SETTING ================================================ */
@@ -376,8 +349,7 @@ public class UserService {
     
     private UserResponse getUserWithConvertedDocumentImage(User user) { 
     	UserResponse response = new UserResponse();
-    	Account account = accountService.getByUser(user);
-    	response.setAccount(new AccountDTO(account.getId(), account.getUsername()));
+    	response.setAccount(user.getAccount());
     	user.setIdentityCardImage(Utils.decompressImage(user.getIdentityCardImage()));
     	response.setUser(user);
     	return response;

@@ -29,7 +29,7 @@ public class Service extends AuditableEntity {
 	private String units;
 	
 	@Column(columnDefinition = "int default 0")
-	private Integer dueDate;
+	private Integer dueDate; //In Days
 	
 	@Column(columnDefinition = "int default 0")
 	private Integer penalty;

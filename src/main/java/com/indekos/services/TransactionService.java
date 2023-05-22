@@ -1,8 +1,13 @@
 package com.indekos.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.indekos.common.helper.SnapAPI;
-import com.indekos.common.helper.exception.InvalidUserCredentialException;
+import com.indekos.common.helper.exception.InvalidRequestException;
+import com.indekos.common.helper.exception.InvalidRequestIdException;
+import com.indekos.dto.TransactionDetailsDTO;
 import com.indekos.dto.request.TransactionCreateRequest;
+import com.indekos.dto.response.MidtransCheckTransactionResponse;
 import com.indekos.model.Rent;
 import com.indekos.model.Task;
 import com.indekos.model.Transaction;
@@ -14,17 +19,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 public class TransactionService {
     @Autowired
     ModelMapper modelMapper;
-    @Autowired
-    TransactionRepository transactionRepository;
 
     @Autowired
-    ServiceService serviceService;
+    TransactionRepository transactionRepository;
 
     @Autowired
     TaskService taskService;
@@ -39,17 +43,40 @@ public class TransactionService {
         try {
             return transactionRepository.findById(id).get();
         }catch (NoSuchElementException e){
-            throw new InvalidUserCredentialException("Invalid Transaction ID : " + id);
+            throw new InvalidRequestIdException("Invalid Transaction ID : " + id);
+        }
+    }
+
+    public List<Transaction> getAllByUser(User user){
+        List<Transaction> transactions = transactionRepository.findAllByUser(user);
+        return transactions;
+    }
+
+    public Transaction getByPaymentId(String paymentId){
+        try {
+        return transactionRepository.findByPaymentId(paymentId).get();
+        }catch (NoSuchElementException e){
+            throw new InvalidRequestIdException("Invalid Payment ID : " + paymentId);
         }
     }
 
     public Transaction create(TransactionCreateRequest request){
-        User user = userService.getById(request.getRequesterId());
+        User user = userService.getById(request.getRequesterId()).getUser();
 
         Transaction transaction = new Transaction();
 
-        transaction.setTaskItems(taskService.getManyById(request.getTaskItemIds()));
-        if(request.getRentItemIds() != null)transaction.setRentItems(rentService.getManyById(request.getRentItemIds()));
+        if(request.getTaskItemIds() != null){
+            transaction.setTaskItems(taskService.getManyById(request.getTaskItemIds()));
+            for (Task task : transaction.getTaskItems()){
+                task.setTransaction(transaction);
+            }
+        }
+        if(request.getRentItemIds() != null) {
+            transaction.setRentItems(rentService.getManyById(request.getRentItemIds()));
+            for (Rent rent : transaction.getRentItems()){
+                rent.setTransaction(transaction);
+            }
+        }
         transaction.create(request.getRequesterId());
         transaction.setPenaltyFee(0L);
         transaction.setUser(user);
@@ -65,6 +92,18 @@ public class TransactionService {
         Transaction transaction = getByID(id);
 
         return transaction;
+    }
+
+    public TransactionDetailsDTO getPaymentDetails(Transaction transaction){
+        MidtransCheckTransactionResponse checkTransactionResponse = SnapAPI.checkTransaction(transaction.getPaymentId());
+        modelMapper.typeMap(Transaction.class, TransactionDetailsDTO.class).addMappings(mapper -> {
+            mapper.map(src -> checkTransactionResponse, TransactionDetailsDTO::setPayment);
+            mapper.map(Transaction::getTotalItem, TransactionDetailsDTO::setTotalItem);
+            mapper.map(Transaction::getTotalPrice, TransactionDetailsDTO::setTotalPrice);
+        });
+        TransactionDetailsDTO transactionDetailsDTO = modelMapper.map(transaction, TransactionDetailsDTO.class);
+
+        return transactionDetailsDTO;
     }
 
     private Transaction save(String modifierId, Transaction transaction){
@@ -86,6 +125,10 @@ public class TransactionService {
         Integer totalAmount = 0;
         for (Task task: transaction.getTaskItems()){
             totalAmount += task.getCharge();
+        }
+
+        for (Rent rent: transaction.getRentItems()){
+            totalAmount += rent.getPrice();
         }
         return totalAmount;
     }

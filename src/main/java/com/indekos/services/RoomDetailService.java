@@ -35,19 +35,6 @@ public class RoomDetailService {
     @Autowired
     RoomPriceDetailRepository roomPriceDetailRepository;
     
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    
-    /* ============================== ROOM CATEGORY DETAIL ============================== */
-    @PostConstruct
-    public void initializeMasterRoomDetailCategory() {
-    	jdbcTemplate.update("INSERT IGNORE INTO master_room_detail_category (name) VALUES ('" + Constant.KAMAR_TIDUR + "')");
-    	jdbcTemplate.update("INSERT IGNORE INTO master_room_detail_category (name) VALUES ('" + Constant.KAMAR_MANDI + "')");
-    	jdbcTemplate.update("INSERT IGNORE INTO master_room_detail_category (name) VALUES ('" + Constant.FURNITURE + "')");
-    	jdbcTemplate.update("INSERT IGNORE INTO master_room_detail_category (name) VALUES ('" + Constant.ALAT_ELEKTRONIK + "')");
-    	jdbcTemplate.update("INSERT IGNORE INTO master_room_detail_category (name) VALUES ('" + Constant.FASILITAS_KAMAR_LAINNYA + "')");
-    }
-    
     private MasterRoomDetailCategory getRoomDetailCategoryByName(String categoryName) {
     	return masterRoomDetailCategoryRepository.findByName(categoryName);
     }

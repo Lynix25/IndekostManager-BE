@@ -91,7 +91,7 @@ public class UserController {
     }
     
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(@PathVariable String userId, @ModelAttribute MultipartFile identityCardImage, @ModelAttribute UserRegisterRequest request) throws FileSizeLimitExceededException {
+    public ResponseEntity<?> updateUser(@PathVariable String userId, @ModelAttribute MultipartFile identityCardImage, @ModelAttribute UserRegisterRequest request){
     	if(identityCardImage != null) request.setIdentityCardImage(identityCardImage);
     	User user = userService.update(userId, request).getUser();
     	UserDTO userDTO = new UserDTO(user, user.getRoom());
