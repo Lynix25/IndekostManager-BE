@@ -12,6 +12,7 @@ import nl.martijndwars.webpush.PushService;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -36,6 +37,7 @@ public class NotificationService {
         pushService = new PushService(System.getenv("VAPID_PUBLIC_KEY"),System.getenv("VAPID_PRIVATE_KEY"));
     }
 
+    @Async
     public void notif(Notification message){
         try {
             System.out.println("Start Send Notify");
