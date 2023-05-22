@@ -103,7 +103,12 @@ public class Utils {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
         byte[] tmp = new byte[4*1024];
         try {
+            Long startTime = System.currentTimeMillis();
             while (!inflater.finished()) {
+                if(System.currentTimeMillis() - startTime > Constant.TIMEOUT){
+                    System.out.println("DecompressImage Process Failed");
+                    return null;
+                }
                 int count = inflater.inflate(tmp);
                 outputStream.write(tmp, 0, count);
             }

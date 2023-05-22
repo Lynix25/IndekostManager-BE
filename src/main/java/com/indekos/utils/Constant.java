@@ -39,4 +39,5 @@ public class Constant {
     public static String COMPLETED = "Selesai";
 
 	public static Long DAYS_IN_MILLIS = 86400000L;
+	public static Long TIMEOUT = 2 * 1000L;
 }
