@@ -11,6 +11,7 @@ import com.indekos.dto.response.NotificationResponse;
 import com.indekos.dto.request.SubscriptionClientRequest;
 import com.indekos.services.SubscriptionClientService;
 import com.indekos.services.UserService;
+import org.aspectj.weaver.ast.Not;
 import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,13 @@ public class NotificationController {
     public ResponseEntity<?> getAll(@PathVariable String userId){
         User user = userService.getById(userId).getUser();
         return GlobalAcceptions.listData(notificationService.getAllByUser(user), "Notifikasi");
+    }
+
+    @GetMapping("re-notify/{notificationId}")
+    public ResponseEntity<?> reNotify(@PathVariable String notificationId){
+        Notification notification = notificationService.getById(notificationId);
+        notificationService.notif(notification);
+        return GlobalAcceptions.emptyData("Berhasil Menotifikasi");
     }
 
     @PostMapping("subscribe")
