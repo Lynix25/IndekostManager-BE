@@ -2,6 +2,7 @@ package com.indekos.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.indekos.common.helper.exception.InvalidRequestException;
+import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.request.PaymentNotificationRequest;
 import com.indekos.model.Notification;
 import com.indekos.model.SubscriptionClient;
@@ -53,7 +54,7 @@ public class NotificationService {
         }
     }
     public List<Notification> getAllByUser(User user){
-        return notificationRepository.findAllByUser(user);
+        return notificationRepository.findAllByUserOrderByCreatedDateDesc(user);
     }
 
     public Notification getByUser(User user){
@@ -64,8 +65,15 @@ public class NotificationService {
         }
     }
 
+    public Notification getById(String id){
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new InvalidRequestIdException("Invalid Notification ID : " + id));
+
+        return notification;
+    }
+
     public Notification createFromMidtrans(PaymentNotificationRequest request, User user){
-        Notification notification = new Notification("Category", "Title", "Body", "/home.html", user);
+        Notification notification = new Notification("Category", "Title", "Body", "/home.html", false, user);
         notification.create("Midtrans");
         return notification;
     }

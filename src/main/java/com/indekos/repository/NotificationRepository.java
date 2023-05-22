@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, String> {
-    List<Notification> findAllByUser(User user);
+    List<Notification> findAllByUserOrderByCreatedDateDesc(User user);
 
     Optional<Notification> findByUser(User user);
 }

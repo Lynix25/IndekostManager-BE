@@ -120,17 +120,19 @@ public class TaskService {
         User user = userService.getById(request.getRequesterId()).getUser();
         task.setUser(user);
 
-        List<User> users = userService.getAllByRole(roleService.getByName("Admin"));
+        save(request.getRequesterId(), task);
 
+        List<User> users = userService.getAllByRole(roleService.getByName("Admin"));
+        users.addAll(userService.getAllByRole(roleService.getByName("Owner")));
         for(User u : users){
-            Notification notification = new Notification("Task Baru","Task baru telah di request","Tenant ......", "./task.html", u);
+            Notification notification = new Notification("Task Baru 3","Task baru telah di request","Tenant ......", "/taskdetail.html?id="+task.getId(), false, u);
             notification.create("System");
             notificationService.save(notification);
             notificationService.notif(notification);
         };
 
 //        task.setDueDate(System.currentTimeMillis() + (86400000 * service.getDueDate()));
-        return save(request.getRequesterId(), task);
+        return task;
     }
 
     public List<Task> getManyById(List<String> ids){

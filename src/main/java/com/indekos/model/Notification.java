@@ -19,7 +19,8 @@ public class Notification extends AuditableEntity {
     private String category;
     private String title;
     private String body;
-    public String redirect;
+    private String redirect;
+    private Boolean readed;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

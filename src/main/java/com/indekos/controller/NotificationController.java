@@ -58,12 +58,22 @@ public class NotificationController {
     public ResponseEntity<?> notify(@RequestParam String requesterId, @RequestBody NotificationCrateRequest request){
         User user = userService.getById(request.getTargetedUserId()).getUser();
 
-        Notification notification = new Notification(request.getCategory(), request.getTitle(), request.getMessage(), request.getRedirect(), user);
+        Notification notification = new Notification(request.getCategory(), request.getTitle(), request.getMessage(), request.getRedirect(), false,user);
         notification.create(requesterId);
         notificationService.save(notification);
 
         notificationService.notif(notification);
         return GlobalAcceptions.data(notification.getUser(),"Berhasil menotifikasi ke user");
+    }
+
+    @PutMapping("{notificationId}")
+    public ResponseEntity<?> readNotification(@PathVariable String notificationId, @RequestBody String requesterId){
+        Notification notification = notificationService.getById(notificationId);
+        notification.update(requesterId);
+        notification.setReaded(Boolean.TRUE);
+        notificationService.save(notification);
+
+        return GlobalAcceptions.data(notification, "Berhasil membaca notifikasi");
     }
 
     @DeleteMapping("unsubscribe/{userId}")
