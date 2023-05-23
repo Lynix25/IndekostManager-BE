@@ -1,13 +1,13 @@
 package com.indekos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.indekos.common.base.entity.AuditableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -15,27 +15,42 @@ import javax.persistence.Entity;
 @AllArgsConstructor @NoArgsConstructor
 public class Task extends AuditableEntity {
 	private static final long serialVersionUID = 1L;
-	
+
+    @ManyToOne
+    @JoinColumn(name="service_id", referencedColumnName = "id")
+    private Service service;
+
 	@Column(nullable = false)
     private Long taskDate;
     
-	@Column(nullable = false)
-    private String serviceId;
-    
 	private String summary;
-    
 	private String notes;
-    
 	private Long finishDate;
     /**
      * Status state
      *
-     * -1 rejected
-     * 0 submited
-     * 1 approved
-     * 2 on prosses
-     * 3 completed
+     * 1. REJECTED
+     * 2. SUBMITTED
+     * 3. ON PROCESS
+     * 4. COMPLETED
      */
     @Column(nullable = false)
-    private Integer status;
+    private String status;
+    
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer charge;
+    
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer requestedQuantity = 0;
+    
+    private Long dueDate;
+
+    @ManyToOne
+    @JoinColumn(name="user_id", referencedColumnName ="id")
+    private User user;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
+    private Transaction transaction;
 }

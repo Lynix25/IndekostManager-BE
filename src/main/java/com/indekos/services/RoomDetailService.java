@@ -7,9 +7,9 @@ import com.indekos.model.MasterRoomDetailCategory;
 import com.indekos.model.Room;
 import com.indekos.model.RoomDetail;
 import com.indekos.model.RoomPriceDetail;
-import com.indekos.controller.repository.MasterRoomDetailCategoryRepository;
-import com.indekos.controller.repository.RoomDetailRepository;
-import com.indekos.controller.repository.RoomPriceDetailRepository;
+import com.indekos.repository.MasterRoomDetailCategoryRepository;
+import com.indekos.repository.RoomDetailRepository;
+import com.indekos.repository.RoomPriceDetailRepository;
 import com.indekos.utils.Constant;
 
 import org.modelmapper.ModelMapper;
@@ -35,19 +35,6 @@ public class RoomDetailService {
     @Autowired
     RoomPriceDetailRepository roomPriceDetailRepository;
     
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    
-    /* ============================== ROOM CATEGORY DETAIL ============================== */
-    @PostConstruct
-    public void initializeMasterRoomDetailCategory() {
-    	jdbcTemplate.update("INSERT IGNORE INTO master_room_detail_category (name) VALUES ('" + Constant.KAMAR_TIDUR + "')");
-    	jdbcTemplate.update("INSERT IGNORE INTO master_room_detail_category (name) VALUES ('" + Constant.KAMAR_MANDI + "')");
-    	jdbcTemplate.update("INSERT IGNORE INTO master_room_detail_category (name) VALUES ('" + Constant.FURNITURE + "')");
-    	jdbcTemplate.update("INSERT IGNORE INTO master_room_detail_category (name) VALUES ('" + Constant.ALAT_ELEKTRONIK + "')");
-    	jdbcTemplate.update("INSERT IGNORE INTO master_room_detail_category (name) VALUES ('" + Constant.FASILITAS_KAMAR_LAINNYA + "')");
-    }
-    
     private MasterRoomDetailCategory getRoomDetailCategoryByName(String categoryName) {
     	return masterRoomDetailCategoryRepository.findByName(categoryName);
     }
@@ -59,8 +46,8 @@ public class RoomDetailService {
     /* ============================== ROOM DETAIL ============================== */
     void initializeDefaultRoomFacility(Room room) {
     	
-    	RoomDetail facility1 = new RoomDetail("Luas Ruangan", getRoomDetailCategoryByName(Constant.KAMAR_TIDUR), room);
-    	roomDetailRepository.save(facility1);
+//    	RoomDetail facility1 = new RoomDetail("Luas Ruangan", getRoomDetailCategoryByName(Constant.KAMAR_TIDUR), room);
+//    	roomDetailRepository.save(facility1);
     	
     	RoomDetail facility2 = new RoomDetail("Listrik", getRoomDetailCategoryByName(Constant.KAMAR_TIDUR), room);
     	roomDetailRepository.save(facility2);
@@ -135,7 +122,6 @@ public class RoomDetailService {
         RoomDetail newRoomDetail = new RoomDetail();
         newRoomDetail.setName(request.getName());
         newRoomDetail.setDescription(request.getDescription());
-        newRoomDetail.setEnable(request.isEnable());
         newRoomDetail.setMasterRoomDetailCategory(masterRoomDetailCategoryRepository.findByName(request.getCategory()));
         newRoomDetail.setRoom(room);
         return roomDetailRepository.save(newRoomDetail);
@@ -148,7 +134,6 @@ public class RoomDetailService {
         
         roomDetail.setName(request.getName());
         roomDetail.setDescription(request.getDescription());
-        roomDetail.setEnable(request.isEnable());
         roomDetail.setMasterRoomDetailCategory(masterRoomDetailCategoryRepository.findByName(request.getCategory()));
         return roomDetailRepository.save(roomDetail);
     }
@@ -161,6 +146,13 @@ public class RoomDetailService {
     	RoomDetail deleted = roomDetail;
     	roomDetailRepository.deleteById(roomDetailId);
     	return deleted;
+    }
+    
+    public void removeAllDetailByRoom(Room room) {
+    	List<RoomDetail> details = roomDetailRepository.findByRoom(room);
+    	details.forEach(detail -> {
+    		roomDetailRepository.delete(detail);
+    	});
     }
     
     /* ============================== ROOM PRICE DETAIL ============================== */
@@ -194,5 +186,12 @@ public class RoomDetailService {
     	RoomPriceDetail deleted = roomPriceDetail;
     	roomPriceDetailRepository.deleteById(roomPriceDetailId);
     	return deleted;
+    }
+    
+    public void removeAllPriceByRoom(Room room) {
+    	List<RoomPriceDetail> prices = roomPriceDetailRepository.findByRoom(room);
+    	prices.forEach(price -> {
+    		roomPriceDetailRepository.delete(price);
+    	});
     }
 }

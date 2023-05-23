@@ -2,9 +2,13 @@ package com.indekos.controller;
 
 import com.indekos.common.helper.GlobalAcceptions;
 import com.indekos.common.helper.exception.InsertDataErrorException;
+import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.dto.UserDTO;
 import com.indekos.dto.request.*;
+import com.indekos.model.Account;
+import com.indekos.model.RememberMeToken;
 import com.indekos.model.User;
+import com.indekos.services.RememberMeTokenService;
 import com.indekos.services.UserService;
 import com.indekos.utils.Validated;
 
@@ -15,6 +19,8 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 import javax.validation.Valid;
 
 @RestController
@@ -23,12 +29,23 @@ public class UserController {
 	
     @Autowired
 	private UserService userService;
+
+    @Autowired
+    private RememberMeTokenService rememberMeTokenService;
     
     /* ================================================ USER ACCOUNT ================================================ */
     @PostMapping("/login")
-    public ResponseEntity<?> login (@Valid @RequestBody AccountLoginRequest accountLoginRequest, Errors errors){
+    public ResponseEntity<?> login (@Valid @RequestBody AccountLoginRequest request, Errors errors){
         Validated.request(errors);
-        return GlobalAcceptions.loginAllowed(userService.login(accountLoginRequest), "Login berhasil");
+        Account account = userService.login(request);
+        if(account != null){
+            if(request.isRememberMe()){
+                RememberMeToken rememberMeToken = rememberMeTokenService.rememberAccount(account);
+                return GlobalAcceptions.loginAllowed(account, "Login berhasil dengan Remember Me", rememberMeToken);
+            }
+            return GlobalAcceptions.loginAllowed(account,"Login Berhasil", null);
+        }
+        throw new InvalidRequestException("Account Tidak Terdaftar");
     }
     
     @PutMapping("/changepassword")
@@ -45,7 +62,8 @@ public class UserController {
     
     @PutMapping("/logout")	// user = userId
     public ResponseEntity<?> logout (@Valid @RequestParam String user){
-       return GlobalAcceptions.data(userService.logout(user), "Logout berhasil");
+       Account account = userService.logout(user);
+       return GlobalAcceptions.logoutSuccess("Logout berhasil");
     }
     
     /* ==================================================== USER ==================================================== */
@@ -59,13 +77,13 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable String userId){
-        User user = userService.getById(userId);
+        User user = userService.getById(userId).getUser();
         UserDTO userDTO = new UserDTO(user, user.getRoom());
     	return GlobalAcceptions.data(userDTO, "User Data");
     }
     
     @PostMapping
-    public ResponseEntity<?> registerUser(@Valid @RequestParam MultipartFile identityCardImage, @Valid @ModelAttribute UserRegisterRequest request, Errors errors) throws FileSizeLimitExceededException {
+    public ResponseEntity<?> registerUser(@Valid @RequestParam MultipartFile identityCardImage, @Valid @ModelAttribute UserRegisterRequest request, Errors errors) throws IOException {
     	Validated.request(errors);
     	if(identityCardImage == null) throw new InsertDataErrorException("Mohon unggah foto KTP Anda");
     	request.setIdentityCardImage(identityCardImage);
@@ -73,7 +91,7 @@ public class UserController {
     }
     
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(@PathVariable String userId, @ModelAttribute MultipartFile identityCardImage, @ModelAttribute UserRegisterRequest request) throws FileSizeLimitExceededException {
+    public ResponseEntity<?> updateUser(@PathVariable String userId, @ModelAttribute MultipartFile identityCardImage, @ModelAttribute UserRegisterRequest request){
     	if(identityCardImage != null) request.setIdentityCardImage(identityCardImage);
     	User user = userService.update(userId, request).getUser();
     	UserDTO userDTO = new UserDTO(user, user.getRoom());
@@ -81,8 +99,8 @@ public class UserController {
     }
     
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable String userId, @Valid @RequestBody AuditableRequest request) {
-        return GlobalAcceptions.data(userService.delete(userId, request), "Berhasil menghapus data user");
+    public ResponseEntity<?> deleteUser(@PathVariable String userId, @RequestParam String requester) {
+        return GlobalAcceptions.data(userService.delete(userId, requester), "Berhasil menghapus data user");
     }
     
     /* ================================================ USER DOCUMENT =============================================== */

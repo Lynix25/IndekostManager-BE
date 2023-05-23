@@ -10,4 +10,6 @@ public class RoomCreateRequest extends AuditableRequest {
 	private Integer quota;
 	private String allotment;
 	private String description;
+	
+	private Integer price;
 }

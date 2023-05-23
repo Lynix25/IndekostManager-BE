@@ -8,7 +8,7 @@ import com.indekos.dto.request.AccountForgotPasswordRequest;
 import com.indekos.dto.request.AccountLoginRequest;
 import com.indekos.model.Account;
 import com.indekos.model.User;
-import com.indekos.controller.repository.AccountRepository;
+import com.indekos.repository.AccountRepository;
 import com.indekos.utils.Utils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +40,9 @@ public class AccountService {
     
     public Account getByUsername(String username){
     	Account account = accountRepository.findByUsername(username);
+    	if(account == null) 
+    		throw new InvalidUserCredentialException("User tidak terdaftar");
+    	
     	return account;
     }
     
@@ -59,7 +62,6 @@ public class AccountService {
            mapper.map(src -> {return user;}, Account::setUser);
         });
         Account account = modelMapper.map(user, Account.class);
-        save(account);
         return account;
     }
 

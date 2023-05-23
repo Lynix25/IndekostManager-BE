@@ -33,7 +33,7 @@ public class UserRegisterRequest extends AuditableRequest{
     private String description;
 
 //    @NotBlank(message = "user role id is required")
-    private String roleId;
+    private String role;
 
     private String roomId;
 

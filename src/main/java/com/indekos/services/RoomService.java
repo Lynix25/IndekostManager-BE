@@ -7,19 +7,20 @@ import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.request.RoomCreateRequest;
 import com.indekos.dto.request.RoomDetailsCreateRequest;
 import com.indekos.dto.request.RoomPriceCreateRequest;
+import com.indekos.dto.request.RoomUpdateRequest;
 import com.indekos.dto.response.AvailableRoomResponse;
 import com.indekos.dto.response.RoomDTO;
-import com.indekos.model.MasterRoomDetailCategory;
-import com.indekos.model.Room;
-import com.indekos.model.RoomDetail;
-import com.indekos.model.RoomPriceDetail;
-import com.indekos.controller.repository.RoomRepository;
+import com.indekos.model.*;
+import com.indekos.repository.RoomRepository;
+import com.indekos.utils.Constant;
+
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -48,15 +49,36 @@ public class RoomService {
 //		return null;
 //	}
 	
-	public List<Room> getAll() {
+	public List<RoomDTO> getAll() {
 		List<Room> rooms = roomRepository.findAllByOrderByNameAsc();
-		return rooms;
+		List<RoomDTO> results = new ArrayList<>();
+		
+		rooms.forEach(room -> {
+			results.add(getRoomDetail(room));
+		});
+		
+		return results;
+	}
+
+	public List<Room> getAll2(){
+		return roomRepository.findAllByOrderByNameAsc();
+	}
+	
+	public Room getByName(String roomName) {
+		return roomRepository.findByName(roomName);
 	}
 
 	public RoomDTO getById(String roomId){
 		Room targetRoom = roomRepository.findById(roomId)
 				.orElseThrow(() -> new InvalidRequestIdException("Invalid Room ID"));
 		return getRoomDetail(targetRoom);
+	}
+
+	public Room getByIdCheckEligible(String roomId){
+		Room room = getById(roomId).getRoom();
+		if(!isShared(room)) throw new InvalidRequestException("Kamar Tidak Tersedia Untuk Sharing");
+		if(isRoomFullyBooked(roomId)) throw new InvalidRequestException("Kamar Sudah Penuh");
+		return room;
 	}
 	
 	public List<AvailableRoomResponse> getAllAvailable(String keyword) {
@@ -89,6 +111,14 @@ public class RoomService {
 				targetRoom.setDeleted(false);
 				modelMapper.map(request, targetRoom);
 				save(targetRoom);
+				
+				RoomPriceCreateRequest priceAdded = new RoomPriceCreateRequest();
+				priceAdded.setRequesterId(null);
+				priceAdded.setPrice(request.getPrice());
+				priceAdded.setCapacity(1);
+				
+				roomDetailService.addRoomPrice(targetRoom, priceAdded);
+				roomDetailService.initializeDefaultRoomFacility(targetRoom);
 				return getRoomDetail(targetRoom);
 			} else throw new DataAlreadyExistException();
 		}
@@ -98,16 +128,23 @@ public class RoomService {
 			});
 			Room room = modelMapper.map(request, Room.class);
 			save(room);
+			
+			RoomPriceCreateRequest priceAdded = new RoomPriceCreateRequest();
+			priceAdded.setRequesterId(null);
+			priceAdded.setPrice(request.getPrice());
+			priceAdded.setCapacity(1);
+			
+			roomDetailService.addRoomPrice(room, priceAdded);
 			roomDetailService.initializeDefaultRoomFacility(room);
 			return getRoomDetail(room);
 		}
 	}
 
-	public RoomDTO update(String roomId, RoomCreateRequest request) {
+	public RoomDTO update(String roomId, RoomUpdateRequest request) {
 		Room room = getById(roomId).getRoom();
 		modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-		modelMapper.typeMap(RoomCreateRequest.class, Room.class).addMappings(mapper -> {
-			mapper.map(RoomCreateRequest::getRequesterId, Room::update);
+		modelMapper.typeMap(RoomUpdateRequest.class, Room.class).addMappings(mapper -> {
+			mapper.map(RoomUpdateRequest::getRequesterId, Room::update);
 		});
 
 		if(roomRepository.findByNameAndIdNot(request.getName(), roomId) != null) throw new DataAlreadyExistException();
@@ -157,10 +194,12 @@ public class RoomService {
 		Room data = getById(roomId).getRoom();
 		if(roomRepository.countCurrentTenantsOfRoom(roomId) == 0) {
 			data.setDeleted(true);
+			roomDetailService.removeAllDetailByRoom(data);
+			roomDetailService.removeAllPriceByRoom(data);
 			data.update(requesterIdUser);
 			roomRepository.save(data);
 			return getRoomDetail(data);
-		} else throw new InternalServerErrorException("This room is still rented by the tenant!");
+		} else throw new InternalServerErrorException("Masih ada penyewa di kamar ini!");
 	}
 	
 	public RoomDetail removeRoomDetail(Long roomDetailId, String requesterIdUser, String roomId) {
@@ -184,7 +223,7 @@ public class RoomService {
 			roomRepository.save(room);
 		} catch (DataIntegrityViolationException e){
 			System.out.println(e);
-			throw new InvalidRequestException("Duplicate Data");
+			throw new InvalidRequestException("Sudah ada kamar dengan nama tersebut");
 		} catch (Exception e){
 			System.out.println(e);
 		}
@@ -192,13 +231,19 @@ public class RoomService {
 	
 	public RoomDTO getRoomDetail(Room room) {
 		RoomDTO roomDTO = new RoomDTO();
-		int tenants = roomRepository.countCurrentTenantsOfRoom(room.getId());
 		
 		roomDTO.setRoom(room);
-		roomDTO.setTotalTenants(tenants);
-		if(tenants > 0 && roomRepository.checkIfRoomIsShared(room.getId()) == 0) roomDTO.setStatus("Disewa pribadi");
-		else if(room.getQuota() - tenants == 0) roomDTO.setStatus("Penuh");
-		else roomDTO.setStatus("Tersedia");
+		roomDTO.setTotalTenants(room.getUsers().size());
+		if(roomDTO.getRoom().getAllotment().equalsIgnoreCase(Constant.PASUTRI) && roomDTO.getTotalTenants() > 0) {
+			roomDTO.setStatus("Disewa Pasutri");
+		} else {			
+			if(roomDTO.getTotalTenants() > 0 && roomRepository.checkIfRoomIsShared(room.getId()) == 0) roomDTO.setStatus("Disewa Pribadi");
+			else if(room.getQuota() - roomDTO.getTotalTenants() == 0) roomDTO.setStatus("Penuh");
+			else {
+				if(roomDTO.getTotalTenants() == 0) roomDTO.setStatus("Kosong");
+				else roomDTO.setStatus("Tersedia");
+			}
+		}
 		
 		return roomDTO;
 	}
@@ -206,6 +251,14 @@ public class RoomService {
 	public boolean isRoomShared(String roomId) {
 		return roomRepository.checkIfRoomIsShared(roomId) > 0 ? true : false;
     }
+
+	public boolean isShared(Room room){
+		for(User user : room.getUsers()){
+			if(!user.getSetting().getShareRoom()) return false;
+		}
+
+		return true;
+	}
 	
 	public boolean isRoomFullyBooked(String roomId) {
 		Room room = getById(roomId).getRoom();

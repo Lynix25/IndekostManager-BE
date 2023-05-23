@@ -1,11 +1,15 @@
 package com.indekos.dto.request;
 
+import lombok.Data;
 import lombok.Getter;
 
 import javax.validation.constraints.NotNull;
 
-@Getter
+@Data
 public class TaskUpdateRequest extends AuditableRequest {
     @NotNull(message = "status cannot be empty")
-    private Integer status;
+    private String status;
+    private String notes;
+    private Integer additionalCharge;
+    private Integer requestedQuantity;
 }

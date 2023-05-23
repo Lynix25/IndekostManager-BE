@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.indekos.common.helper.exception.ResourceNotFoundException;
 import com.indekos.model.MainBoardingHouse;
-import com.indekos.controller.repository.BoardingHouseRepository;
+import com.indekos.repository.BoardingHouseRepository;
 import com.indekos.utils.Constant;
 
 @Service

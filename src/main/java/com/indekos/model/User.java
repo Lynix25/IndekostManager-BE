@@ -71,9 +71,12 @@ public class User extends AuditableEntity {
 	@JoinColumn(name="room_id", referencedColumnName = "id")
 	private Room room;
 
-	@JsonIgnore
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
 	private Account account;
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private List<Notification> notifications;
 
 	public void delete(){
 		this.isDeleted = true;

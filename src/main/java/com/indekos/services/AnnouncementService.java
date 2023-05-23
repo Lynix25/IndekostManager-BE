@@ -3,6 +3,8 @@ package com.indekos.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.Conditions;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +13,14 @@ import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.common.helper.exception.ResourceNotFoundException;
 import com.indekos.dto.request.AnnouncementRequest;
 import com.indekos.model.Announcement;
-import com.indekos.controller.repository.AnnouncementRepository;
+import com.indekos.repository.AnnouncementRepository;
 import com.indekos.utils.Utils;
 
 @Service
 public class AnnouncementService {
+	
+	@Autowired
+    ModelMapper modelMapper;
 	
 	@Autowired
 	private AnnouncementRepository announcementRepository;
@@ -38,7 +43,8 @@ public class AnnouncementService {
 	}
 	
 	public Announcement create(AnnouncementRequest request) {
-		if(announcementRepository.findByTitle(request.getTitle()) != null) throw new DataAlreadyExistException();
+		if(announcementRepository.findByTitle(request.getTitle()) != null) 
+			throw new DataAlreadyExistException("Sudah ada pengumuman dengan judul ini. Mohon ganti judul!");
 		else {
 			Announcement newData = new Announcement();
 			newData.setTitle(request.getTitle());
@@ -54,19 +60,25 @@ public class AnnouncementService {
 	}
 
 	public Announcement update(String announcementId, AnnouncementRequest request) {
-		Announcement data = announcementRepository.findById(announcementId)
+		Announcement announcement = announcementRepository.findById(announcementId)
 				.orElseThrow(() -> new InvalidRequestIdException("Invalid Announcement ID"));
 	
-		if(announcementRepository.findByTitleAndIdNot(request.getTitle(), announcementId) != null) throw new DataAlreadyExistException();
+		if(announcementRepository.findByTitleAndIdNot(request.getTitle(), announcementId) != null) 
+			throw new DataAlreadyExistException("Sudah ada pengumuman dengan judul ini. Mohon ganti judul!");
 		else {
-			data.setTitle(request.getTitle());
-			data.setDescription(request.getDescription());
-			data.setPeriod(request.getPeriod());
-			data.setImage(Utils.compressImage(request.getImage()));
-			data.update(request.getRequesterId());
+			modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+	        modelMapper.typeMap(AnnouncementRequest.class, Announcement.class).addMappings(mapper -> {
+	           mapper.map(src -> src.getRequesterId(), Announcement::update);
+	        });
+	        
+	        modelMapper.map(request, announcement);
+	        if(request.getImage() != null) 
+	        	announcement.setImage(Utils.compressImage(request.getImage()));
 			
-			final Announcement updatedData = announcementRepository.save(data);
-			return updatedData;
+	        Announcement updatedAnnouncement = announcementRepository.save(announcement);
+	        updatedAnnouncement.setImage(Utils.decompressImage(announcement.getImage()));
+	        
+			return updatedAnnouncement;
 		}
 	}
 

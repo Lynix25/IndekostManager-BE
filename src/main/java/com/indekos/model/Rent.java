@@ -1,5 +1,6 @@
 package com.indekos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.indekos.common.base.entity.AuditableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,11 +17,20 @@ public class Rent extends AuditableEntity {
 	private static final long serialVersionUID = 1L;
     private Integer price;
     private String month;
-    private Long dueDate;
+    private Long dueDate; //In Millis
     private Integer status;
-    private String roomId;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="room_id", referencedColumnName ="id")
+    private Room room;
 
-//    @ManyToOne(targetEntity = Transaction.class, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
-//    private Transaction transaction;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="user_id", referencedColumnName = "id")
+    private User user;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
+    private Transaction transaction;
 }
