@@ -10,10 +10,7 @@ import com.indekos.dto.request.RoomPriceCreateRequest;
 import com.indekos.dto.request.RoomUpdateRequest;
 import com.indekos.dto.response.AvailableRoomResponse;
 import com.indekos.dto.response.RoomDTO;
-import com.indekos.model.MasterRoomDetailCategory;
-import com.indekos.model.Room;
-import com.indekos.model.RoomDetail;
-import com.indekos.model.RoomPriceDetail;
+import com.indekos.model.*;
 import com.indekos.repository.RoomRepository;
 import com.indekos.utils.Constant;
 
@@ -75,6 +72,13 @@ public class RoomService {
 		Room targetRoom = roomRepository.findById(roomId)
 				.orElseThrow(() -> new InvalidRequestIdException("Invalid Room ID"));
 		return getRoomDetail(targetRoom);
+	}
+
+	public Room getByIdCheckEligible(String roomId){
+		Room room = getById(roomId).getRoom();
+		if(!isShared(room)) throw new InvalidRequestException("Kamar Tidak Tersedia Untuk Sharing");
+		if(isRoomFullyBooked(roomId)) throw new InvalidRequestException("Kamar Sudah Penuh");
+		return room;
 	}
 	
 	public List<AvailableRoomResponse> getAllAvailable(String keyword) {
@@ -227,17 +231,16 @@ public class RoomService {
 	
 	public RoomDTO getRoomDetail(Room room) {
 		RoomDTO roomDTO = new RoomDTO();
-		int tenants = roomRepository.countCurrentTenantsOfRoom(room.getId());
 		
 		roomDTO.setRoom(room);
-		roomDTO.setTotalTenants(tenants);
-		if(roomDTO.getRoom().getAllotment().equalsIgnoreCase(Constant.PASUTRI) && tenants > 0) {			
+		roomDTO.setTotalTenants(room.getUsers().size());
+		if(roomDTO.getRoom().getAllotment().equalsIgnoreCase(Constant.PASUTRI) && roomDTO.getTotalTenants() > 0) {
 			roomDTO.setStatus("Disewa Pasutri");
 		} else {			
-			if(tenants > 0 && roomRepository.checkIfRoomIsShared(room.getId()) == 0) roomDTO.setStatus("Disewa Pribadi");
-			else if(room.getQuota() - tenants == 0) roomDTO.setStatus("Penuh");
+			if(roomDTO.getTotalTenants() > 0 && roomRepository.checkIfRoomIsShared(room.getId()) == 0) roomDTO.setStatus("Disewa Pribadi");
+			else if(room.getQuota() - roomDTO.getTotalTenants() == 0) roomDTO.setStatus("Penuh");
 			else {
-				if(tenants == 0) roomDTO.setStatus("Kosong");
+				if(roomDTO.getTotalTenants() == 0) roomDTO.setStatus("Kosong");
 				else roomDTO.setStatus("Tersedia");
 			}
 		}
@@ -248,6 +251,14 @@ public class RoomService {
 	public boolean isRoomShared(String roomId) {
 		return roomRepository.checkIfRoomIsShared(roomId) > 0 ? true : false;
     }
+
+	public boolean isShared(Room room){
+		for(User user : room.getUsers()){
+			if(!user.getSetting().getShareRoom()) return false;
+		}
+
+		return true;
+	}
 	
 	public boolean isRoomFullyBooked(String roomId) {
 		Room room = getById(roomId).getRoom();

@@ -13,7 +13,7 @@ public class InitializeDataService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @PostConstruct
+//    @PostConstruct
 	public void initializeData() {
         System.out.println("=========== Start Insert Data ===========");
         /* ============================== MASTER ROLE ============================== */

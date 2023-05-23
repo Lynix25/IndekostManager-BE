@@ -52,6 +52,7 @@ public class TaskService {
     public List<TaskDTO> getAll(String requestor, String type) {
     	List<Task> tasks;
     	if(type.equalsIgnoreCase("ToDo")) tasks = taskRepository.findAllOrderByTarget(requestor);
+        else if(type.equalsIgnoreCase("all")) tasks = taskRepository.findAllByRequestor(requestor);
     	else tasks = taskRepository.findActiveTaskByRequestor(requestor);
 
     	List<TaskDTO> taskDTOS = new ArrayList<>();

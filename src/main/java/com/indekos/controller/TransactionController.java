@@ -46,8 +46,14 @@ public class TransactionController {
 
     @GetMapping
     public ResponseEntity<?> getAllTransaction(@RequestParam String requestor){
-        User user = userService.getById(requestor).getUser();
-        List<Transaction> transactions = transactionService.getAllByUser(user);
+        List<Transaction> transactions;
+        if(requestor == ""){
+            transactions = transactionService.getAll();
+        }
+        else {
+            User user = userService.getById(requestor).getUser();
+            transactions = transactionService.getAllByUser(user);
+        }
         List<TransactionDetailsDTO> transactionDetailsDTOS = new ArrayList<>();
 
         for(Transaction transaction: transactions){

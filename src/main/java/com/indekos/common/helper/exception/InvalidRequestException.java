@@ -15,14 +15,17 @@ public class InvalidRequestException extends RuntimeException{
 	
     private final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
     private final List<String> errors;
+    private final String message;
 
     public InvalidRequestException (String message){
         super(message);
+        this.message = message;
         this.errors = new ArrayList<>();
     }
 
     public InvalidRequestException (String message, List<String> errors){
         super(message);
+        this.message = message;
         this.errors = errors;
     }
 }

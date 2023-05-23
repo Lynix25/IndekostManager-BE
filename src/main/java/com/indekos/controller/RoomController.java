@@ -29,7 +29,7 @@ public class RoomController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<?> getAllRoom() throws InterruptedException {
+	public ResponseEntity<?> getAllRoom(){
 		return GlobalAcceptions.listData(roomService.getAll(), "All Room Data");
 	}
 

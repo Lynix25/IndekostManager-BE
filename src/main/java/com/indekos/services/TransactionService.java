@@ -52,6 +52,11 @@ public class TransactionService {
         return transactions;
     }
 
+    public List<Transaction> getAll(){
+        List<Transaction> transactions = transactionRepository.findAll();
+        return transactions;
+    }
+
     public Transaction getByPaymentId(String paymentId){
         try {
         return transactionRepository.findByPaymentId(paymentId).get();
@@ -80,9 +85,9 @@ public class TransactionService {
         transaction.create(request.getRequesterId());
         transaction.setPenaltyFee(0L);
         transaction.setUser(user);
-        transaction.setPaymentId(Utils.UUID4());
-        String transactionToken = SnapAPI.createTransaction(transaction.getPaymentId(), getTotalPayment(transaction));
-        transaction.setToken(transactionToken);
+//        transaction.setPaymentId(Utils.UUID4());
+//        String transactionToken = SnapAPI.createTransaction(transaction.getPaymentId(), getTotalPayment(transaction));
+//        transaction.setToken(transactionToken);
 
         save(request.getRequesterId(),transaction);
         return transaction;

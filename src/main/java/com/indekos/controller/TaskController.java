@@ -43,6 +43,9 @@ public class TaskController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> edit(@PathVariable String id,@RequestBody TaskUpdateRequest taskUpdateRequest){
-        return GlobalAcceptions.data(taskService.update(id,taskUpdateRequest), "Berhasil memperbaharui pengajuan layanan");
+        Task task = taskService.update(id,taskUpdateRequest);
+
+        TaskDTO taskDTO = new TaskDTO(task, task.getUser().getRoom());
+        return GlobalAcceptions.data(taskDTO, "Berhasil memperbaharui pengajuan layanan");
     }
 }

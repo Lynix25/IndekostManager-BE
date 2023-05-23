@@ -35,7 +35,7 @@ public class UserRegisterRequest extends AuditableRequest{
 //    @NotBlank(message = "user role id is required")
     private String role;
 
-    private String room;
+    private String roomId;
 
     private MultipartFile identityCardImage;
 }

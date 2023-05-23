@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -162,6 +161,7 @@ public class UserService {
         user.setSetting(new UserSetting(user));
         user.setRole(roleService.getByName(request.getRole()));
         user.setAccount(accountService.register(user));
+		user.setRoom(roomService.getByIdCheckEligible(request.getRoomId()));
 //        if (request.getRoom() == null || ((request.getRoom()).trim()).equals("")) {
 //    		if((user.getRole().getName()).equalsIgnoreCase("Tenant"))
 //    			throw new InsertDataErrorException("User room id can't be empty");
@@ -197,7 +197,9 @@ public class UserService {
         
         if(request.getRole() != null)
         	user.setRole(roleService.getByName(request.getRole()));
-        
+
+		if(request.getRoomId() != null)
+		user.setRoom(roomService.getByIdCheckEligible(request.getRoomId()));
 //        if (request.getRoom() == null || ((request.getRoom()).trim()).equals("")) {
 //    		if((user.getRole().getName()).equalsIgnoreCase("Tenant"))
 //    			throw new InsertDataErrorException("User room id can't be empty");
