@@ -1,9 +1,6 @@
 package com.indekos.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.indekos.common.helper.SnapAPI;
-import com.indekos.common.helper.exception.InvalidRequestException;
 import com.indekos.common.helper.exception.InvalidRequestIdException;
 import com.indekos.dto.TransactionDetailsDTO;
 import com.indekos.dto.request.TransactionCreateRequest;
@@ -53,9 +50,11 @@ public class TransactionService {
     }
 
     public List<Transaction> getAll(){
-        List<Transaction> transactions = transactionRepository.findAll();
+        List<Transaction> transactions = transactionRepository.findAllOrderByCreatedDateDesc();
         return transactions;
     }
+
+
 
     public Transaction getByPaymentId(String paymentId){
         try {
@@ -85,9 +84,9 @@ public class TransactionService {
         transaction.create(request.getRequesterId());
         transaction.setPenaltyFee(0L);
         transaction.setUser(user);
-//        transaction.setPaymentId(Utils.UUID4());
-//        String transactionToken = SnapAPI.createTransaction(transaction.getPaymentId(), getTotalPayment(transaction));
-//        transaction.setToken(transactionToken);
+        transaction.setPaymentId(Utils.UUID4());
+        String transactionToken = SnapAPI.createTransaction(transaction.getPaymentId(), getTotalPayment(transaction));
+        transaction.setToken(transactionToken);
 
         save(request.getRequesterId(),transaction);
         return transaction;

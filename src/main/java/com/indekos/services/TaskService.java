@@ -102,7 +102,21 @@ public class TaskService {
 
         modelMapper.map(TaskUpdateRequest.class, task);
         task.setStatus(request.getStatus());
+        task.setNotes(request.getNotes());
         task.setCharge(task.getRequestedQuantity() * task.getService().getPrice());
+
+        System.out.println(request.getStatus());
+        if(request.getStatus().compareToIgnoreCase("Dalam Pengerjaan") == 0){
+            Notification notification = new Notification("Info", "Task telah diterima", "Yay, task kamu akan dilaksakan ...", "/taskdetail.html?id="+id, false,task.getUser());
+            notification.create(request.getRequesterId());
+            notificationService.save(notification);
+            notificationService.notif(notification);
+        } else if (request.getStatus().compareToIgnoreCase("Selesai") == 0) {
+            Notification notification = new Notification("Info", "Task telah selesai", "Permintaan layanan kamu sudah selesai, ...", "/taskdetail.html?id="+id, false,task.getUser());
+            notification.create(request.getRequesterId());
+            notificationService.save(notification);
+            notificationService.notif(notification);
+        }
         return save(request.getRequesterId(), task);
     }
 
