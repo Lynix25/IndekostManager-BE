@@ -37,7 +37,7 @@ public class RentService {
         for(Room room : rooms){
             List<User> users = userService.getAllByRoom(room);
             for(User user : users){
-                Rent rent = new Rent(roomService.getPriceDetailsByRoom(room.getId()).get(users.size()-1).getPrice(),"Jan", System.currentTimeMillis() + (86400000 * mainBoardingHouse.getToleranceOverduePaymentInDays()), 0, room, user,null);
+                Rent rent = new Rent(roomService.getPriceDetailsByRoom(room.getId()).get(users.size()-1).getPrice(),"Month", System.currentTimeMillis() + (86400000 * mainBoardingHouse.getToleranceOverduePaymentInDays()), 0, room, user,null);
                 rent.create("System");
                 save(rent);
             }
